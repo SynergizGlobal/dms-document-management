@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contractor Management Form</title>
+    <link rel="stylesheet" href="filters_form.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="project-info">
+                <img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
+                MRVC
+            </div>
+            <h1>Document Management System</h1>
+            <div class="demo-badge">DEMO</div>
+        </header>
+
+        <nav class="navigation">
+            <div class="nav-item">Home</div>
+            <div class="nav-item" onclick="location.href='correspondance.html'">Correspondence</div>
+            <div class="nav-item">Drawings</div>
+            <div class="nav-item" onclick="location.href='document.html'">Documents</div>
+            <div class="nav-item" onclick="location.href='folders.html'">Folders</div>
+            <div class="nav-item active" onclick="location.href='filters_form.html'">Filter Form</div>
+        </nav>
+
+        <div class="main-content">
+            <!-- Department Section -->
+            <div class="section">
+                <div class="section-header">
+                    Department
+                </div>
+                <div class="section-controls">
+                    <button class="add-btn" onclick="openModal('specializationModal')">
+                        ➕ Add Department
+                    </button>
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search" id="specializationSearch">
+                        <button class="search-clear" onclick="clearSearch('specializationSearch')">✕</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0, 'specialization')">Department</th>
+                                <th></th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="specializationTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="specializationPagination">
+                    Showing 1 to 5 of 5 entries
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="section">
+                <div class="section-header">
+                    Status
+                </div>
+                <div class="section-controls">
+                    <button class="add-btn" onclick="openModal('contractModal')">
+                        ➕ Add Status
+                    </button>
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search" id="contractSearch">
+                        <button class="search-clear" onclick="clearSearch('contractSearch')">✕</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contractTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="contractPagination">
+                    Showing 1 to 4 of 4 entries
+                </div>
+            </div>
+
+            <!-- Folder Section -->
+            <div class="section">
+                <div class="section-header">
+                    Folders
+                </div>
+                <div class="section-controls">
+                    <button class="add-btn" onclick="openModal('folderModal')">
+                        ➕ Add Folder
+                    </button>
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search" id="folderSearch">
+                        <button class="search-clear1" onclick="clearSearch('folderSearch')">✕</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0, 'folder')">Folder</th>
+                                <th>Sub-folders</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="folderTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="folderPagination">
+                    Showing entries
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Department -->
+    <div id="specializationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="specializationModalTitle">Add Department</h3>
+                <span class="close" onclick="closeModal('specializationModal')">&times;</span>
+            </div>
+            <form id="specializationForm">
+                <div class="form-group">
+                    <label for="specializationName">Department Name:</label>
+                    <input type="text" id="specializationName" name="specializationName" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('specializationModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Status -->
+    <div id="contractModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="contractModalTitle">Add Status</h3>
+                <span class="close" onclick="closeModal('contractModal')">&times;</span>
+            </div>
+            <form id="contractForm">
+                <div class="form-group">
+                    <label for="contractTypeName">Status Name:</label>
+                    <input type="text" id="contractTypeName" name="contractTypeName" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('contractModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Folder Delete -->
+    <div id="folderDeleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete Folder</h3>
+                <span class="close" onclick="closeModal('folderDeleteModal')">&times;</span>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <p><strong>Folder:</strong> <span id="deleteFolderName"></span></p>
+                <div id="deleteSubfoldersList" style="margin-top: 15px;">
+                    <!-- Sub-folders list with individual delete options will be displayed here -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('folderDeleteModal')">Cancel</button>
+                <button type="button" class="btn btn-primary delete-btn" onclick="deleteEntireFolder()" style="background: #dc3545;">Delete Entire Folder</button>
+            </div>
+        </div>
+    </div>
+    <div id="folderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="folderModalTitle">Add Folder</h3>
+                <span class="close" onclick="closeModal('folderModal')">&times;</span>
+            </div>
+            <form id="folderForm">
+                <div class="form-group">
+                    <label for="folderName">Folder Name:</label>
+                    <input type="text" id="folderName" name="folderName" required>
+                </div>
+                <div class="form-group">
+                    <label>Sub-folders:</label>
+                    <div class="subfolder-input-container">
+                        <input type="text" id="subfolderInput" class="subfolder-input" placeholder="Enter sub-folder name">
+                        <button type="button" class="add-subfolder-btn" onclick="addSubfolder()">Add</button>
+                    </div>
+                    <div id="subfolderList" class="subfolder-list">
+                        <!-- Sub-folders will be displayed here -->
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('folderModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="filters_form.js"></script>
+</body>
+
+</html>

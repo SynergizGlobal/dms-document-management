@@ -1,0 +1,956 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: verdana;
+    background-color: #f5f5f5;
+    padding: 20px;
+    font-size: 11px !important;
+}
+
+.container {
+    background: white;
+    border: 1px solid #ccc;
+    margin: -17px;
+}
+
+.header {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3d6f 100%);
+    color: white;
+    padding: 9px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.header .project-info {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header .project-info .logo {
+    height: 36px;
+    width: auto;
+}
+
+.demo-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.demo-badge::before {
+    content: "👤";
+}
+
+.navigation {
+    background: #dbdbdb;
+    padding: 12px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.nav-item {
+    padding: 7px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    background-color: #2c5aa0;
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+.nav-item:hover {
+    background-color: #1e3d6f;
+    transform: translateY(-2px);
+}
+
+.nav-item.active {
+    background-color: #333;
+    color: white;
+}
+
+.main-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 1400px;
+    margin-top: 11px;
+}
+
+.section {
+    /* flex: 1; */
+    min-width: 400px;
+    background: white;
+    border-radius: 0px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #333;
+    margin-bottom: 20px;
+}
+
+.section {
+    flex: 0 0 calc(50% - 10px);  /* Fixed width: exactly 50% minus gap */
+}
+
+/* .section.full-width {
+    flex: 1 1 100%;
+} */
+
+.section-header {
+    background: #2d8a73;
+    color: white;
+    padding: 9px 17px;
+    font-weight: 500;
+    font-size: 13px;
+    text-align: center;
+}
+
+.section-controls {
+    padding: 20px;
+    background: #f9f9f9;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.add-btn {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 4px 5px;
+    border-radius: 0px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-btn:hover {
+    background: #138496;
+}
+
+.search-box {
+    position: relative;
+    width: 100%;
+}
+
+.search-input {
+    width: 44%;
+    padding: 4px 40px 6px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 10px;
+}
+
+.search-clear {
+    position: absolute;
+    right: 329px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 10px;
+    cursor: pointer;
+    color: #666;
+}
+
+.search-clear1 {
+    position: absolute;
+    right: 693px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 10px;
+    cursor: pointer;
+    color: #666;
+}
+
+.table-container {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px !important;
+}
+
+.data-table thead {
+    background: #2d8a73;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table th {
+    font-weight: 600;
+    font-size: 11px;
+    cursor: pointer;
+    position: relative;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.data-table tbody tr:hover {
+    background-color: #e8f4f1;
+}
+
+.count {
+    color: #666;
+    font-size: 13px;
+}
+
+.action-btn {
+    background: #2d8a73;
+    color: white;
+    border: none;
+    padding: 1px 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.action-btn:hover {
+    background: #138496;
+}
+
+.delete-btn {
+    background: #17a2b8;
+}
+
+.delete-btn:hover {
+    background: #17a2b8;
+}
+
+.pagination {
+    padding: 15px 20px;
+    font-size: 9px;
+    color: #666;
+    border-top: 1px solid #e0e0e0;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.subfolder-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.subfolder-tag {
+    background: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.subfolder-input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.subfolder-input {
+    flex: 1;
+}
+
+.add-subfolder-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.add-subfolder-btn:hover {
+    background: #218838;
+}
+
+.remove-subfolder-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    margin-left: 5px;
+}
+
+.remove-subfolder-btn:hover {
+    background: #c82333;
+}
+
+.subfolder-delete-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    margin: 5px 0;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.subfolder-delete-item span {
+    flex-grow: 1;
+}
+
+.subfolder-delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    margin-left: 10px;
+}
+
+.subfolder-delete-btn:hover {
+    background: #c82333;
+}
+
+/* Force action buttons to stay in one row across all screen sizes */
+.data-table .action-btn {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    float: none !important;
+}
+
+.data-table td:last-child {
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+
+/* @media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+} */
+
+
+/* Mobile Responsive CSS - Add these styles to your existing CSS */
+
+/* Tablet and small desktop adjustments */
+@media (max-width: 1024px) {
+    .container {
+        margin: -10px;
+    }
+    
+    .header {
+        padding: 8px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .header h1 {
+        font-size: 18px;
+    }
+    
+    .header .project-info {
+        font-size: 14px;
+    }
+    
+    .navigation {
+        padding: 8px;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .nav-item {
+        padding: 6px 15px;
+        font-size: 12px;
+    }
+    
+    .section {
+        flex: 1 1 100%;
+        min-width: unset;
+    }
+}
+
+/* Mobile Large (Landscape phones, 768px and down) */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        font-size: 12px !important;
+    }
+    
+    .container {
+        margin: -8px;
+    }
+    
+    .header {
+        padding: 10px;
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .header h1 {
+        font-size: 16px;
+        order: 2;
+    }
+    
+    .header .project-info {
+        order: 1;
+        font-size: 14px;
+    }
+    
+    .demo-badge {
+        order: 3;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .navigation {
+        padding: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .nav-item {
+        padding: 8px 12px;
+        font-size: 11px;
+        flex: 1;
+        text-align: center;
+        min-width: 80px;
+    }
+    
+    .main-content {
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .section {
+        flex: 1 1 100%;
+        min-width: unset;
+        width: 100%;
+        border: 2px solid #333;
+        margin-bottom: 15px;
+    }
+    
+    .section-controls {
+        padding: 15px;
+    }
+    
+    .search-box {
+        margin-bottom: 10px;
+    }
+    
+    .search-input {
+        width: 70%;
+        padding: 8px 35px 8px 12px;
+        font-size: 12px;
+    }
+    
+    .search-clear,
+    .search-clear1 {
+        right: 30%;
+        font-size: 12px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 8px 10px;
+        font-size: 10px;
+    }
+    
+    .table-container {
+        max-height: 400px;
+    }
+    
+    .action-btn {
+        padding: 4px 6px;
+        font-size: 10px;
+        margin: 2px;
+        display: inline-block;
+        white-space: nowrap;
+        width: 36px;
+        height: 24px !important;
+    }
+    
+    /* Keep action buttons in one row */
+    .data-table td {
+        white-space: nowrap;
+    }
+    
+    .modal-content {
+        width: 90%;
+        margin: 10% auto;
+        padding: 15px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 12px;
+    }
+}
+
+/* Mobile Medium (Most phones, 480px and down) */
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+        font-size: 11px !important;
+    }
+    
+    .container {
+        margin: -5px;
+    }
+    
+    .header {
+        padding: 8px;
+    }
+    
+    .header h1 {
+        font-size: 14px;
+    }
+    
+    .header .project-info {
+        font-size: 12px;
+    }
+    
+    .header .project-info .logo {
+        height: 28px;
+    }
+    
+    .demo-badge {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+    
+    .navigation {
+        padding: 5px;
+    }
+    
+    .nav-item {
+        padding: 6px 8px;
+        font-size: 10px;
+        min-width: 60px;
+    }
+    
+    .section-header {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+    
+    .section-controls {
+        padding: 10px;
+    }
+    
+    .add-btn {
+        padding: 6px 8px;
+        font-size: 10px;
+        margin-bottom: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .search-input {
+        width: 75%;
+        padding: 6px 30px 6px 10px;
+        font-size: 11px;
+    }
+    
+    .search-clear,
+    .search-clear1 {
+        right: 25%;
+        font-size: 10px;
+    }
+    
+    .data-table {
+        font-size: 9px !important;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 6px 8px;
+        font-size: 9px;
+    }
+    
+    .table-container {
+        max-height: 300px;
+    }
+    
+    .count {
+        font-size: 10px;
+    }
+    
+    .pagination {
+        padding: 10px;
+        font-size: 8px;
+    }
+    
+    .action-btn {
+        padding: 2px 4px;
+        font-size: 8px;
+        margin: 1px;
+        display: inline-block;
+        white-space: nowrap;
+    }
+    
+    /* Ensure action buttons stay in one row */
+    .data-table td {
+        white-space: nowrap;
+        min-width: 100px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 5% auto;
+        padding: 10px;
+    }
+    
+    .modal-header {
+        margin-bottom: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 12px;
+    }
+    
+    .form-group label {
+        font-size: 12px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 6px;
+        font-size: 11px;
+    }
+    
+    .subfolder-tag {
+        font-size: 9px;
+        padding: 1px 6px;
+    }
+    
+    .subfolder-input-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .add-subfolder-btn {
+        padding: 8px;
+        font-size: 11px;
+        width: 100%;
+    }
+    
+    .subfolder-delete-item {
+        padding: 6px 8px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .subfolder-delete-btn {
+        align-self: flex-end;
+        margin-left: 0;
+    }
+}
+
+/* Mobile Small (320px and down) */
+@media (max-width: 320px) {
+    body {
+        padding: 2px;
+        font-size: 10px !important;
+    }
+    
+    .container {
+        margin: -2px;
+    }
+    
+    .header {
+        padding: 5px;
+    }
+    
+    .header h1 {
+        font-size: 12px;
+    }
+    
+    .header .project-info {
+        font-size: 10px;
+    }
+    
+    .header .project-info .logo {
+        height: 24px;
+    }
+    
+    .demo-badge {
+        padding: 3px 6px;
+        font-size: 9px;
+    }
+    
+    .nav-item {
+        padding: 4px 6px;
+        font-size: 9px;
+        min-width: 50px;
+    }
+    
+    .section-header {
+        padding: 6px 8px;
+        font-size: 10px;
+    }
+    
+    .section-controls {
+        padding: 8px;
+    }
+    
+    .search-input {
+        width: 80%;
+        padding: 5px 25px 5px 8px;
+        font-size: 10px;
+    }
+    
+    .search-clear,
+    .search-clear1 {
+        right: 20%;
+        font-size: 9px;
+    }
+    
+    .data-table {
+        font-size: 8px !important;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 4px 6px;
+        font-size: 8px;
+    }
+    
+    .table-container {
+        max-height: 250px;
+    }
+    
+    .action-btn {
+        padding: 1px 2px;
+        font-size: 7px;
+        margin: 0.5px;
+        display: inline-block;
+        white-space: nowrap;
+    }
+    
+    /* Keep buttons in horizontal layout */
+    .data-table td {
+        white-space: nowrap;
+        min-width: 80px;
+    }
+    
+    .modal-content {
+        width: 98%;
+        margin: 2% auto;
+        padding: 8px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 5px;
+        font-size: 10px;
+    }
+    
+    .btn {
+        padding: 10px;
+        font-size: 11px;
+    }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .header {
+        flex-direction: row;
+        padding: 5px 10px;
+    }
+    
+    .header h1 {
+        order: 1;
+        font-size: 14px;
+    }
+    
+    .header .project-info {
+        order: 2;
+    }
+    
+    .demo-badge {
+        order: 3;
+    }
+    
+    .table-container {
+        max-height: 200px;
+    }
+    
+    .modal-content {
+        width: 80%;
+        margin: 5% auto;
+    }
+}
+
+/* High DPI displays adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .data-table th,
+    .data-table td {
+        border-width: 0.5px;
+    }
+    
+    .action-btn {
+        border-radius: 2px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (pointer: coarse) {
+    .nav-item,
+    .action-btn,
+    .add-btn {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .data-table th,
+    .data-table td {
+        min-height: 40px;
+    }
+    
+    .search-clear,
+    .search-clear1 {
+        min-width: 30px;
+        min-height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

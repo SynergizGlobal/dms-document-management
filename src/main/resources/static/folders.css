@@ -1,0 +1,999 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Verdana;
+    background-color: #f5f5f5;
+    font-size: 11px;
+}
+
+.header {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3d6f 100%);
+    color: white;
+    padding: 9px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* .header .project-info {
+    font-size: 18px;
+    font-weight: 500;
+} */
+
+.header .project-info {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* space between logo and text */
+}
+
+.header .project-info .logo {
+    height: 36px; /* adjust size as needed */
+    width: auto;
+}
+
+
+.demo-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.demo-badge::before {
+    content: "👤";
+}
+
+.navigation {
+    background: #dbdbdb;
+    padding: 12px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: flex-end;    /* ← Add this line */
+    margin-top: 10px;    /* Add this line */
+}
+
+.nav-item {
+    padding: 7px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    background-color: #2c5aa0;
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+.nav-item:hover {
+    background-color: #1e3d6f;
+    transform: translateY(-2px);
+}
+
+.nav-item.active {
+    background-color: #333;
+    color: white;
+}
+
+.main-content {
+    padding: 0px 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.breadcrumb-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.breadcrumb {
+    font-size: 16px;
+    color: #6c757d;
+}
+
+.breadcrumb .breadcrumb-link {
+    color: #2c5aa0;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.breadcrumb .breadcrumb-link:hover {
+    text-decoration: underline;
+}
+
+.goto-search-btn {
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.goto-search-btn:hover {
+    background: #1e3d6f;
+    transform: translateY(-2px);
+}
+
+.folders-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.drawings-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;            /* ← Changed from 15px to 8px */
+    margin-top: 10px;
+}
+
+.folder-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e9ecef;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.folder-card1 {
+     background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e9ecef;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.folder-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #2c5aa0;
+}
+
+.folder-icon {
+    width: 80px;
+    height: 60px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.folder-base {
+    width: 100%;
+    height: 45px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.folder-tab {
+    width: 35px;
+    height: 15px;
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+    border-radius: 6px 6px 0 0;
+    position: absolute;
+    top: -10px;
+    left: 8px;
+}
+
+.folder-papers {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 2px;
+}
+
+.paper {
+    width: 12px;
+    height: 15px;
+    border-radius: 2px;
+}
+
+.paper-1 {
+    background: linear-gradient(135deg, #87ceeb 0%, #add8e6 100%);
+}
+
+.paper-2 {
+    background: linear-gradient(135deg, #98fb98 0%, #90ee90 100%);
+}
+
+.paper-3 {
+    background: linear-gradient(135deg, #ffa07a 0%, #ff7f50 100%);
+}
+
+.folder-label {
+    position: absolute;
+    bottom: 5px;
+    left: 8px;
+    right: 8px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+}
+
+.folder-title {
+    font-size: 14px;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.folder-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.drawings-view {
+    display: none;
+}
+
+.search-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin: 20px 0;
+    width: 300px;
+    font-size: 14px;
+}
+
+.footer {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3d6f 100%);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.footer-logo {
+    background: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #2c5aa0;
+    font-size: 16px;
+}
+
+.footer-text {
+    color: white;
+    font-size: 14px;
+}
+
+.footer-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-logo-right {
+    height: 30px;
+}
+
+/* =========================
+   MOBILE RESPONSIVE CSS
+   ========================= */
+
+/* Extra Small Mobile Devices (320px - 479px) */
+@media screen and (max-width: 479px) {
+    body {
+        font-size: 10px;
+    }
+
+    .header {
+        padding: 8px;
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+
+    .header h1 {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .header .project-info {
+        font-size: 14px;
+        font-weight: 500;
+        gap: 6px;
+    }
+
+    .header .project-info .logo {
+        height: 28px;
+    }
+
+    .demo-badge {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 15px;
+    }
+
+    .navigation {
+        padding: 8px;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 8px;
+    }
+
+    .nav-item {
+        padding: 6px 12px;
+        font-size: 11px;
+        border-radius: 6px;
+        min-width: 70px;
+        text-align: center;
+    }
+
+    .main-content {
+        padding: 0 10px;
+    }
+
+    .breadcrumb-container {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+        margin: 15px 0;
+    }
+
+    .breadcrumb {
+        font-size: 14px;
+        word-break: break-word;
+    }
+
+    .goto-search-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .folders-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .drawings-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        margin-top: 15px;
+    }
+
+    .folder-card,
+    .folder-card1 {
+        padding: 12px;
+        border-radius: 8px;
+        aspect-ratio: 0.9;
+    }
+
+    .folder-icon {
+        width: 60px;
+        height: 45px;
+        margin-bottom: 10px;
+    }
+
+    .folder-base {
+        height: 35px;
+        border-radius: 6px;
+    }
+
+    .folder-tab {
+        width: 25px;
+        height: 12px;
+        top: -8px;
+        left: 6px;
+        border-radius: 4px 4px 0 0;
+    }
+
+    .folder-papers {
+        top: 6px;
+        right: 6px;
+        gap: 1px;
+    }
+
+    .paper {
+        width: 8px;
+        height: 10px;
+    }
+
+    .folder-title {
+        font-size: 12px;
+        margin-bottom: 3px;
+        line-height: 1.2;
+    }
+
+    .folder-subtitle {
+        font-size: 11px;
+        line-height: 1.2;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px;
+        font-size: 12px;
+        margin: 15px 0;
+    }
+
+    .footer {
+        padding: 10px 15px;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .footer-left {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .footer-logo {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .footer-text {
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .footer-right {
+        justify-content: center;
+    }
+
+    .footer-logo-right {
+        height: 25px;
+    }
+}
+
+/* Small Mobile Devices (480px - 767px) */
+@media screen and (min-width: 480px) and (max-width: 767px) {
+    body {
+        font-size: 11px;
+    }
+
+    .header {
+        padding: 10px;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .header h1 {
+        font-size: 18px;
+    }
+
+    .header .project-info {
+        font-size: 15px;
+        gap: 8px;
+    }
+
+    .header .project-info .logo {
+        height: 32px;
+    }
+
+    .demo-badge {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .navigation {
+        padding: 10px;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .nav-item {
+        padding: 8px 16px;
+        font-size: 12px;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    .main-content {
+        padding: 0 15px;
+    }
+
+    .breadcrumb-container {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+        margin: 18px 0;
+    }
+
+    .breadcrumb {
+        font-size: 15px;
+    }
+
+    .goto-search-btn {
+        padding: 10px 18px;
+        font-size: 13px;
+        width: 100%;
+    }
+
+    .folders-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    .drawings-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .folder-card,
+    .folder-card1 {
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .folder-icon {
+        width: 70px;
+        height: 52px;
+        margin-bottom: 12px;
+    }
+
+    .folder-base {
+        height: 40px;
+        border-radius: 7px;
+    }
+
+    .folder-tab {
+        width: 30px;
+        height: 13px;
+        top: -9px;
+        left: 7px;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .folder-papers {
+        top: 7px;
+        right: 7px;
+        gap: 1.5px;
+    }
+
+    .paper {
+        width: 10px;
+        height: 12px;
+    }
+
+    .folder-title {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .folder-subtitle {
+        font-size: 12px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px;
+        font-size: 13px;
+        margin: 18px 0;
+    }
+
+    .footer {
+        padding: 12px 20px;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 40px;
+    }
+
+    .footer-left {
+        gap: 12px;
+        text-align: center;
+    }
+
+    .footer-logo {
+        font-size: 15px;
+        padding: 7px 14px;
+    }
+
+    .footer-text {
+        font-size: 13px;
+    }
+
+    .footer-logo-right {
+        height: 28px;
+    }
+}
+
+/* Medium Mobile/Small Tablet (768px - 991px) */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+    .header {
+        padding: 12px;
+        flex-direction: row;
+    }
+
+    .header h1 {
+        font-size: 19px;
+    }
+
+    .header .project-info {
+        font-size: 16px;
+    }
+
+    .header .project-info .logo {
+        height: 34px;
+    }
+
+    .navigation {
+        padding: 12px;
+        gap: 12px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .nav-item {
+        padding: 8px 18px;
+        font-size: 13px;
+    }
+
+    .main-content {
+        padding: 0 20px;
+    }
+
+    .breadcrumb-container {
+        margin: 20px 0;
+    }
+
+    .breadcrumb {
+        font-size: 16px;
+    }
+
+    .goto-search-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .folders-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
+
+    .drawings-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .folder-card,
+    .folder-card1 {
+        padding: 18px;
+    }
+
+    .folder-icon {
+        width: 75px;
+        height: 56px;
+        margin-bottom: 14px;
+    }
+
+    .folder-base {
+        height: 42px;
+    }
+
+    .folder-tab {
+        width: 32px;
+        height: 14px;
+        top: -9px;
+    }
+
+    .folder-title {
+        font-size: 14px;
+    }
+
+    .folder-subtitle {
+        font-size: 13px;
+    }
+
+    .search-input {
+        width: 350px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .footer {
+        padding: 15px 25px;
+        flex-direction: row;
+        margin-top: 45px;
+    }
+
+    .footer-left {
+        flex-direction: row;
+    }
+
+    .footer-logo-right {
+        height: 30px;
+    }
+}
+
+/* Large Tablet/Small Desktop (992px - 1199px) */
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+    .folders-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+    }
+
+    .drawings-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+    }
+
+    .folder-card,
+    .folder-card1 {
+        padding: 20px;
+    }
+
+    .search-input {
+        width: 400px;
+    }
+}
+
+/* Mobile Landscape Orientation */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+    .header {
+        padding: 8px 15px;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .header h1 {
+        font-size: 16px;
+    }
+
+    .header .project-info {
+        font-size: 14px;
+    }
+
+    .header .project-info .logo {
+        height: 28px;
+    }
+
+    .demo-badge {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .navigation {
+        padding: 8px 15px;
+        overflow-x: auto;
+        white-space: nowrap;
+        gap: 8px;
+        justify-content: flex-start;
+    }
+
+    .nav-item {
+        padding: 6px 14px;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+
+    .main-content {
+        padding: 0 15px;
+    }
+
+    .breadcrumb-container {
+        margin: 10px 0;
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .goto-search-btn {
+        width: auto;
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .folders-grid,
+    .drawings-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .folder-card,
+    .folder-card1 {
+        padding: 10px;
+        aspect-ratio: 1.1;
+    }
+
+    .folder-icon {
+        width: 50px;
+        height: 38px;
+        margin-bottom: 8px;
+    }
+
+    .folder-base {
+        height: 30px;
+        border-radius: 5px;
+    }
+
+    .folder-tab {
+        width: 20px;
+        height: 10px;
+        top: -6px;
+        left: 5px;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .folder-papers {
+        top: 5px;
+        right: 5px;
+    }
+
+    .paper {
+        width: 6px;
+        height: 8px;
+    }
+
+    .folder-title {
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+
+    .folder-subtitle {
+        font-size: 10px;
+    }
+
+    .footer {
+        padding: 8px 15px;
+        margin-top: 20px;
+    }
+
+    .footer-text {
+        font-size: 11px;
+    }
+
+    .footer-logo {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+
+    .footer-logo-right {
+        height: 22px;
+    }
+}
+
+/* Touch and Interaction Improvements for Mobile */
+@media (max-width: 991px) {
+    .folder-card,
+    .folder-card1 {
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(44, 90, 160, 0.2);
+        touch-action: manipulation;
+    }
+
+    .folder-card:active,
+    .folder-card1:active {
+        transform: translateY(-2px) scale(0.98);
+        transition: all 0.1s ease;
+    }
+
+    .nav-item {
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+        touch-action: manipulation;
+        user-select: none;
+    }
+
+    .nav-item:active {
+        transform: translateY(-1px) scale(0.95);
+        transition: all 0.1s ease;
+    }
+
+    .goto-search-btn {
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+        touch-action: manipulation;
+        user-select: none;
+    }
+
+    .goto-search-btn:active {
+        transform: translateY(-1px) scale(0.95);
+        transition: all 0.1s ease;
+    }
+
+    /* Improve text readability on mobile */
+    .folder-title,
+    .folder-subtitle {
+        word-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.3;
+    }
+
+    /* Ensure proper spacing for touch targets */
+    .breadcrumb-link {
+        padding: 5px;
+        margin: -5px;
+    }
+}
+
+/* High DPI/Retina Display Adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .folder-base,
+    .folder-tab,
+    .paper {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Dark Mode Support for Mobile */
+@media (prefers-color-scheme: dark) and (max-width: 991px) {
+    body {
+        background-color: #1a1a1a;
+        color: #ffffff;
+    }
+
+    .folder-card,
+    .folder-card1 {
+        background: #2d2d2d;
+        border-color: #404040;
+        color: #ffffff;
+    }
+
+    .folder-card:hover,
+    .folder-card1:hover {
+        border-color: #4a90e2;
+        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+    }
+
+    .search-input {
+        background: #2d2d2d;
+        border-color: #404040;
+        color: #ffffff;
+    }
+
+    .navigation {
+        background: #2d2d2d;
+    }
+}

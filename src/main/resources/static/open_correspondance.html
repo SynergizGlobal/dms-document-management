@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMIS Document</title>
+    <link rel="stylesheet" href="open_correspondance.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <span>SynTrack DMS</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 24px; height: 24px; background-color: #4a90e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
+                    M
+                </div>
+                <span>Mansi</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-header expanded">Project</div>
+                    <div class="sidebar-header" data-target="contract.html">Contract</div>
+                    <div class="sidebar-item" data-target="document.html">Documents</div>
+                    <div class="sidebar-item" data-target="correspondance.html">Correspondence</div>
+                    <div class="sidebar-item" data-target="folders.html">Folders</div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-header expanded" data-target="for_review.html" style="cursor: pointer;">
+                        <span style="flex: 1;">For Review</span>
+                        <span class="badge">10</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-header expanded" data-target="for_approval.html" style="cursor: pointer;">
+                        <span style="flex: 1;">For Approval</span>
+                        <span class="badge">6</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-header expanded active" data-target="open_correspondance.html" style="cursor: pointer;">
+                        <span style="flex: 1;">Open Correspondence</span>
+                        <span class="badge">2</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+               
+                <div class="table-container" id="mainTableContainer">
+                    <table class="document-table" id="mainTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Letter No.</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Subject</th>
+                                <th>Required Response</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Department</th>
+                                <th>Attachment</th>
+                            </tr>
+
+                            <!-- ADD THIS FILTER ROW IMMEDIATELY AFTER THE HEADER ROW -->
+                            <!-- <tr class="filter-row">
+                                <th><input type="text" class="column-filter" placeholder="Search.."></th>
+                                <th><input type="text" class="column-filter" placeholder="Search Category"></th>
+                                <th><input type="text" class="column-filter" placeholder="Search Letter No."></th>
+                                <th><input type="text" class="column-filter" placeholder="Search From"></th>
+                                <th><input type="text" class="column-filter" placeholder="Search To"></th>
+                                <th><input type="text" class="column-filter" placeholder="Search Subject"></th>
+                                <th><input type="text" class="column-filter" placeholder="Search Response"></th>
+                                <th><input type="text" class="column-filter" placeholder="Search Date"></th>
+                                <th><input type="text" class="column-filter" placeholder="Search Status"></th>
+                                <th><input type="text" class="column-filter" placeholder="Search Department"></th>
+                                <th><input type="text" class="column-filter" placeholder="Search"></th>
+                            </tr> -->
+
+                            <!-- Enhanced Filter Row with Multi-Select Dropdowns -->
+                            <tr class="filter-row">
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="0" placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="0"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="1"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="1"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="2"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="2"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="3"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="3"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="4"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="4"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="5"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="5"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="6"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="6"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="7"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="7"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="8"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="8"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="9"
+                                            placeholder="Search" readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="9"></div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="filter-container">
+                                        <input type="text" class="column-filter" data-column="10" placeholder="Search"
+                                            readonly>
+                                        <span class="filter-dropdown-toggle">▼</span>
+                                        <div class="filter-dropdown" data-column="10"></div>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="documentTableBody">
+                            <!-- Empty rows that will be filled when letters are uploaded -->
+                            <tr>
+                                <td><span class="file-type-label file-type-pdf"></span></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value="Mansi"></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value="Open"></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                            </tr>
+
+
+                            <tr>
+                                <td><span class="file-type-label file-type-pdf"></span></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value="Open"></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                                <td><input type="text" class="editable-input" value=""></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="open_correspondance.js"></script>
+</body>
+
+</html>

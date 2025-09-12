@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letter Details</title>
+  <style>
+	body {
+	  font-family: Arial, sans-serif;
+	  background: linear-gradient(to bottom right, #66b2ff, #99ccff); /* Light blue gradient */
+	  margin: 0;
+	  padding: 30px;
+	  color: #333;
+	}
+
+	.container {
+	  max-width: 900px;
+	  margin: auto;
+	  background: #f0f4f9;
+	  border-radius: 15px;
+	  box-shadow: 0px 8px 25px rgba(0,0,0,0.25);
+	  padding: 35px;
+	}
+
+
+
+    h2 {
+      text-align: center;
+      background: #004080;
+      color: #fff;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      font-size: 22px;
+      letter-spacing: 0.5px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 250px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #004080;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0,123,255,0.4);
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .reference-letters-list,
+    .see-attachments-section {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 12px;
+      background: #f8f9fa;
+    }
+
+    .reference-letters-list ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .reference-letters-list a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .reference-letters-list a:hover {
+      text-decoration: underline;
+    }
+
+    .button-row {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .button-row button {
+      margin: 8px;
+      padding: 12px 26px;
+      border: none;
+      border-radius: 30px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .btn-attach { background: #28a745; }
+    .btn-attach:hover { background: #218838; }
+
+    .btn-reply { background: #007bff; }
+    .btn-reply:hover { background: #0056b3; }
+
+    .btn-cancel { background: #6c757d; }
+    .btn-cancel:hover { background: #5a6268; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Letter Details - 12342</h2>
+
+    <form id="letterDetailsForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detailCategory">Category:</label>
+          <select id="detailCategory" name="category">
+            <option value="">Select Category</option>
+            <option value="Contract">Contract</option>
+            <option value="Technical" selected>Technical</option>
+            <option value="Commercial">Commercial</option>
+            <option value="Legal">Legal</option>
+            <option value="Administrative">Administrative</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detailLetterNo">Letter No.:</label>
+          <input type="text" id="detailLetterNo" value="12342" readonly>
+        </div>
+        <div class="form-group">
+          <label for="detailLetterDate">Letter Date:</label>
+          <input type="date" id="detailLetterDate" value="2025-09-11">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detailFromField">Sender:</label>
+          <input type="text" id="detailFromField">
+        </div>
+        <div class="form-group">
+          <label for="detailToField">Copied To:</label>
+          <input type="text" id="detailToField" value="aman">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detailCcField">Cc:</label>
+          <input type="text" id="detailCcField">
+        </div>
+        <div class="form-group">
+          <label for="detailDepartment">Department:</label>
+          <input type="text" id="detailDepartment">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Reference Letters:</label>
+          <div class="reference-letters-list">
+            <ol>
+              <li><a href="#">MRVC-MVR-009</a></li>
+              <li><a href="#">MRVC-MVR-008</a></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detailSubject">Subject:</label>
+          <textarea id="detailSubject"></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detailKeyInformation">Key Information:</label>
+          <textarea id="detailKeyInformation">sd</textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detailRequiredResponse">Required Response:</label>
+          <select id="detailRequiredResponse">
+            <option value="">Select Response Type</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+            <option value="For Information">For Information</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="detailDueDate">Due Date:</label>
+          <input type="date" id="detailDueDate">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detailStatus">Current Status:</label>
+          <select id="detailStatus">
+            <option value="Sent" selected>Sent</option>
+            <option value="Draft">Draft</option>
+            <option value="Review">Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>See Attachments:</label>
+          <div class="see-attachments-section">
+            No attachments
+          </div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button type="button" class="btn-attach">Attach</button>
+        <button type="button" class="btn-reply">Reply</button>
+        <button type="button" class="btn-cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>
