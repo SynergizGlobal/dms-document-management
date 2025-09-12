@@ -8,6 +8,6 @@ import com.synergizglobal.dms.entity.dms.ReferenceLetter;
 
 public interface ReferenceLetterRepository extends JpaRepository<ReferenceLetter, Long> {
 
-	List<ReferenceLetter> findByLetterNumberContainingIgnoreCase(String query);
+	List<ReferenceLetter> findDistinctByLetterNumberContainingIgnoreCase(String query);
 	
 }

@@ -1,13 +1,11 @@
 package com.synergizglobal.dms.entity.dms;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -68,10 +66,10 @@ public class Document {
 
    
 	  @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval =
-	  true, fetch = FetchType.EAGER) private List<DocumentFile> documentFiles;
+	  true, fetch = FetchType.EAGER) 
+	  private List<DocumentFile> documentFiles;
 	  
-	  //@OneToMany(mappedBy = "document_revision", cascade = CascadeType.ALL, orphanRemoval =
-	  //true) private List<DocumentRevision> documentRevision = new ArrayList<>();
+	  
 	  
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

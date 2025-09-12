@@ -7,9 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
-import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewProjection;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 
@@ -21,6 +19,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     @Query(value = """
         select group_concat(distinct cf.file_type SEPARATOR '/') as fileType,
                c.correspondence_id  as correspondenceId,
+               c.letter_number as letterNumber,
                c.category,
                c.recipient,
                c.subject,
@@ -36,18 +35,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         group by c.correspondence_id
         """, nativeQuery = true)
     List<CorrespondenceLetterProjection> findLetters(@Param("action") String action);
-    
-    
-//    @Query("SELECT new com.synergizglobal.dms.dto.CorrespondenceLetterViewDto(
-//            c.category, c.letterName, c.letterDate, c.to,
-//            c.ccRecipient, c.department, 
-//            c.subject, c.keyInformation, c.requiredResponse, 
-//            c.dueDate, c.currentStatus
-//         )
-//         FROM CorrespondenceLetter c
-//         WHERE c.correspondenceId = :id")
-//CorrespondenceLetterViewDto findCorrespondenceById(@Param("id") Long id);
-    
+      
     @Query(value = """
     	    SELECT 
     	        c.category,

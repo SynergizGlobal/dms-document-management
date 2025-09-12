@@ -1,8 +1,11 @@
 package com.synergizglobal.dms.service.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -16,6 +19,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
 
 @Service
+@Slf4j
 public class EmailServiceImpl {
 
     JavaMailSender javaMailSender;
@@ -26,32 +30,33 @@ public class EmailServiceImpl {
 
     }
 
-//    @Async
+    @Async
     public void sendCorrespondenceEmail(CorrespondenceLetter letter, List<MultipartFile> attachments)
             throws IOException, MessagingException {
 
+        // Subject and body content
         String subject = "New Correspondence Notification - Related to Contract from (Your Organisation)";
-
-
         String body = "Category: " + letter.getCategory() + "\n" +
-                "Letter Number: " + letter.getLetterName() + "\n" +
-                "From:" + "Project Team" + "\n" +
+                "Letter Number: " + letter.getLetterNumber() + "\n" +
+                "From: Project Team" + "\n" +
                 "Subject: " + letter.getSubject() + "\n" +
-                "Due Date:" + letter.getLetterDate() + "\n" +
+                "Due Date: " + letter.getLetterDate() + "\n" +
                 "Status: " + letter.getCurrentStatus();
 
-
+        // Create the MimeMessage
         MimeMessage message = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);  // 'true' for multipart (attachments)
 
         // Set main recipient
         helper.setTo(letter.getTo());
 
         // Handle CC if available
         if (letter.getCcRecipient() != null && !letter.getCcRecipient().isEmpty()) {
-            helper.setCc(letter.getCcRecipient().toArray(new String[0]));
+            String[] ccArray = letter.getCcRecipient().split(",");
+            helper.setCc(ccArray);
         }
 
+        // Set subject and body text
         helper.setSubject(subject);
         helper.setText(body);
 
@@ -59,20 +64,41 @@ public class EmailServiceImpl {
         if (attachments != null && !attachments.isEmpty()) {
             for (MultipartFile file : attachments) {
                 if (!file.isEmpty()) {
-                    // Ensure file content is read into memory before the async execution
-                    byte[] fileBytes = file.getBytes();  // Read file bytes once and store them
+                    // Log file details for debugging
                     String fileName = file.getOriginalFilename();
+                    long fileSize = file.getSize();
                     String contentType = file.getContentType();
+                    log.info("Attaching file: " + fileName + " | Size: " + fileSize + " | Content-Type: " + contentType);
 
-                    // Use ByteArrayDataSource to wrap the file bytes and content type
-                    ByteArrayDataSource dataSource = new ByteArrayDataSource(fileBytes, contentType);
-                    helper.addAttachment(fileName, dataSource);  // Attach file to email
+                    // Handle smaller files with FileSystemResource
+                    if (fileSize < 10 * 1024 * 1024) {
+                        File tempFile = File.createTempFile("attachment", file.getOriginalFilename());
+                        file.transferTo(tempFile);
+                        FileSystemResource fileResource = new FileSystemResource(tempFile);
+                        helper.addAttachment(fileName, fileResource);
+                    } else {
+                        // For large files, use ByteArrayDataSource (store in memory)
+                        byte[] fileBytes = file.getBytes();
+                        ByteArrayDataSource dataSource = new ByteArrayDataSource(fileBytes, contentType);
+                        helper.addAttachment(fileName, dataSource);
+                    }
+
+                    log.info("Attachment added: " + fileName);
+                } else {
+                    log.warn("Skipped empty file: " + file.getOriginalFilename());
                 }
             }
+        } else {
+            log.info("No attachments found for this email.");
         }
 
         // Send the email asynchronously
-        javaMailSender.send(message);
+        try {
+            javaMailSender.send(message);
+            log.info("Email sent successfully to " + letter.getTo());
+        } catch (Exception e) {
+            log.error("Error while sending email", e);
+            throw e;  // rethrow or handle accordingly
+        }
     }
-
 }

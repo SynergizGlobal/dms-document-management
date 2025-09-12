@@ -17,4 +17,6 @@ public interface ICorrespondenceService {
     public List<String> findReferenceLetters(String query);
     
     public CorrespondenceLetterViewDto getCorrespondenceWithFiles(Long id);
+
+    List<CorrespondenceLetter> getFiltered(CorrespondenceLetter letter);
 }

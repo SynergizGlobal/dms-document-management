@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public interface CorrespondenceLetterProjection {
 	Long   getCorrespondenceId();
+	String getLetterNumber();
     String getFileType();
     String getCategory();
     String getRecipient();

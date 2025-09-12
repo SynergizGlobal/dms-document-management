@@ -10,6 +10,7 @@ import com.synergizglobal.dms.entity.dms.SubFolder;
 
 @Repository
 public interface SubFolderRepository extends JpaRepository<SubFolder, Long> {
+	
 	List<SubFolder> findByFolderId(Long folderId);
 
 	Optional<SubFolder> findByName(String subFolder);
