@@ -2,15 +2,18 @@ package com.synergizglobal.dms.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.common.CommonUtil;
-import com.synergizglobal.dms.dto.DepartmentDTO;
+import com.synergizglobal.dms.constant.Constant;
 import com.synergizglobal.dms.dto.DocumentDTO;
+import com.synergizglobal.dms.dto.MetaDataDto;
 import com.synergizglobal.dms.entity.dms.Department;
 import com.synergizglobal.dms.entity.dms.Document;
 import com.synergizglobal.dms.entity.dms.DocumentFile;
@@ -35,10 +39,7 @@ import com.synergizglobal.dms.repository.dms.DocumentRevisionRepository;
 import com.synergizglobal.dms.repository.dms.FolderRepository;
 import com.synergizglobal.dms.repository.dms.StatusRepository;
 import com.synergizglobal.dms.repository.dms.SubFolderRepository;
-import com.synergizglobal.dms.service.dms.DepartmentService;
 import com.synergizglobal.dms.service.dms.DocumentService;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
@@ -56,6 +57,8 @@ public class DocumentServiceImpl implements DocumentService {
 	private StatusRepository statusRepository;
 	@Autowired
 	private DocumentFileRepository documentFileRepository;
+	@Autowired
+	private DocumentService documentService;
 
 	@Value("${file.upload-dir}")
 	private String basePath;
@@ -69,37 +72,38 @@ public class DocumentServiceImpl implements DocumentService {
 		Status status = statusRepository.findByName(documentDto.getCurrentStatus()).get();
 
 		Optional<Document> documentInDBOptional = documentRepository.findByFileName(documentDto.getFileName());
-		//1. If file name is same but file number is different
+		// 1. If file name is same but file number is different
 		if (documentInDBOptional.isPresent()) {
 			Document document = documentInDBOptional.get();
 			if (!document.getFileNumber().equals(documentDto.getFileNumber())) {
 				return DocumentDTO.builder().fileName(document.getFileName()).fileNumber(document.getFileNumber())
 						.revisionNo(document.getRevisionNo()).revisionDate(document.getRevisionDate())
 						.folder(folder.getName()).subFolder(subFolder.getName()).department(department.getName())
-						.currentStatus(status.getName())
-						.errorMessage("File name already exists with File number: " + document.getFileNumber() + ". Change the File name or File number to accept.").build();
+						.currentStatus(status.getName()).errorMessage("File name already exists with File number: "
+								+ document.getFileNumber() + ". Change the File name or File number to accept.")
+						.build();
 			}
 		}
-		
+
 		documentInDBOptional = documentRepository.findByFileNumber(documentDto.getFileNumber());
-		//2. If file number is same but file name is different
+		// 2. If file number is same but file name is different
 		if (documentInDBOptional.isPresent()) {
 			Document document = documentInDBOptional.get();
 			if (!document.getFileName().equals(documentDto.getFileName())) {
 				return DocumentDTO.builder().fileName(document.getFileName()).fileNumber(document.getFileNumber())
 						.revisionNo(document.getRevisionNo()).revisionDate(document.getRevisionDate())
 						.folder(folder.getName()).subFolder(subFolder.getName()).department(department.getName())
-						.currentStatus(status.getName())
-						.errorMessage("File number already exists for File name: " + document.getFileName() + ". Change the File name or File number to accept.").build();
+						.currentStatus(status.getName()).errorMessage("File number already exists for File name: "
+								+ document.getFileName() + ". Change the File name or File number to accept.")
+						.build();
 			}
 		}
-		
 
 		// If file exists with same FileName & FileNumber UI should be reported
-		documentInDBOptional = documentRepository
-				.findByFileNameAndFileNumber(documentDto.getFileName(), documentDto.getFileNumber());
+		documentInDBOptional = documentRepository.findByFileNameAndFileNumber(documentDto.getFileName(),
+				documentDto.getFileNumber());
 
-		//3. If Revisionnumber is smaller than report to user
+		// 3. If Revisionnumber is smaller than report to user
 		if (documentInDBOptional.isPresent()) {
 			Document document = documentInDBOptional.get();
 			String uiRevisionNo = documentDto.getRevisionNo();
@@ -109,7 +113,10 @@ public class DocumentServiceImpl implements DocumentService {
 						.revisionNo(document.getRevisionNo()).revisionDate(document.getRevisionDate())
 						.folder(folder.getName()).subFolder(subFolder.getName()).department(department.getName())
 						.currentStatus(status.getName())
-						.errorMessage("File Name: " + documentDto.getFileName() + ", File Number: " + documentDto.getFileNumber() + " already has file with same Revision number. The Revision number has to be more than "+ dbRevisionNo)
+						.errorMessage("File Name: " + documentDto.getFileName() + ", File Number: "
+								+ documentDto.getFileNumber()
+								+ " already has file with same Revision number. The Revision number has to be more than "
+								+ dbRevisionNo)
 						.build();
 
 			}
@@ -138,12 +145,13 @@ public class DocumentServiceImpl implements DocumentService {
 			Document document = Document.builder().fileName(documentDto.getFileName())
 					.fileNumber(documentDto.getFileNumber()).revisionNo(documentDto.getRevisionNo())
 					.revisionDate(documentDto.getRevisionDate()).folder(folder).subFolder(subFolder)
-					.department(department).fileDBNumber(UUID.randomUUID().toString()).documentFiles(newDocumentFiles).currentStatus(status).build();
+					.department(department).fileDBNumber(UUID.randomUUID().toString()).documentFiles(newDocumentFiles)
+					.currentStatus(status).build();
 
 			// Save the new Document first
 			Document savedNewDocument = documentRepository.save(document);
 			documentRepository.flush();
-			
+
 			// Save DocumentFiles and link to savedDocument
 			// List<DocumentFile> savedNewDocumentFiles = new ArrayList<>();
 			for (DocumentFile documentFile : newDocumentFiles) {
@@ -159,7 +167,8 @@ public class DocumentServiceImpl implements DocumentService {
 			DocumentRevision documentRevision = DocumentRevision.builder().fileName(documentInDB.getFileName())
 					.fileNumber(documentInDB.getFileNumber()).revisionNo(documentInDB.getRevisionNo())
 					.revisionDate(documentInDB.getRevisionDate()).folder(folder).subFolder(subFolder)
-					.department(department).currentStatus(status).documentFiles(archivedDocumentFiles).fileDBNumber(documentInDB.getFileDBNumber())
+					.department(department).currentStatus(status).documentFiles(archivedDocumentFiles)
+					.fileDBNumber(documentInDB.getFileDBNumber())
 					// .document(latestFromDB.get()) // still valid at this point
 					.build();
 
@@ -196,7 +205,8 @@ public class DocumentServiceImpl implements DocumentService {
 
 		Document document = Document.builder().fileName(documentDto.getFileName())
 				.fileNumber(documentDto.getFileNumber()).revisionNo("R01").revisionDate(documentDto.getRevisionDate())
-				.folder(folder).subFolder(subFolder).department(department).currentStatus(status).fileDBNumber(UUID.randomUUID().toString()).build();
+				.folder(folder).subFolder(subFolder).department(department).currentStatus(status)
+				.fileDBNumber(UUID.randomUUID().toString()).build();
 		Document savedDocument = documentRepository.save(document);
 		for (DocumentFile documentFile : newDocumentFiles) {
 			documentFile.setDocument(savedDocument);
@@ -314,4 +324,149 @@ public class DocumentServiceImpl implements DocumentService {
 		return savedFiles;
 	}
 
+	@Override
+	public List<Map<String, MetaDataDto>> validateMetadata(List<List<String>> rows)
+			throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {
+		List<Map<String, MetaDataDto>> mapList = new ArrayList<>();
+
+		List<String> firstRow = rows.get(0);
+		Map<String, Integer> headerIndexMap = new HashMap<>();
+		for (int i = 0; i < firstRow.size(); i++) {
+			headerIndexMap.put(firstRow.get(i), i);
+		}
+		List<List<String>> rowsWithoutFirst = rows.size() > 1 ? new ArrayList<>(rows.subList(1, rows.size()))
+				: new ArrayList<>();
+
+		for (List<String> row : rowsWithoutFirst) {
+			Map<String, MetaDataDto> map = new HashMap<>();
+			mapList.add(
+					validate(Constant.FILE_NAME, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FILE_NAME)),
+							row.get(headerIndexMap.get(Constant.FILE_NUMBER))));
+			mapList.add(validate(Constant.FILE_NUMBER, headerIndexMap, row,
+					row.get(headerIndexMap.get(Constant.FILE_NUMBER)),
+					row.get(headerIndexMap.get(Constant.FILE_NAME))));
+			mapList.add(validate(Constant.REVISION_NUMBER, headerIndexMap, row,
+					row.get(headerIndexMap.get(Constant.FILE_NAME)), row.get(headerIndexMap.get(Constant.FILE_NUMBER)),
+					row.get(headerIndexMap.get(Constant.REVISION_NUMBER))));
+			mapList.add(validate(Constant.REVISION_DATE, headerIndexMap, row));
+			mapList.add(validate(Constant.FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER))));
+			mapList.add(validate(Constant.SUB_FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER)),
+					row.get(headerIndexMap.get(Constant.SUB_FOLDER))));
+			mapList.add(validate(Constant.DEPARTMENT, headerIndexMap, row, row.get(headerIndexMap.get(Constant.DEPARTMENT))));
+			mapList.add(validate(Constant.STATUS, headerIndexMap, row, row.get(headerIndexMap.get(Constant.STATUS))));
+			mapList.add(validate(Constant.UPLOAD_DOCUMENT, headerIndexMap, row));
+
+			mapList.add(map);
+		}
+
+		return mapList;
+	}
+
+	public String validateUploadDocument(String[] args) {
+		// TODO Auto-generated method stub
+		return "";
+	}
+
+	public String validateDepartment(String[] args) {
+		Optional<Department> department = departmentRepository.findByName(args[0]);
+		if (department.isPresent()) {
+			return "";
+		}
+		return "Department does not exists";
+	}
+
+	public String validateStatus(String[] args) {
+		Optional<Status> status = statusRepository.findByName(args[0]);
+		if (status.isPresent()) {
+			return "";
+		}
+		return "Status does not exists";
+	}
+
+	public String validateSubFolder(String[] args) {
+		Optional<Folder> folder = folderRepository.findByName(args[0]);
+		if (folder.isPresent()) {
+			List<SubFolder> subFolders = subFolderRepository.findByFolderId(folder.get().getId());
+			if(subFolders != null && subFolders.size() > 0) {
+				for(SubFolder subFolder : subFolders) {
+					if(subFolder.getName().equals(args[1])) {
+						return "";
+					}
+				}
+			}
+		}
+
+		return "Sub-Folder does not exists";
+	}
+
+	public String validateFolder(String[] args) {
+		Optional<Folder> folder = folderRepository.findByName(args[0]);
+		if (folder.isPresent()) {
+			return "";
+		}
+		return "Folder does not exists";
+	}
+
+	public String validateRevisionDate(String[] args) {
+		// TODO Auto-generated method stub
+		return "";
+	}
+
+	public String validateRevisionNumber(String[] args) {
+		Optional<Document> documentInDBOptional = documentRepository.findByFileNameAndFileNumber(args[0], args[1]);
+
+		// 3. If Revisionnumber is smaller than report to user
+		if (documentInDBOptional.isPresent()) {
+			Document document = documentInDBOptional.get();
+			String uiRevisionNo = args[2];
+			String dbRevisionNo = document.getRevisionNo();
+			if (isSmaller(uiRevisionNo, dbRevisionNo)) {
+				return "File Name: " + args[0] + ", File Number: " + args[1]
+						+ " already has file with same Revision number. The Revision number has to be more than "
+						+ dbRevisionNo;
+
+			}
+		}
+		return "";
+	}
+
+	public String validateFileNumber(String[] args) {
+		Optional<Document> documentInDBOptional = documentRepository.findByFileNumber(args[0]);
+		// 2. If file number is same but file name is different
+		if (documentInDBOptional.isPresent()) {
+			Document document = documentInDBOptional.get();
+			if (!document.getFileName().equals(args[1])) {
+				return "File number already exists for File name: " + document.getFileName()
+						+ ". Change the File name or File number to accept.";
+			}
+		}
+		return "";
+	}
+
+	public String validateFileName(String... args) {
+		Optional<Document> documentInDBOptional = documentRepository.findByFileName(args[0]);
+		// 1. If file name is same but file number is different
+		if (documentInDBOptional.isPresent()) {
+			Document document = documentInDBOptional.get();
+			if (!document.getFileNumber().equals(args[1])) {
+				return "File name already exists with File number: " + document.getFileNumber()
+						+ ". Change the File name or File number to accept.";
+			}
+		}
+		return "";
+	}
+
+	private Map<String, MetaDataDto> validate(String key, Map<String, Integer> headerIndexMap, List<String> row,
+			String... args)
+			throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {
+		Map<String, MetaDataDto> map = new HashMap<>();
+		int index = headerIndexMap.get(key);
+		Method method = DocumentServiceImpl.class.getMethod(Constant.METADATA_UPLOAD_VALIDATION_MAP.get(key),
+				String[].class); // get method
+		String errorMessageFileName = (String) method.invoke(documentService, (Object) args);
+		MetaDataDto metadataDtoFileName = MetaDataDto.builder().errorMessage(errorMessageFileName).value(row.get(index))
+				.build();
+		map.put(key, metadataDtoFileName);
+		return map;
+	}
 }

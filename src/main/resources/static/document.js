@@ -58,7 +58,9 @@ $(document).ready(function() {
 
 	// Initialize tables on page load
 	initializeDataTables();
-
+	
+	
+	
 	// Function to update sub-folder options based on selected folder
 	function updateSubFolderOptions(folderSelectId, subFolderSelectId) {
 		const folderValue = $(folderSelectId).val();
@@ -442,8 +444,6 @@ $(document).ready(function() {
 	$('#downloadTemplate').click(function(e) {
 		e.preventDefault();
 		showNotification('Excel template download started...', 'info');
-		//const link = document.createElement('a');
-		//link.href = '/dms/api/bulkupload/template';
 		window.location.href = '/dms/api/bulkupload/template';
 
 	});
@@ -495,6 +495,23 @@ $(document).ready(function() {
 	});
 
 	$('#previewMetadata').click(function() {
+
+		// Create FormData object
+		const formData = new FormData();
+		formData.append('file', uploadedMetadataFile);
+		$.ajax({
+			url: '/dms/api/bulkupload/metadata/upload', // Your Spring Boot endpoint
+			type: 'POST',
+			data: formData,
+			processData: false, // Required
+			contentType: false, // Required
+			success: function(response) {
+				alert("Upload successful: " + response.message);
+			},
+			error: function(xhr) {
+				alert("Upload failed: " + xhr.responseText);
+			}
+		});
 		showPreviewMetadata();
 	});
 
@@ -509,6 +526,7 @@ $(document).ready(function() {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.accept = '.xlsx,.xls';
+		input.id = 'updateMetadataInput';
 		input.onchange = function(event) {
 			const file = event.target.files[0];
 			if (file) {
