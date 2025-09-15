@@ -362,12 +362,12 @@ public class DocumentServiceImpl implements DocumentService {
 		return mapList;
 	}
 
-	public String validateUploadDocument(String[] args) {
+	public String validateUploadDocument(String... args) {
 		// TODO Auto-generated method stub
 		return "";
 	}
 
-	public String validateDepartment(String[] args) {
+	public String validateDepartment(String... args) {
 		Optional<Department> department = departmentRepository.findByName(args[0]);
 		if (department.isPresent()) {
 			return "";
@@ -375,7 +375,7 @@ public class DocumentServiceImpl implements DocumentService {
 		return "Department does not exists";
 	}
 
-	public String validateStatus(String[] args) {
+	public String validateStatus(String... args) {
 		Optional<Status> status = statusRepository.findByName(args[0]);
 		if (status.isPresent()) {
 			return "";
@@ -383,7 +383,7 @@ public class DocumentServiceImpl implements DocumentService {
 		return "Status does not exists";
 	}
 
-	public String validateSubFolder(String[] args) {
+	public String validateSubFolder(String... args) {
 		Optional<Folder> folder = folderRepository.findByName(args[0]);
 		if (folder.isPresent()) {
 			List<SubFolder> subFolders = subFolderRepository.findByFolderId(folder.get().getId());
@@ -399,7 +399,7 @@ public class DocumentServiceImpl implements DocumentService {
 		return "Sub-Folder does not exists";
 	}
 
-	public String validateFolder(String[] args) {
+	public String validateFolder(String... args) {
 		Optional<Folder> folder = folderRepository.findByName(args[0]);
 		if (folder.isPresent()) {
 			return "";
@@ -407,12 +407,12 @@ public class DocumentServiceImpl implements DocumentService {
 		return "Folder does not exists";
 	}
 
-	public String validateRevisionDate(String[] args) {
+	public String validateRevisionDate(String... args) {
 		// TODO Auto-generated method stub
 		return "";
 	}
 
-	public String validateRevisionNumber(String[] args) {
+	public String validateRevisionNumber(String... args) {
 		Optional<Document> documentInDBOptional = documentRepository.findByFileNameAndFileNumber(args[0], args[1]);
 
 		// 3. If Revisionnumber is smaller than report to user
@@ -430,7 +430,7 @@ public class DocumentServiceImpl implements DocumentService {
 		return "";
 	}
 
-	public String validateFileNumber(String[] args) {
+	public String validateFileNumber(String... args) {
 		Optional<Document> documentInDBOptional = documentRepository.findByFileNumber(args[0]);
 		// 2. If file number is same but file name is different
 		if (documentInDBOptional.isPresent()) {

@@ -52,14 +52,14 @@ public class BulkUploadController {
     }
     
     @PostMapping("/metadata/upload")
-    public ResponseEntity<?> uploadMetadataFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<List<Map<String, MetaDataDto>>> uploadMetadataFile(@RequestParam("file") MultipartFile file) throws Exception{
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("File is empty.");
+            throw new Exception("File is Empty");
         }
 
         String fileName = file.getOriginalFilename();
         if (fileName == null || !(fileName.endsWith(".xlsx") || fileName.endsWith(".xls"))) {
-            return ResponseEntity.badRequest().body("Invalid file type. Only .xlsx and .xls are supported.");
+        	throw new Exception("Invalid file type. Only .xlsx and .xls are supported.");
         }
 
         try (InputStream inputStream = file.getInputStream();
@@ -80,7 +80,7 @@ public class BulkUploadController {
             return ResponseEntity.ok(map);
 
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error reading Excel file: " + e.getMessage());
+            throw e;
         }
     }
 }

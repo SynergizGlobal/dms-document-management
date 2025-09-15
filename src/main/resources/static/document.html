@@ -2,686 +2,700 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMIS Document</title>
-    <link rel="stylesheet" href="document.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMIS Document</title>
+<link rel="stylesheet" href="document.css">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<!-- DataTables CSS -->
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<!-- DataTables JS -->
+<script
+	src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="project-info"><img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
-                MRVC
-            </div>
-            <h1>Document Management System</h1>
-            <div class="demo-badge">DEMO</div>
-            <div id="successMessage" class="upload-success">
-        		Upload Successful!
-    		</div>
-        </header>
+	<div class="container">
+		<header class="header">
+			<div class="project-info">
+				<img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
+				MRVC
+			</div>
+			<h1>Document Management System</h1>
+			<div class="demo-badge">DEMO</div>
+			<div id="successMessage" class="upload-success">Upload
+				Successful!</div>
+		</header>
 
-        <nav class="navigation">
-            <div class="nav-item">Home</div>
-            <div class="nav-item" onclick="location.href='correspondance.html'">Correspondence</div>
-            <div class="nav-item">Drawings</div>
-            <div class="nav-item active" onclick="location.href='document.html'">Documents</div>
-            <div class="nav-item" onclick="location.href='folders.html'">Folders</div>
-            <div class="nav-item" onclick="location.href='filters_form.html'">Filter Form</div>
-        </nav>
+		<nav class="navigation">
+			<div class="nav-item">Home</div>
+			<div class="nav-item" onclick="location.href='correspondance.html'">Correspondence</div>
+			<div class="nav-item">Drawings</div>
+			<div class="nav-item active" onclick="location.href='document.html'">Documents</div>
+			<div class="nav-item" onclick="location.href='folders.html'">Folders</div>
+			<div class="nav-item" onclick="location.href='filters_form.html'">Filter
+				Form</div>
+		</nav>
 
-        <!-- Preview Metadata Modal -->
-        <div class="preview-modal" id="previewModal">
-            <div class="preview-modal-content">
-                <div class="preview-modal-header">
-                    Preview Metadata - Fill Required Fields
-                </div>
-                <div class="preview-modal-body">
-                    <div class="preview-form-section">
-                        <label class="required-field">File Name*:</label>
-                        <input type="text" id="previewFileName" placeholder="Enter file name">
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="preview-form-section">
-                        <label class="required-field">File Number*:</label>
-                        <input type="text" id="previewFileNumber" placeholder="Enter file number">
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="preview-form-section">
-                        <label class="required-field">Revision No:</label>
-                        <input type="text" id="previewRevisionNo" value="R01" readonly>
-                    </div>
-                    <div class="preview-form-section">
-                        <label class="required-field">Revision Date*:</label>
-                        <input type="date" id="previewRevisionDate">
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="preview-form-section">
-                        <label class="required-field">Folder*:</label>
-                        <select id="previewFolder">
-                            <option value="">Select Folder</option>
-                            <option value="Drawing">Drawing</option>
-                            <option value="Correspondence">Correspondence</option>
-                            <option value="MOMs">MOMs</option>
-                            <option value="Report">Report</option>
-                            <option value="Work Programme">Work Programme</option>
-                            <option value="Manuals">Manuals</option>
-                            <option value="RFI">RFI</option>
-                            <option value="Contracts">Contracts</option>
-                            <option value="SHE">SHE</option>
-                            <option value="Quality">Quality</option>
-                            <option value="Billing">Billing</option>
-                            <option value="Legal">Legal</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="preview-form-section">
-                        <label class="required-field">Sub-Folder*:</label>
-                        <select id="previewSubFolder">
-                            <option value="">Select Sub-Folder</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="preview-form-section">
-                        <label class="required-field">Department*:</label>
-                        <select id="previewDepartment">
-                            <option value="">Select Department</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Construction">Construction</option>
-                            <option value="Quality">Quality</option>
-                            <option value="Safety">Safety</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="preview-form-section">
-                        <label class="required-field">Current Status*:</label>
-                        <select id="previewCurrentStatus">
-                            <option value="">Select Status</option>
-                            <option value="Draft">Draft</option>
-                            <option value="Review">Review</option>
-                            <option value="Final">Final</option>
-                            <option value="Superseded">Superseded</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
-                </div>
-                <div class="preview-modal-buttons">
-                    <button type="button" class="modal-btn btn-save" id="savePreview">Save</button>
-                    <button type="button" class="modal-btn btn-cancel" id="cancelPreview">Cancel</button>
-                </div>
-            </div>
-        </div>
+		<!-- Preview Metadata Modal -->
+		<div class="preview-modal" id="previewModal">
+			<div class="preview-modal-content">
+				<div class="preview-modal-header">Preview Metadata - Fill
+					Required Fields</div>
+				<div class="preview-modal-body">
+					<table id="metadataTable" border="1">
+						<thead>
+							<tr id="tableHeaderRow"></tr>
+						</thead>
+						<tbody id="tableBody">
+						</tbody>
+					</table>
+				</div>
+				<div class="preview-modal-buttons">
+					<button type="button" class="modal-btn btn-save" id="savePreview">Save</button>
+					<button type="button" class="modal-btn btn-cancel"
+						id="cancelPreview">Cancel</button>
+				</div>
+			</div>
+		</div>
 
-        <div class="main-content">
-            <div class="content-area">
-                <div class="upload-section">
-                    <button class="upload-btn" id="uploadBtn">Upload</button>
-                    <button class="upload-btn" id="draftBtn"
-                        style="margin-left:6px; background-color: #575757;">Drafts</button>
-                    <button class="upload-btn" id="backToMainBtn" style="display:none; margin-bottom:1px;">Back to
-                        Documents</button>
-                    <input type="file" id="fileInput" class="file-input" multiple>
-                </div>
+		<div class="main-content">
+			<div class="content-area">
+				<div class="upload-section">
+					<button class="upload-btn" id="uploadBtn">Upload</button>
+					<button class="upload-btn" id="draftBtn"
+						style="margin-left: 6px; background-color: #575757;">Drafts</button>
+					<button class="upload-btn" id="backToMainBtn"
+						style="display: none; margin-bottom: 1px;">Back to
+						Documents</button>
+					<input type="file" id="fileInput" class="file-input" multiple>
+				</div>
 
-                <!-- Notification Container -->
-                <div id="notificationContainer"></div>
+				<!-- Notification Container -->
+				<div id="notificationContainer"></div>
 
-                <div class="table-container" id="mainTableContainer">
-                    <table class="document-table" id="mainTable">
-                        <thead>
-                            <tr>
-                                <th>File Type</th>
-                                <th>File Number</th>
-                                <th>File Name</th>
-                                <th>Revision No.</th>
-                                <th>Status</th>
-                                <th>Document Type</th>
-                                <th>Folder</th>
-                                <th>Sub-Folder</th>
-                                <th>Created by</th>
-                                <th>Date Uploaded</th>
-                                <th>Revision Date</th>
-                                <th>Department</th>
-                                <th>View / Downloaded</th>
-                            </tr>
+				<div class="table-container" id="mainTableContainer">
+					<table class="document-table" id="mainTable">
+						<thead>
+							<tr>
+								<th>File Type</th>
+								<th>File Number</th>
+								<th>File Name</th>
+								<th>Revision No.</th>
+								<th>Status</th>
+								<th>Document Type</th>
+								<th>Folder</th>
+								<th>Sub-Folder</th>
+								<th>Created by</th>
+								<th>Date Uploaded</th>
+								<th>Revision Date</th>
+								<th>Department</th>
+								<th>View / Downloaded</th>
+							</tr>
 
-                            <!-- Enhanced Filter Row with Multi-Select Dropdowns -->
-                            <tr class="filter-row">
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="0" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="0"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="1" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="1"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="2" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="2"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="3" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="3"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="4" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="4"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="5" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="5"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="6" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="6"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="7" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="7"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="8" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="8"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="9" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="9"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="10" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="10"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="11" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="11"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="12" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="12"></div>
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="file-type-label file-type-pdf file-name-cell">PDF</span></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="MRVC-MVR..."></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="Contract Agreement">
-                                </td>
-                                <td><input type="text" class="editable-input file-name-cell" value="R01"></td>
-                                <td><span class="status-final file-name-cell">Final</span></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="Agreement"></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="Contracts"></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="Main Contract"></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="Asif"></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="14.07.2025"></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="01.07.2025"></td>
-                                <td><input type="text" class="editable-input file-name-cell" value="Engineering"></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                            </tr>
-                            <tr>
-                                <td><span class="file-type-label file-type-word file-name-cell">Word</span></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                            </tr>
-                            <tr>
-                                <td><span class="file-type-label file-type-excel file-name-cell">Excel</span></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                            </tr>
-                            <tr>
-                                <td><span class="file-type-label file-type-dwg file-name-cell">Dwg</span></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                            </tr>
-                            <tr>
-                                <td><span class="file-type-label file-type-jpeg file-name-cell">Jpeg</span></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                                <td><input type="text" class="editable-input file-name-cell" value=""></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+							<!-- Enhanced Filter Row with Multi-Select Dropdowns -->
+							<tr class="filter-row">
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="0"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="0"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="1"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="1"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="2"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="2"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="3"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="3"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="4"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="4"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="5"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="5"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="6"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="6"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="7"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="7"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="8"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="8"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="9"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="9"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="10"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="10"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="11"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="11"></div>
+									</div>
+								</th>
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="12"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="12"></div>
+									</div>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><span
+									class="file-type-label file-type-pdf file-name-cell">PDF</span></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="MRVC-MVR..."></td>
+								<td><input type="text"
+									class="editable-input file-name-cell"
+									value="Contract Agreement"></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="R01"></td>
+								<td><span class="status-final file-name-cell">Final</span></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="Agreement"></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="Contracts"></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="Main Contract"></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="Asif"></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="14.07.2025"></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="01.07.2025"></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value="Engineering"></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+							</tr>
+							<tr>
+								<td><span
+									class="file-type-label file-type-word file-name-cell">Word</span></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+							</tr>
+							<tr>
+								<td><span
+									class="file-type-label file-type-excel file-name-cell">Excel</span></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+							</tr>
+							<tr>
+								<td><span
+									class="file-type-label file-type-dwg file-name-cell">Dwg</span></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+							</tr>
+							<tr>
+								<td><span
+									class="file-type-label file-type-jpeg file-name-cell">Jpeg</span></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+								<td><input type="text"
+									class="editable-input file-name-cell" value=""></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 
-                <!-- draft table -->
-                <div class="table-container" id="draftTableContainer" style="display: none;">
-                    <table class="document-table" id="draftTable">
-                        <thead>
-                            <tr>
-                                <th>To</th>
-                                <th>Cc</th>
-                                <th>Subject</th>
-                                <th>Reason</th>
-                                <th>Response Expected</th>
-                                <th>Target Date</th>
-                                <th>Attachments</th>
-                                <th>Date Saved</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Draft rows will be added here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+				<!-- draft table -->
+				<div class="table-container" id="draftTableContainer"
+					style="display: none;">
+					<table class="document-table" id="draftTable">
+						<thead>
+							<tr>
+								<th>To</th>
+								<th>Cc</th>
+								<th>Subject</th>
+								<th>Reason</th>
+								<th>Response Expected</th>
+								<th>Target Date</th>
+								<th>Attachments</th>
+								<th>Date Saved</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!-- Draft rows will be added here -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <!-- Context Menu -->
-    <div class="context-menu" id="contextMenu">
-        <div class="context-menu-item" data-action="send">Send</div>
-        <div class="context-menu-item" data-action="update">Update</div>
-        <div class="context-menu-item" data-action="view-old">View old versions</div>
-        <div class="context-menu-item" data-action="not-required">Not required</div>
-        <div class="context-menu-item" data-action="download">Download</div>
-        <div class="context-menu-item" data-action="print">Print</div>
-    </div>
+	<!-- Context Menu -->
+	<div class="context-menu" id="contextMenu">
+		<div class="context-menu-item" data-action="send">Send</div>
+		<div class="context-menu-item" data-action="update">Update</div>
+		<div class="context-menu-item" data-action="view-old">View old
+			versions</div>
+		<div class="context-menu-item" data-action="not-required">Not
+			required</div>
+		<div class="context-menu-item" data-action="download">Download</div>
+		<div class="context-menu-item" data-action="print">Print</div>
+	</div>
 
-    <!-- Send Documents Modal -->
-    <div class="modal" id="sendDocumentsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                Send Documents
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="sendTo">To: *</label>
-                    <input type="email" id="sendTo" placeholder="Enter recipient email">
-                    <div class="error-message">This field is required</div>
-                </div>
+	<!-- Send Documents Modal -->
+	<div class="modal" id="sendDocumentsModal">
+		<div class="modal-content">
+			<div class="modal-header">Send Documents</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="sendTo">To: *</label> <input type="email" id="sendTo"
+						placeholder="Enter recipient email">
+					<div class="error-message">This field is required</div>
+				</div>
 
-                <div class="form-group">
-                    <label for="sendCc">Cc:</label>
-                    <input type="email" id="sendCc" placeholder="Enter CC email (optional)">
-                    <div class="error-message">Please enter a valid email address</div>
-                </div>
+				<div class="form-group">
+					<label for="sendCc">Cc:</label> <input type="email" id="sendCc"
+						placeholder="Enter CC email (optional)">
+					<div class="error-message">Please enter a valid email address</div>
+				</div>
 
-                <div class="form-group">
-                    <label for="sendSubject">Subject: *</label>
-                    <input type="text" id="sendSubject" placeholder="Enter email subject">
-                    <div class="error-message">This field is required</div>
-                </div>
+				<div class="form-group">
+					<label for="sendSubject">Subject: *</label> <input type="text"
+						id="sendSubject" placeholder="Enter email subject">
+					<div class="error-message">This field is required</div>
+				</div>
 
-                <div class="form-group">
-                    <label for="sendReason">Reason for Sending: *</label>
-                    <textarea id="sendReason" placeholder="Enter reason for sending the document"></textarea>
-                    <div class="error-message">This field is required</div>
-                </div>
+				<div class="form-group">
+					<label for="sendReason">Reason for Sending: *</label>
+					<textarea id="sendReason"
+						placeholder="Enter reason for sending the document"></textarea>
+					<div class="error-message">This field is required</div>
+				</div>
 
-                <div class="form-group">
-                    <label for="responseExpected">Response Expected:</label>
-                    <select id="responseExpected">
-                        <option value="">Select...</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                </div>
+				<div class="form-group">
+					<label for="responseExpected">Response Expected:</label> <select
+						id="responseExpected">
+						<option value="">Select...</option>
+						<option value="yes">Yes</option>
+						<option value="no">No</option>
+					</select>
+				</div>
 
-                <div class="form-group">
-                    <label for="targetResponseDate">Target Response Date:</label>
-                    <input type="date" id="targetResponseDate">
-                </div>
+				<div class="form-group">
+					<label for="targetResponseDate">Target Response Date:</label> <input
+						type="date" id="targetResponseDate">
+				</div>
 
-                <div class="form-group">
-                    <label>Attachments:</label>
-                    <div class="attachments-list" id="attachmentsList">
-                        <!-- Selected document will appear here -->
-                    </div>
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="modal-btn btn-send" id="sendDocument">Send</button>
-                <button type="button" class="modal-btn btn-save-draft" id="saveDraft">Save Draft</button>
-                <button type="button" class="modal-btn btn-cancel" id="cancelSend">Cancel</button>
-            </div>
-        </div>
-    </div>
+				<div class="form-group">
+					<label>Attachments:</label>
+					<div class="attachments-list" id="attachmentsList">
+						<!-- Selected document will appear here -->
+					</div>
+				</div>
+			</div>
+			<div class="modal-buttons">
+				<button type="button" class="modal-btn btn-send" id="sendDocument">Send</button>
+				<button type="button" class="modal-btn btn-save-draft"
+					id="saveDraft">Save Draft</button>
+				<button type="button" class="modal-btn btn-cancel" id="cancelSend">Cancel</button>
+			</div>
+		</div>
+	</div>
 
-    <!-- Update Documents Modal -->
-    <div class="modal" id="updateDocumentsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                Update Documents
-            </div>
-            <div class="modal-body">
-                <div class="upload-tabs">
-                    <div class="upload-tab active" data-tab="single">Single Update</div>
-                    <div class="upload-tab" data-tab="bulk">Bulk Update</div>
-                </div>
+	<!-- Update Documents Modal -->
+	<div class="modal" id="updateDocumentsModal">
+		<div class="modal-content">
+			<div class="modal-header">Update Documents</div>
+			<div class="modal-body">
+				<div class="upload-tabs">
+					<div class="upload-tab active" data-tab="single">Single
+						Update</div>
+					<div class="upload-tab" data-tab="bulk">Bulk Update</div>
+				</div>
 
-                <!-- Single Update Tab -->
-                <div class="single-update-options active" id="singleUpdateTab">
-                    <div class="form-group">
-                        <label for="updateFileName">File Name*:</label>
-                        <input type="text" id="updateFileName" placeholder="Enter file name">
-                        <div class="error-message">This field is required</div>
-                    </div>
+				<!-- Single Update Tab -->
+				<div class="single-update-options active" id="singleUpdateTab">
+					<div class="form-group">
+						<label for="updateFileName">File Name*:</label> <input type="text"
+							id="updateFileName" placeholder="Enter file name">
+						<div class="error-message">This field is required</div>
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateFileNumber">File Number*:</label>
-                        <input type="text" id="updateFileNumber" placeholder="Enter file number">
-                        <div class="error-message">This field is required</div>
-                    </div>
+					<div class="form-group">
+						<label for="updateFileNumber">File Number*:</label> <input
+							type="text" id="updateFileNumber" placeholder="Enter file number">
+						<div class="error-message">This field is required</div>
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateRevisionNo">Revision No:</label>
-                        <input type="text" id="updateRevisionNo" placeholder="Enter revision number">
-                    </div>
+					<div class="form-group">
+						<label for="updateRevisionNo">Revision No:</label> <input
+							type="text" id="updateRevisionNo"
+							placeholder="Enter revision number">
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateRevisionDate">Revision Date*:</label>
-                        <input type="date" id="updateRevisionDate">
-                        <div class="error-message">This field is required</div>
-                    </div>
+					<div class="form-group">
+						<label for="updateRevisionDate">Revision Date*:</label> <input
+							type="date" id="updateRevisionDate">
+						<div class="error-message">This field is required</div>
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateFolder">Folder*:</label>
-                        <select id="updateFolder">
-                            <option value="">Select Folder</option>
-                            <option value="Drawing">Drawing</option>
-                            <option value="Correspondence">Correspondence</option>
-                            <option value="MOMs">MOMs</option>
-                            <option value="Report">Report</option>
-                            <option value="Work Programme">Work Programme</option>
-                            <option value="Manuals">Manuals</option>
-                            <option value="RFI">RFI</option>
-                            <option value="Contracts">Contracts</option>
-                            <option value="SHE">SHE</option>
-                            <option value="Quality">Quality</option>
-                            <option value="Billing">Billing</option>
-                            <option value="Legal">Legal</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
+					<div class="form-group">
+						<label for="updateFolder">Folder*:</label> <select
+							id="updateFolder">
+							<option value="">Select Folder</option>
+							<option value="Drawing">Drawing</option>
+							<option value="Correspondence">Correspondence</option>
+							<option value="MOMs">MOMs</option>
+							<option value="Report">Report</option>
+							<option value="Work Programme">Work Programme</option>
+							<option value="Manuals">Manuals</option>
+							<option value="RFI">RFI</option>
+							<option value="Contracts">Contracts</option>
+							<option value="SHE">SHE</option>
+							<option value="Quality">Quality</option>
+							<option value="Billing">Billing</option>
+							<option value="Legal">Legal</option>
+						</select>
+						<div class="error-message">This field is required</div>
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateSubFolder">Sub-Folder*:</label>
-                        <select id="updateSubFolder">
-                            <option value="">Select Sub-Folder</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
+					<div class="form-group">
+						<label for="updateSubFolder">Sub-Folder*:</label> <select
+							id="updateSubFolder">
+							<option value="">Select Sub-Folder</option>
+						</select>
+						<div class="error-message">This field is required</div>
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateDepartment">Department*:</label>
-                        <select id="updateDepartment">
-                            <option value="">Select Department</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Construction">Construction</option>
-                            <option value="Quality">Quality</option>
-                            <option value="Safety">Safety</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
+					<div class="form-group">
+						<label for="updateDepartment">Department*:</label> <select
+							id="updateDepartment">
+							<option value="">Select Department</option>
+							<option value="Engineering">Engineering</option>
+							<option value="Construction">Construction</option>
+							<option value="Quality">Quality</option>
+							<option value="Safety">Safety</option>
+						</select>
+						<div class="error-message">This field is required</div>
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateCurrentStatus">Current Status*:</label>
-                        <select id="updateCurrentStatus">
-                            <option value="">Select Status</option>
-                            <option value="Draft">Draft</option>
-                            <option value="Review">Review</option>
-                            <option value="Final">Final</option>
-                            <option value="Superseded">Superseded</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
+					<div class="form-group">
+						<label for="updateCurrentStatus">Current Status*:</label> <select
+							id="updateCurrentStatus">
+							<option value="">Select Status</option>
+							<option value="Draft">Draft</option>
+							<option value="Review">Review</option>
+							<option value="Final">Final</option>
+							<option value="Superseded">Superseded</option>
+						</select>
+						<div class="error-message">This field is required</div>
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateReason">Reason for Update:</label>
-                        <textarea id="updateReason" placeholder="Enter reason for updating the document"></textarea>
-                    </div>
+					<div class="form-group">
+						<label for="updateReason">Reason for Update:</label>
+						<textarea id="updateReason"
+							placeholder="Enter reason for updating the document"></textarea>
+					</div>
 
-                    <div class="form-group">
-                        <label for="updateDocumentFile">Upload New Version:</label>
-                        <input type="file" id="updateDocumentFile">
-                    </div>
+					<div class="form-group">
+						<label for="updateDocumentFile">Upload New Version:</label> <input
+							type="file" id="updateDocumentFile">
+					</div>
 
-                    <div class="form-group">
-                        <label>Current Document:</label>
-                        <div class="current-document-info" id="currentDocumentInfo">
-                            <!-- Current document info will appear here -->
-                        </div>
-                    </div>
-                </div>
+					<div class="form-group">
+						<label>Current Document:</label>
+						<div class="current-document-info" id="currentDocumentInfo">
+							<!-- Current document info will appear here -->
+						</div>
+					</div>
+				</div>
 
-                <!-- Bulk Update Tab -->
-                <div class="bulk-update-options" id="bulkUpdateTab">
-                    <div class="bulk-upload-links">
-                        <a href="#" id="downloadUpdateTemplate">Download Excel Template</a>
-                        <a href="#" id="uploadUpdateMetadata">Upload Metadata</a>
-                        <a href="#" id="uploadUpdateZipFile">Upload Zip File</a>
-                    </div>
+				<!-- Bulk Update Tab -->
+				<div class="bulk-update-options" id="bulkUpdateTab">
+					<div class="bulk-upload-links">
+						<a href="#" id="downloadUpdateTemplate">Download Excel
+							Template</a> <a href="#" id="uploadUpdateMetadata">Upload
+							Metadata</a> <a href="#" id="uploadUpdateZipFile">Upload Zip File</a>
+					</div>
 
-                    <!-- Upload Status Section -->
-                    <div class="upload-status-section">
-                        <div class="upload-status-item" id="updateMetadataStatus" style="display: none;">
-                            <div class="status-label">Metadata File:</div>
-                            <div class="status-filename" id="updateMetadataFileName"></div>
-                            <button class="remove-file-btn" data-type="update-metadata">✕</button>
-                        </div>
+					<!-- Upload Status Section -->
+					<div class="upload-status-section">
+						<div class="upload-status-item" id="updateMetadataStatus"
+							style="display: none;">
+							<div class="status-label">Metadata File:</div>
+							<div class="status-filename" id="updateMetadataFileName"></div>
+							<button class="remove-file-btn" data-type="update-metadata">✕</button>
+						</div>
 
-                        <div class="upload-status-item" id="updateZipStatus" style="display: none;">
-                            <div class="status-label">ZIP File:</div>
-                            <div class="status-filename" id="updateZipFileName"></div>
-                            <button class="remove-file-btn" data-type="update-zip">✕</button>
-                        </div>
-                    </div>
+						<div class="upload-status-item" id="updateZipStatus"
+							style="display: none;">
+							<div class="status-label">ZIP File:</div>
+							<div class="status-filename" id="updateZipFileName"></div>
+							<button class="remove-file-btn" data-type="update-zip">✕</button>
+						</div>
+					</div>
 
-                    <div style="text-align: center; margin: 20px 0;">
-                        <button type="button" class="modal-btn btn-save" id="previewUpdateMetadata">Preview
-                            Metadata</button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="modal-btn btn-send" id="updateDocument">Save</button>
-                <button type="button" class="modal-btn btn-cancel" id="cancelUpdate">Cancel</button>
-            </div>
-        </div>
-    </div>
+					<div style="text-align: center; margin: 20px 0;">
+						<button type="button" class="modal-btn btn-save"
+							id="previewUpdateMetadata">Preview Metadata</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-buttons">
+				<button type="button" class="modal-btn btn-send" id="updateDocument">Save</button>
+				<button type="button" class="modal-btn btn-cancel" id="cancelUpdate">Cancel</button>
+			</div>
+		</div>
+	</div>
 
-    <!-- Upload Modal -->
-    <div class="upload-modal" id="uploadModal">
-        <div class="upload-modal-content">
-            <div class="upload-modal-header">
-                Upload Documents
-            </div>
-            <div class="upload-modal-body">
-                <div class="upload-tabs">
-                    <div class="upload-tab active" data-tab="single">Single Upload</div>
-                    <div class="upload-tab" data-tab="bulk">Bulk Upload</div>
-                </div>
+	<!-- Upload Modal -->
+	<div class="upload-modal" id="uploadModal">
+		<div class="upload-modal-content">
+			<div class="upload-modal-header">Upload Documents</div>
+			<div class="upload-modal-body">
+				<div class="upload-tabs">
+					<div class="upload-tab active" data-tab="single">Single
+						Upload</div>
+					<div class="upload-tab" data-tab="bulk">Bulk Upload</div>
+				</div>
 
-                <!-- Single Upload Tab -->
-                <div class="single-upload-options active" id="singleUploadTab">
-                    <div class="upload-form-section">
-                        <label>File Name*:</label>
-                        <input type="text" id="fileName" placeholder="Enter file name">
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="upload-form-section">
-                        <label>File Number*:</label>
-                        <input type="text" id="fileNumber" placeholder="Enter file number">
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="upload-form-section">
-                        <label>Revision No:</label>
-                        <input type="text" id="revisionNo" value="R01">
-                    </div>
-                    <div class="upload-form-section">
-                        <label>Revision Date*:</label>
-                        <input type="date" id="revisionDate">
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="upload-form-section">
-                        <label>Folder*:</label>
-                        <select id="folder">
-                            <option value="">Select Folder</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="upload-form-section">
-                        <label>Sub-Folder*:</label>
-                        <select id="subFolder">
-                            <option value="">Select Sub-Folder</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="upload-form-section">
-                        <label>Department*:</label>
-                        <select id="department">
-                            <option value="">Select Department</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="upload-form-section">
-                        <label>Current Status*:</label>
-                        <select id="currentStatus">
-                            <option value="">Select Status</option>
-                        </select>
-                        <div class="error-message">This field is required</div>
-                    </div>
-                    <div class="upload-form-section">
-                        <label>Upload Document*:</label>
-                        <input type="file" id="singleFileInput" multiple>
-                        <div class="error-message">Please select at least one file</div>
-                    </div>
-                </div>
+				<!-- Single Upload Tab -->
+				<div class="single-upload-options active" id="singleUploadTab">
+					<div class="upload-form-section">
+						<label>File Name*:</label> <input type="text" id="fileName"
+							placeholder="Enter file name">
+						<div class="error-message">This field is required</div>
+					</div>
+					<div class="upload-form-section">
+						<label>File Number*:</label> <input type="text" id="fileNumber"
+							placeholder="Enter file number">
+						<div class="error-message">This field is required</div>
+					</div>
+					<div class="upload-form-section">
+						<label>Revision No:</label> <input type="text" id="revisionNo"
+							value="R01">
+					</div>
+					<div class="upload-form-section">
+						<label>Revision Date*:</label> <input type="date"
+							id="revisionDate">
+						<div class="error-message">This field is required</div>
+					</div>
+					<div class="upload-form-section">
+						<label>Folder*:</label> <select id="folder">
+							<option value="">Select Folder</option>
+						</select>
+						<div class="error-message">This field is required</div>
+					</div>
+					<div class="upload-form-section">
+						<label>Sub-Folder*:</label> <select id="subFolder">
+							<option value="">Select Sub-Folder</option>
+						</select>
+						<div class="error-message">This field is required</div>
+					</div>
+					<div class="upload-form-section">
+						<label>Department*:</label> <select id="department">
+							<option value="">Select Department</option>
+						</select>
+						<div class="error-message">This field is required</div>
+					</div>
+					<div class="upload-form-section">
+						<label>Current Status*:</label> <select id="currentStatus">
+							<option value="">Select Status</option>
+						</select>
+						<div class="error-message">This field is required</div>
+					</div>
+					<div class="upload-form-section">
+						<label>Upload Document*:</label> <input type="file"
+							id="singleFileInput" multiple>
+						<div class="error-message">Please select at least one file</div>
+					</div>
+				</div>
 
-                <!-- Bulk Upload Tab -->
-                <div class="bulk-upload-options" id="bulkUploadTab">
-                    <div class="bulk-upload-links">
-                        <a href="#" id="downloadTemplate">Download Excel Template</a>
-                        <a href="#" id="uploadMetadata">Upload Metadata</a>
-                        <a href="#" id="uploadZipFile">Upload Zip File</a>
-                    </div>
+				<!-- Bulk Upload Tab -->
+				<div class="bulk-upload-options" id="bulkUploadTab">
+					<div class="bulk-upload-links">
+						<a href="#" id="downloadTemplate">Download Excel Template</a> <a
+							href="#" id="uploadMetadata">Upload Metadata</a> <a href="#"
+							id="uploadZipFile">Upload Zip File</a>
+					</div>
 
-                    <!-- Upload Status Section -->
-                    <div class="upload-status-section">
-                        <div class="upload-status-item" id="metadataStatus" style="display: none;">
-                            <div class="status-label">Metadata File:</div>
-                            <div class="status-filename" id="metadataFileName"></div>
-                            <button class="remove-file-btn" data-type="metadata">✕</button>
-                        </div>
+					<!-- Upload Status Section -->
+					<div class="upload-status-section">
+						<div class="upload-status-item" id="metadataStatus"
+							style="display: none;">
+							<div class="status-label">Metadata File:</div>
+							<div class="status-filename" id="metadataFileName"></div>
+							<button class="remove-file-btn" data-type="metadata">✕</button>
+						</div>
 
-                        <div class="upload-status-item" id="zipStatus" style="display: none;">
-                            <div class="status-label">ZIP File:</div>
-                            <div class="status-filename" id="zipFileName"></div>
-                            <button class="remove-file-btn" data-type="zip">✕</button>
-                        </div>
-                    </div>
+						<div class="upload-status-item" id="zipStatus"
+							style="display: none;">
+							<div class="status-label">ZIP File:</div>
+							<div class="status-filename" id="zipFileName"></div>
+							<button class="remove-file-btn" data-type="zip">✕</button>
+						</div>
+					</div>
 
-                    <div style="text-align: center; margin: 20px 0;">
-                        <button type="button" class="modal-btn btn-save" id="previewMetadata">Preview Metadata</button>
-                    </div>
-                </div>
-            </div>
-            <div class="upload-modal-buttons">
-                <button type="button" id="documentSaveBtn"  class="modal-btn btn-save" id="saveUpload">Save</button>
-                <button type="button" class="modal-btn btn-cancel" id="cancelUpload">Cancel</button>
-            </div>
-        </div>
-    </div>
+					<div style="text-align: center; margin: 20px 0;">
+						<button type="button" class="modal-btn btn-save"
+							id="previewMetadata">Preview Metadata</button>
+					</div>
+				</div>
+			</div>
+			<div class="upload-modal-buttons">
+				<button type="button" id="documentSaveBtn"
+					class="modal-btn btn-save" id="saveUpload">Save</button>
+				<button type="button" class="modal-btn btn-cancel" id="cancelUpload">Cancel</button>
+			</div>
+		</div>
+	</div>
 
-    <script src="document.js"></script>
+	<script src="document.js"></script>
 </body>
 
 </html>

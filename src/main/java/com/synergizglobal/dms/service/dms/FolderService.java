@@ -21,4 +21,6 @@ public interface FolderService {
     public void deleteFolder(Long folderId);
     
     public void deleteSubFolder(Long subFolderId);
+
+	public FolderDTO getFolderByName(String name);
 }

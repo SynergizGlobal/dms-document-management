@@ -23,21 +23,21 @@ public interface DocumentService {
 	 
 	 public List<Map<String, MetaDataDto>> validateMetadata(List<List<String>> rows) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException;
 	 
-		public String validateUploadDocument(String[] args);
+		public String validateUploadDocument(String... args);
 
-		public String validateDepartment(String[] args);
+		public String validateDepartment(String... args);
 
-		public String validateStatus(String[] args);
+		public String validateStatus(String... args);
 
-		public String validateSubFolder(String[] args);
+		public String validateSubFolder(String... args);
 
-		public String validateFolder(String[] args);
+		public String validateFolder(String... args);
 
-		public String validateRevisionDate(String[] args);
+		public String validateRevisionDate(String... args);
 		
-		public String validateRevisionNumber(String[] args);
+		public String validateRevisionNumber(String... args);
 
-		public String validateFileNumber(String[] args);
+		public String validateFileNumber(String... args);
 
 		public String validateFileName(String... args);
 }

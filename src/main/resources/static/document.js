@@ -58,9 +58,9 @@ $(document).ready(function() {
 
 	// Initialize tables on page load
 	initializeDataTables();
-	
-	
-	
+
+
+
 	// Function to update sub-folder options based on selected folder
 	function updateSubFolderOptions(folderSelectId, subFolderSelectId) {
 		const folderValue = $(folderSelectId).val();
@@ -494,25 +494,177 @@ $(document).ready(function() {
 		input.click();
 	});
 
-	$('#previewMetadata').click(function() {
+	/*$(document).on('change', '.preview_folder', function() {
+		const elementId = $(this).attr('id'); // e.g., "folder_3"
+		const index = elementId.split('_')[1]; // Get the part after "folder_"
+		const folderId = $(this).val();
+		const subfolderId = "#subfolder_" + index; // ✅ consistent variable name
 
-		// Create FormData object
-		const formData = new FormData();
-		formData.append('file', uploadedMetadataFile);
+		$(subfolderId).empty().append('<option value="">--Select--</option>');
+
+		// Fetch subfolders
 		$.ajax({
-			url: '/dms/api/bulkupload/metadata/upload', // Your Spring Boot endpoint
-			type: 'POST',
-			data: formData,
-			processData: false, // Required
-			contentType: false, // Required
-			success: function(response) {
-				alert("Upload successful: " + response.message);
+			url: `/dms/api/subfolders/${folderId}`,
+			type: "GET",
+			success: function(data) {
+				if (Array.isArray(data)) {
+					data.forEach(sub => {
+						// Assuming each subfolder has `id` and `name`
+						$(subfolderId).append(
+							$('<option>', {
+								value: sub.id,
+								text: sub.name
+							})
+						);
+					});
+				} else {
+					console.error("Expected array but got:", data);
+				}
 			},
-			error: function(xhr) {
-				alert("Upload failed: " + xhr.responseText);
+			error: function() {
+				console.error("Failed to load subfolders");
 			}
 		});
-		showPreviewMetadata();
+	});*/
+
+	$(document).on('change', '.preview_folder', function() {
+		const elementId = $(this).attr('id');           // e.g. "folder_3"
+		const index = elementId.split('_')[1];          // Get "3"
+		const folderId = $(this).val();                 // Selected folder ID
+		const subfolderSelectId = `#subfolder_${index}`;
+
+		$(subfolderSelectId).empty().append('<option value="">--Select--</option>');
+
+		if (!folderId) return;
+
+		$.ajax({
+			url: `/dms/api/subfolders/${folderId}`,
+			type: "GET",
+			success: function(data) {
+				if (Array.isArray(data)) {
+					let selectedSubfolderName = $(`#subfolder_${index}`).data('selected-subfolder-name'); // from metadata
+
+					data.forEach(sub => {
+						let selected = selectedSubfolderName && sub.name === selectedSubfolderName ? 'selected' : '';
+						$(subfolderSelectId).append(
+							$('<option>', {
+								value: sub.id,
+								text: sub.name,
+								selected: selected
+							})
+						);
+					});
+				}
+			},
+			error: function() {
+				console.error("Failed to load subfolders");
+			}
+		});
+	});
+
+
+
+	$('#previewMetadata').click(async function() {
+		const formData = new FormData();
+		formData.append('file', uploadedMetadataFile);
+
+		try {
+			// Step 1: Upload metadata file and get response
+			const response = await $.ajax({
+				url: '/dms/api/bulkupload/metadata/upload',
+				type: 'POST',
+				data: formData,
+				processData: false,
+				contentType: false,
+			});
+
+			// Step 2: Group rows
+			const groupedRows = [];
+			let currentGroup = [];
+			for (let i = 0; i < response.length; i++) {
+				const entry = response[i];
+				if (Object.keys(entry).length === 0 && currentGroup.length > 0) {
+					groupedRows.push(currentGroup);
+					currentGroup = [];
+				} else if (Object.keys(entry).length > 0) {
+					currentGroup.push(entry);
+				}
+			}
+			if (currentGroup.length > 0) groupedRows.push(currentGroup);
+
+			// Step 3: Build headers
+			const firstRow = groupedRows[0];
+			const headers = firstRow.map(field => Object.keys(field)[0]);
+			let headerHtml = headers.map(h => `<th>${h}*</th>`).join('');
+			$("#tableHeaderRow").html(headerHtml);
+
+			// Step 4: Preload dropdowns (folders, departments, statuses)
+			const [folders, departments, statuses] = await Promise.all([
+				$.get("/dms/api/folders/get"),
+				$.get("/dms/api/departments/get"),
+				$.get("/dms/api/statuses/get"),
+			]);
+
+			// Step 5: Build select helper
+			function buildSelect(id, name, selectedValue, optionsArray, className = "") {
+				let html = `<select name="${name}" id="${name.toLowerCase().replace(/\s+/g, '')}_${id}" class="${className}" required>`;
+				html += `<option value="">--Select--</option>`;
+				optionsArray.forEach(opt => {
+					let selected = opt.name === selectedValue ? 'selected' : '';
+					html += `<option value="${opt.id}" ${selected}>${opt.name}</option>`;
+				});
+				html += `</select>`;
+				return html;
+			}
+
+			// Step 6: Build table body
+			let bodyHtml = "";
+			groupedRows.forEach((group, index) => {
+				bodyHtml += "<tr>";
+				group.forEach(field => {
+					const fieldName = Object.keys(field)[0];
+					const { value, errorMessage } = field[fieldName];
+					let cellContent = "";
+					let isValid = value && (!errorMessage || errorMessage.trim() === "");
+					let validClass = isValid ? "valid-input" : "";
+					if (["Folder", "Department", "Current Status"].includes(fieldName)) {
+						let options = [];
+						if (fieldName === "Folder") {
+							cellContent += buildSelect(index, fieldName, value, folders, `preview_folder ${validClass}`);
+						} else if (fieldName === "Department") {
+							cellContent += buildSelect(index, fieldName, value, departments, `${validClass}`);
+						} else if (fieldName === "Current Status") {
+							cellContent += buildSelect(index, fieldName, value, statuses, `${validClass}`);
+						}
+					} else if (fieldName === "Sub-Folder") {
+						// Add a data attribute with the subfolder name
+						cellContent += `<select class="${validClass}" name="${fieldName}" id="subfolder_${index}" data-selected-subfolder-name="${value}" required>
+								<option value="">--Select--</option>
+							</select>`;
+					} else {
+						cellContent += `<input type="text" class="${validClass}" name="${fieldName}" value="${value}" required/>`;
+					}
+
+					if (errorMessage && errorMessage.trim() !== "") {
+						cellContent += `<div style="color: red; font-size: 12px;">${errorMessage}</div>`;
+					}
+
+					bodyHtml += `<td>${cellContent}</td>`;
+				});
+				bodyHtml += "</tr>";
+			});
+			$("#tableBody").html(bodyHtml);
+			$('.preview_folder').each(function() {
+				const val = $(this).val();
+				if (val) {
+					$(this).trigger('change');
+				}
+			});
+			showPreviewMetadata();
+
+		} catch (xhr) {
+			alert("Upload failed: " + xhr.responseText);
+		}
 	});
 
 	// Bulk update link handlers
