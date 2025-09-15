@@ -2,12 +2,20 @@ package com.synergizglobal.dms.controller.dms;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -32,55 +40,73 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class BulkUploadController {
-	
+
 	private final DocumentService documentservice;
-	
-	
-    @GetMapping("/template")
-    public ResponseEntity<Resource> downloadExcelFile() throws IOException {
-        // Load file from classpath
-        Resource resource = new ClassPathResource("/static/BulkUploadTemplate.xlsx");
 
-        if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
-        }
+	@GetMapping("/template")
+	public ResponseEntity<Resource> downloadExcelFile() throws IOException {
+		// Load file from classpath
+		Resource resource = new ClassPathResource("/static/BulkUploadTemplate.xlsx");
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sample.xlsx\"")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(resource);
-    }
-    
-    @PostMapping("/metadata/upload")
-    public ResponseEntity<List<Map<String, MetaDataDto>>> uploadMetadataFile(@RequestParam("file") MultipartFile file) throws Exception{
-        if (file.isEmpty()) {
-            throw new Exception("File is Empty");
-        }
+		if (!resource.exists()) {
+			return ResponseEntity.notFound().build();
+		}
 
-        String fileName = file.getOriginalFilename();
-        if (fileName == null || !(fileName.endsWith(".xlsx") || fileName.endsWith(".xls"))) {
-        	throw new Exception("Invalid file type. Only .xlsx and .xls are supported.");
-        }
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sample.xlsx\"")
+				.contentType(
+						MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+				.body(resource);
+	}
 
-        try (InputStream inputStream = file.getInputStream();
-             Workbook workbook = fileName.endsWith(".xlsx") ? new XSSFWorkbook(inputStream) : new HSSFWorkbook(inputStream)) {
+	@PostMapping("/metadata/upload")
+	public ResponseEntity<List<Map<String, MetaDataDto>>> uploadMetadataFile(@RequestParam("file") MultipartFile file)
+			throws Exception {
+		if (file.isEmpty()) {
+			throw new Exception("File is Empty");
+		}
 
-            Sheet sheet = workbook.getSheetAt(0); // First sheet
-            List<List<String>> rows = new ArrayList<>();
+		String fileName = file.getOriginalFilename();
+		if (fileName == null || !(fileName.endsWith(".xlsx") || fileName.endsWith(".xls"))) {
+			throw new Exception("Invalid file type. Only .xlsx and .xls are supported.");
+		}
 
-            for (Row row : sheet) {
-                List<String> cellValues = new ArrayList<>();
-                for (Cell cell : row) {
-                    cell.setCellType(CellType.STRING); // convert to String for simplicity
-                    cellValues.add(cell.getStringCellValue().trim());
-                }
-                rows.add(cellValues);
-            }
-            List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
-            return ResponseEntity.ok(map);
+		try (InputStream inputStream = file.getInputStream();
+				Workbook workbook = fileName.endsWith(".xlsx") ? new XSSFWorkbook(inputStream)
+						: new HSSFWorkbook(inputStream)) {
 
-        } catch (Exception e) {
-            throw e;
-        }
-    }
+			Sheet sheet = workbook.getSheetAt(0); // First sheet
+			List<List<String>> rows = new ArrayList<>();
+
+			for (Row row : sheet) {
+				List<String> cellValues = new ArrayList<>();
+				for (Cell cell : row) {
+					FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+		            CellValue evaluated = evaluator.evaluate(cell);
+					if (cell.getCellType().equals(CellType.STRING)) {
+						cell.setCellType(CellType.STRING); // convert to String for simplicity
+						cellValues.add(cell.getStringCellValue().trim());
+					} else if (cell.getCellType().equals(CellType.NUMERIC)) {
+						String cellValue = "";
+						if (DateUtil.isCellDateFormatted(cell)) {
+							cellValue = new SimpleDateFormat("yyyy-MM-dd").format(cell.getDateCellValue());
+						} else {
+							double numericValue = evaluated.getNumberValue();
+							if (numericValue == Math.floor(numericValue)) {
+							    cellValue = String.valueOf((long) numericValue); // No decimal part
+							} else {
+							    cellValue = String.valueOf(numericValue); // Keep decimal
+							}
+						}
+						cellValues.add(cellValue);
+					}
+				}
+				rows.add(cellValues);
+			}
+			List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
+			return ResponseEntity.ok(map);
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 }

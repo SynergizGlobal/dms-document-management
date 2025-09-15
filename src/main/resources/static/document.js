@@ -641,7 +641,11 @@ $(document).ready(function() {
 						cellContent += `<select class="${validClass}" name="${fieldName}" id="subfolder_${index}" data-selected-subfolder-name="${value}" required>
 								<option value="">--Select--</option>
 							</select>`;
-					} else {
+					} else if (fieldName === "Revision Date") {
+						// Add a data attribute with the subfolder name
+						cellContent += `<input type="date" class="${validClass}" name="${fieldName}" value="${value}" required/>`;
+					}
+					else {
 						cellContent += `<input type="text" class="${validClass}" name="${fieldName}" value="${value}" required/>`;
 					}
 
