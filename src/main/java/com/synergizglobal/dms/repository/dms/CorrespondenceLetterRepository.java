@@ -39,7 +39,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     @Query(value = """
     	    SELECT 
     	        c.category,
-    	        c.letter_name AS letterNumber,
+    	        c.letter_number AS letterNumber,
     	        c.letter_date AS letterDate,
     	        c.recipient AS sender,
     	        c.recipient AS copiedTo,

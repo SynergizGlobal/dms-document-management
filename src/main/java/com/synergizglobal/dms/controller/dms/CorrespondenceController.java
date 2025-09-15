@@ -27,39 +27,7 @@ public class CorrespondenceController {
 
     private final ICorrespondenceService correspondenceService;
     private final ObjectMapper objectMapper;
-	/*
-	 * public CorrespondenceController(ObjectMapper objectMapper) {
-	 * 
-	 * this.objectMapper = objectMapper; }
-	 */
-	/*
-	 * @PostMapping(value = "/uploadLetter", consumes =
-	 * MediaType.MULTIPART_FORM_DATA_VALUE) public ResponseEntity<String>
-	 * uploadLetter(
-	 * 
-	 * @RequestPart("dto") String dtoJson,
-	 * 
-	 * @RequestParam("document") MultipartFile[] documentsArray) { // Change to
-	 * array try {
-	 * 
-	 * ObjectMapper mapper = new ObjectMapper(); CorrespondenceUploadLetter dto =
-	 * mapper.readValue(dtoJson, CorrespondenceUploadLetter.class);
-	 * 
-	 * 
-	 * List<MultipartFile> documents = Arrays.asList(documentsArray);
-	 * 
-	 * dto.setDocuments(documents);
-	 * 
-	 * System.out.println("Due Date" + dto.getDueDate());
-	 * 
-	 * CorrespondenceLetter savedLetter = correspondenceService.saveLetter(dto);
-	 * 
-	 * return ResponseEntity.ok("Letter uploaded successfully: " +
-	 * savedLetter.getLetterNumber()); } catch (Exception e) { e.printStackTrace();
-	 * return ResponseEntity.badRequest().body("Failed to upload letter: " +
-	 * e.getMessage()); } }
-	 */
-    
+
     @PostMapping(value = "/uploadLetter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadLetter(
             @RequestPart("dto") String dtoJson,

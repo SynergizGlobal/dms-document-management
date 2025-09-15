@@ -193,11 +193,11 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
         // Map files
         List<FileViewDto> files = flatList.stream()
-                .filter(f -> f.getFileName() != null) // ignore if no file
+                .filter(f -> f.getFileName() != null)
                 .map(f -> new FileViewDto(f.getFileName(), f.getFilePath(), f.getFileType()))
                 .toList();
 
-        // Build DTO
+
 
         CorrespondenceLetterViewDto dto = new CorrespondenceLetterViewDto();
         dto.setCategory(first.getCategory());

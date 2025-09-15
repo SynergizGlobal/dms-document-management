@@ -15,497 +15,497 @@
 </head>
 
 <body>
-    <div class="container">
-       
+<div class="container">
 
-        <header class="header">
-            <div class="project-info"><img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
-                MRVC
+
+    <header class="header">
+        <div class="project-info"><img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
+            MRVC
+        </div>
+        <h1>Document Management System</h1>
+        <div class="demo-badge">DEMO</div>
+    </header>
+
+    <nav class="navigation">
+
+        <div class="nav-item active" onclick="location.href='correspondance.html'">Correspondence</div>
+        <div class="nav-item" onclick="location.href='document.html'">Documents</div>
+        <div class="nav-item" onclick="location.href='folders.html'">Folders</div>
+        <div class="nav-item" onclick="location.href='filters_form.html'">Filter Form</div>
+    </nav>
+
+
+    <div class="main-content">
+
+        <div class="content-area">
+            <div class="upload-section">
+                <button class="upload-btn" id="uploadBtn">Upload Letter</button>
+                <button class="upload-btn" id="draftBtn" style="margin-left:6px; background-color: #575757;">Drafts</button>
+                <button class="upload-btn" id="backToMainBtn" style="display:none; margin-bottom:1px;">Back to Correspondence</button>
+                <input type="file" id="attachmentInput" class="file-input" multiple>
             </div>
-            <h1>Document Management System</h1>
-            <div class="demo-badge">DEMO</div>
-        </header>
-        
-        <nav class="navigation">
-        
-            <div class="nav-item active" onclick="location.href='correspondance.html'">Correspondence</div>
-            <div class="nav-item" onclick="location.href='document.html'">Documents</div>
-            <div class="nav-item" onclick="location.href='folders.html'">Folders</div>
-            <div class="nav-item" onclick="location.href='filters_form.html'">Filter Form</div>
-        </nav>
+
+            <div class="table-container" id="mainTableContainer">
+                <table class="document-table" id="mainTable">
+                    <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Letter Number</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Subject</th>
+                        <th>Required Response</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Department</th>
+                        <th>Attachment</th>
+                    </tr>
+
+                    <!-- Enhanced Filter Row with Multi-Select Dropdowns -->
+                    <tr class="filter-row">
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="0" placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="0"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="1"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="1"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="2"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="2"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="3"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="3"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="4"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="4"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="5"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="5"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="6"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="6"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="7"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="7"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="8"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="8"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="9"
+                                       placeholder="Search" readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="9"></div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="filter-container">
+                                <input type="text" class="column-filter" data-column="10" placeholder="Search"
+                                       readonly>
+                                <span class="filter-dropdown-toggle">▼</span>
+                                <div class="filter-dropdown" data-column="10"></div>
+                            </div>
+                        </th>
+                    </tr>
+
+                    <!-- ADD THIS FILTER ROW IMMEDIATELY AFTER THE HEADER ROW -->
+                    <!-- <tr class="filter-row">
+                        <th><input type="text" class="column-filter" placeholder="Search.."></th>
+                        <th><input type="text" class="column-filter" placeholder="Search Category"></th>
+                        <th><input type="text" class="column-filter" placeholder="Search Letter No."></th>
+                        <th><input type="text" class="column-filter" placeholder="Search From"></th>
+                        <th><input type="text" class="column-filter" placeholder="Search To"></th>
+                        <th><input type="text" class="column-filter" placeholder="Search Subject"></th>
+                        <th><input type="text" class="column-filter" placeholder="Search Response"></th>
+                        <th><input type="text" class="column-filter" placeholder="Search Date"></th>
+                        <th><input type="text" class="column-filter" placeholder="Search Status"></th>
+                        <th><input type="text" class="column-filter" placeholder="Search Department"></th>
+                        <th><input type="text" class="column-filter" placeholder="Search"></th>
+                    </tr> -->
+                    </thead>
+                    <tbody id="documentTableBody">
+                    <!-- Empty rows that will be filled when letters are uploaded -->
+                    <tr>
+                        <td><span class="file-type-label file-type-pdf"></span></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                    </tr>
 
 
-        <div class="main-content">
-      
-            <div class="content-area">
-                <div class="upload-section">
-                    <button class="upload-btn" id="uploadBtn">Upload Letter</button>
-                    <button class="upload-btn" id="draftBtn" style="margin-left:6px; background-color: #575757;">Drafts</button>
-                    <button class="upload-btn" id="backToMainBtn" style="display:none; margin-bottom:1px;">Back to Correspondence</button>
-                    <input type="file" id="attachmentInput" class="file-input" multiple>
-                </div>
-
-                <div class="table-container" id="mainTableContainer">
-                    <table class="document-table" id="mainTable">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Category</th>
-                                <th>Letter Number</th>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Subject</th>
-                                <th>Required Response</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Department</th>
-                                <th>Attachment</th>
-                            </tr>
-
-                            <!-- Enhanced Filter Row with Multi-Select Dropdowns -->
-                            <tr class="filter-row">
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="0" placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="0"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="1"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="1"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="2"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="2"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="3"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="3"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="4"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="4"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="5"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="5"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="6"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="6"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="7"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="7"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="8"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="8"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="9"
-                                            placeholder="Search" readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="9"></div>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="filter-container">
-                                        <input type="text" class="column-filter" data-column="10" placeholder="Search"
-                                            readonly>
-                                        <span class="filter-dropdown-toggle">▼</span>
-                                        <div class="filter-dropdown" data-column="10"></div>
-                                    </div>
-                                </th>
-                            </tr>
-
-                            <!-- ADD THIS FILTER ROW IMMEDIATELY AFTER THE HEADER ROW -->
-                            <!-- <tr class="filter-row">
-                                <th><input type="text" class="column-filter" placeholder="Search.."></th>
-                                <th><input type="text" class="column-filter" placeholder="Search Category"></th>
-                                <th><input type="text" class="column-filter" placeholder="Search Letter No."></th>
-                                <th><input type="text" class="column-filter" placeholder="Search From"></th>
-                                <th><input type="text" class="column-filter" placeholder="Search To"></th>
-                                <th><input type="text" class="column-filter" placeholder="Search Subject"></th>
-                                <th><input type="text" class="column-filter" placeholder="Search Response"></th>
-                                <th><input type="text" class="column-filter" placeholder="Search Date"></th>
-                                <th><input type="text" class="column-filter" placeholder="Search Status"></th>
-                                <th><input type="text" class="column-filter" placeholder="Search Department"></th>
-                                <th><input type="text" class="column-filter" placeholder="Search"></th>
-                            </tr> -->
-                        </thead>
-                        <tbody id="documentTableBody">
-                            <!-- Empty rows that will be filled when letters are uploaded -->
-                            <tr>
-                                <td><span class="file-type-label file-type-pdf"></span></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                            </tr>
+                    <tr>
+                        <td><span class="file-type-label file-type-pdf"></span></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                        <td><input type="text" class="editable-input" value=""></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
 
-                            <tr>
-                                <td><span class="file-type-label file-type-pdf"></span></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                                <td><input type="text" class="editable-input" value=""></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-
-                <!-- draft table -->
-                <div class="table-container" id="draftTableContainer" style="display: none;">
-                    <table class="document-table" id="draftTable">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Letter Number</th>
-                                <th>Letter Date</th>
-                                <th>To</th>
-                                <th>Cc</th>
-                                <th>Reference Letter</th>
-                                <th>Subject</th>
-                                <th>Required Response</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Attachment</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Draft rows will be added here -->
-                        </tbody>
-                    </table>
-                </div>
+            <!-- draft table -->
+            <!-- draft table -->
+            <div class="table-container" id="draftTableContainer" style="display: none;">
+                <table class="document-table" id="draftTable">
+                    <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Letter Number</th>
+                        <th>Letter Date</th>
+                        <th>To</th>
+                        <th>Cc</th>
+                        <th>Reference Letter</th>
+                        <th>Subject</th>
+                        <th>Required Response</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Attachment</th>
+                    </tr>
+                    </thead>
+                    <tbody id="draftTableBody">
+                    <!-- Draft rows will be added here -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Upload Letter Modal -->
-    <div class="upload-modal" id="uploadModal">
-        <div class="upload-modal-content">
-            <div class="upload-modal-header">
-                Upload Letter
-                <span class="close" id="closeModal">&times;</span>
-            </div>
-            <div class="upload-modal-body">
-                <form id="uploadForm">
+<!-- Upload Letter Modal -->
+<div class="upload-modal" id="uploadModal">
+    <div class="upload-modal-content">
+        <div class="upload-modal-header">
+            Upload Letter
+            <span class="close" id="closeModal">&times;</span>
+        </div>
+        <div class="upload-modal-body">
+            <form id="uploadForm">
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Category:</label>
+                            <select id="category" name="category">
+                                <option value="">Select Category</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Commercial">Commercial</option>
+                                <option value="Legal">Legal</option>
+                                <option value="Administrative">Administrative</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="letterNo">Letter Number:</label>
+                            <input type="text" id="letterNo" name="letterNo" placeholder="Enter letter number">
+                        </div>
+                        <div class="form-group">
+                            <label for="letterDate">Letter Date:</label>
+                            <input type="date" id="letterDate" name="letterDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- <div class="form-group">
+                            <label for="fromField">From:</label>
+                            <input type="text" id="fromField" name="fromField" placeholder="Enter sender">
+                        </div> -->
+                        <div class="form-group">
+                            <label for="toField">To:</label>
+                            <input type="text" id="toField" name="toField" placeholder="Enter recipient">
+                            <input type="hidden" id="toEmails" name="toEmails">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ccField">Cc:</label>
+                            <input type="text" id="ccField" name="ccField" placeholder="Enter CC recipients">
+                            <input type="hidden" id="ccEmails" name="ccEmails">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- <div class="form-group">
+                            <label for="ccField">Cc:</label>
+                            <input type="text" id="ccField" name="ccField" placeholder="Enter CC recipients">
+                        </div> -->
+                        <!-- <div class="form-group">
+                            <label for="department">Department:</label>
+                            <input type="text" id="department" name="department" placeholder="Enter department">
+                        </div> -->
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="referenceLetters">Reference Letters:</label>
+                            <textarea id="referenceLetters" name="referenceLetters" placeholder="Enter reference letter details"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="subject">Subject:</label>
+                            <textarea id="subject" name="subject" placeholder="Enter subject"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="keyInformation">Key Information:</label>
+                            <textarea id="keyInformation" name="keyInformation" placeholder="Enter key information"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="requiredResponse">Required Response:</label>
+                            <select id="requiredResponse" name="requiredResponse">
+                                <option value="">Select Response Type</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="For Information">For Information</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dueDate">Due Date:</label>
+                            <input type="date" id="dueDate" name="dueDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="currentStatus">Current Status:</label>
+                            <select id="currentStatus" name="currentStatus">
+                                <option value="">Loading statuses...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="department">Department:</label>
+                            <select id="department" name="department">
+                                <option value="">Loading departments...</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-section">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="category">Category:</label>
-                                <select id="category" name="category">
-                                    <option value="">Select Category</option>
-                                    <option value="Contract">Contract</option>
-                                    <option value="Technical">Technical</option>
-                                    <option value="Commercial">Commercial</option>
-                                    <option value="Legal">Legal</option>
-                                    <option value="Administrative">Administrative</option>
-                                </select>
+                        <label>Add Attachments:</label>
+                        <div class="attachments-section">
+                            <div id="attachmentsList">
+                                <!-- Attachments will be dynamically added here -->
                             </div>
+                            <div class="add-attachment-btn" id="addAttachmentBtn">
+                                + Add Attachment
+                            </div>
+                            <input type="file" id="attachmentInput" style="display: none;" multiple>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="upload-modal-buttons">
+            <button type="button" class="modal-btn btn-send" id="sendBtn">Send</button>
+            <button type="button" class="modal-btn btn-draft" id="saveAsDraftBtn">Save as Draft</button>
+            <button type="button" class="modal-btn btn-cancel" id="cancelBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Letter Details Modal -->
+<div class="letter-details-modal" id="letterDetailsModal">
+    <div class="letter-details-modal-content">
+        <div class="letter-details-modal-header">
+            Letter Details - <span id="modalLetterNo"></span>
+            <span class="close" id="closeLetterModal">&times;</span>
+        </div>
+        <div class="letter-details-modal-body">
+            <form id="letterDetailsForm">
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailCategory">Category:</label>
+                            <select id="detailCategory" name="category">
+                                <option value="">Select Category</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Commercial">Commercial</option>
+                                <option value="Legal">Legal</option>
+                                <option value="Administrative">Administrative</option>
+                            </select>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="letterNo">Letter Number:</label>
-                                <input type="text" id="letterNo" name="letterNo" placeholder="Enter letter number">
-                            </div>
-                            <div class="form-group">
-                                <label for="letterDate">Letter Date:</label>
-                                <input type="date" id="letterDate" name="letterDate">
-                            </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailLetterNo">Letter No.:</label>
+                            <input type="text" id="detailLetterNo" name="letterNo" readonly>
                         </div>
-
-                        <div class="form-row">
-                            <!-- <div class="form-group">
-                                <label for="fromField">From:</label>
-                                <input type="text" id="fromField" name="fromField" placeholder="Enter sender">
-                            </div> -->
-                            <div class="form-group">
-                                <label for="toField">To:</label>
-                                <input type="text" id="toField" name="toField" placeholder="Enter recipient">
-								<input type="hidden" id="toEmails" name="toEmails">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="ccField">Cc:</label>
-                                <input type="text" id="ccField" name="ccField" placeholder="Enter CC recipients">
-								<input type="hidden" id="ccEmails" name="ccEmails">
-                            </div>
+                        <div class="form-group">
+                            <label for="detailLetterDate">Letter Date:</label>
+                            <input type="date" id="detailLetterDate" name="letterDate">
                         </div>
+                    </div>
 
-                        <div class="form-row">
-                            <!-- <div class="form-group">
-                                <label for="ccField">Cc:</label>
-                                <input type="text" id="ccField" name="ccField" placeholder="Enter CC recipients">
-                            </div> -->
-                            <!-- <div class="form-group">
-                                <label for="department">Department:</label>
-                                <input type="text" id="department" name="department" placeholder="Enter department">
-                            </div> -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailFromField">Sender:</label>
+                            <input type="text" id="detailFromField" name="fromField">
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="referenceLetters">Reference Letters:</label>
-                                <textarea id="referenceLetters" name="referenceLetters" placeholder="Enter reference letter details"></textarea>
-                            </div>
+                        <div class="form-group">
+                            <label for="detailToField">Copied To:</label>
+                            <input type="text" id="detailToField" name="toField">
                         </div>
+                    </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="subject">Subject:</label>
-                                <textarea id="subject" name="subject" placeholder="Enter subject"></textarea>
-                            </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailCcField">Cc:</label>
+                            <input type="text" id="detailCcField" name="ccField">
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="keyInformation">Key Information:</label>
-                                <textarea id="keyInformation" name="keyInformation" placeholder="Enter key information"></textarea>
-                            </div>
+                        <div class="form-group">
+                            <label for="detailDepartment">Department:</label>
+                            <input type="text" id="detailDepartment" name="department">
                         </div>
+                    </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="requiredResponse">Required Response:</label>
-                                <select id="requiredResponse" name="requiredResponse">
-                                    <option value="">Select Response Type</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                    <option value="For Information">For Information</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="dueDate">Due Date:</label>
-                                <input type="date" id="dueDate" name="dueDate">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="currentStatus">Current Status:</label>
-								<select id="currentStatus" name="currentStatus">
-								    <option value="">Loading statuses...</option>
-								</select>
-                            </div>
-                        </div>
-
-						<div class="form-row">
-						              <div class="form-group">
-						                   <label for="department">Department:</label>
-						              <select id="department" name="department">
-						               <option value="">Loading departments...</option>
-						            </select>
-						          </div>
-						      </div>
-                        <div class="form-section">
-                            <label>Add Attachments:</label>
-                            <div class="attachments-section">
-                                <div id="attachmentsList">
-                                    <!-- Attachments will be dynamically added here -->
-                                </div>
-                                <div class="add-attachment-btn" id="addAttachmentBtn">
-                                    + Add Attachment
-                                </div>
-                                <input type="file" id="attachmentInput" style="display: none;" multiple>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailReferenceLetters">Reference Letters:</label>
+                            <div class="reference-letters-list" id="referenceLettersList">
+                                <!-- Reference letters will be auto-populated here -->
                             </div>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="upload-modal-buttons">
-                <button type="button" class="modal-btn btn-send" id="sendBtn">Send</button>
-                <button type="button" class="modal-btn btn-draft" id="saveAsDraftBtn">Save as Draft</button>
-                <button type="button" class="modal-btn btn-cancel" id="cancelBtn">Cancel</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Letter Details Modal -->
-    <div class="letter-details-modal" id="letterDetailsModal">
-        <div class="letter-details-modal-content">
-            <div class="letter-details-modal-header">
-                Letter Details - <span id="modalLetterNo"></span>
-                <span class="close" id="closeLetterModal">&times;</span>
-            </div>
-            <div class="letter-details-modal-body">
-                <form id="letterDetailsForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailSubject">Subject:</label>
+                            <textarea id="detailSubject" name="subject"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailKeyInformation">Key Information:</label>
+                            <textarea id="detailKeyInformation" name="keyInformation"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailRequiredResponse">Required Response:</label>
+                            <select id="detailRequiredResponse" name="requiredResponse">
+                                <option value="">Select Response Type</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="For Information">For Information</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="detailDueDate">Due Date:</label>
+                            <input type="date" id="detailDueDate" name="dueDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="detailStatus"> Current Status:</label>
+                            <select id="detailStatus" name="status">
+                                <option value="">Select Status</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Review">Review</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Sent">Sent</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-section">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailCategory">Category:</label>
-                                <select id="detailCategory" name="category">
-                                    <option value="">Select Category</option>
-                                    <option value="Contract">Contract</option>
-                                    <option value="Technical">Technical</option>
-                                    <option value="Commercial">Commercial</option>
-                                    <option value="Legal">Legal</option>
-                                    <option value="Administrative">Administrative</option>
-                                </select>
-                            </div>
-                            
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailLetterNo">Letter No.:</label>
-                                <input type="text" id="detailLetterNo" name="letterNo" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="detailLetterDate">Letter Date:</label>
-                                <input type="date" id="detailLetterDate" name="letterDate">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailFromField">Sender:</label>
-                                <input type="text" id="detailFromField" name="fromField">
-                            </div>
-                            <div class="form-group">
-                                <label for="detailToField">Copied To:</label>
-                                <input type="text" id="detailToField" name="toField">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailCcField">Cc:</label>
-                                <input type="text" id="detailCcField" name="ccField">
-                            </div>
-                            <div class="form-group">
-                                <label for="detailDepartment">Department:</label>
-                                <input type="text" id="detailDepartment" name="department">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailReferenceLetters">Reference Letters:</label>
-                                <div class="reference-letters-list" id="referenceLettersList">
-                                    <!-- Reference letters will be auto-populated here -->
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailSubject">Subject:</label>
-                                <textarea id="detailSubject" name="subject"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailKeyInformation">Key Information:</label>
-                                <textarea id="detailKeyInformation" name="keyInformation"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailRequiredResponse">Required Response:</label>
-                                <select id="detailRequiredResponse" name="requiredResponse">
-                                    <option value="">Select Response Type</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                    <option value="For Information">For Information</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="detailDueDate">Due Date:</label>
-                                <input type="date" id="detailDueDate" name="dueDate">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="detailStatus"> Current Status:</label>
-                                <select id="detailStatus" name="status">
-                                    <option value="">Select Status</option>
-                                    <option value="Draft">Draft</option>
-                                    <option value="Review">Review</option>
-                                    <option value="Approved">Approved</option>
-                                    <option value="Sent">Sent</option>
-                                    <option value="Closed">Closed</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <label>See Attachments:</label>
-                            <div class="see-attachments-section">
-                                <div id="seeAttachmentsList">
-                                    <!-- Existing attachments will be shown here -->
-                                </div>
+                        <label>See Attachments:</label>
+                        <div class="see-attachments-section">
+                            <div id="seeAttachmentsList">
+                                <!-- Existing attachments will be shown here -->
                             </div>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="upload-modal-buttons">
-                <button type="button" class="modal-btn btn-attach" id="attachBtn">Attach</button>
-                <button type="button" class="modal-btn btn-reply" id="replyBtn">Reply</button>
-                <button type="button" class="modal-btn btn-cancel" id="cancelDetailBtn">Cancel</button>
-            </div>
+                </div>
+            </form>
+        </div>
+        <div class="upload-modal-buttons">
+            <button type="button" class="modal-btn btn-attach" id="attachBtn">Attach</button>
+            <button type="button" class="modal-btn btn-reply" id="replyBtn">Reply</button>
+            <button type="button" class="modal-btn btn-cancel" id="cancelDetailBtn">Cancel</button>
         </div>
     </div>
+</div>
 
-	<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 
-    <script src="correspondance.js"></script>
+<script src="correspondance.js"></script>
 </body>
 
 </html>
