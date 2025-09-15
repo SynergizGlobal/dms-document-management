@@ -21,7 +21,7 @@ public class SubFolderController {
 	private final SubFolderService subFolderService;
 	
 	@GetMapping("/{folderId}")
-    public ResponseEntity<List<SubFolder>> getSubFoldersByFolderId(@PathVariable Long folderId) {
+    public ResponseEntity<List<SubFolder>> getSubFoldersByFolderId(@PathVariable("folderId") Long folderId) {
         return ResponseEntity.ok(subFolderService.getSubFoldersByFolderId(folderId));
     }
 

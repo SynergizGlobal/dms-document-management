@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.dto.DocumentDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
+import com.synergizglobal.dms.dto.SaveMetaDataDto;
 
 
 public interface DocumentService {
@@ -34,4 +35,6 @@ public interface DocumentService {
 		public String validateFileNumber(String... args);
 
 		public String validateFileName(String... args);
+
+		public Long saveMetadata(List<SaveMetaDataDto> dto);
 }

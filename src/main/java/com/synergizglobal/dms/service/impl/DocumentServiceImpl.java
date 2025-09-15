@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,20 +27,25 @@ import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.constant.Constant;
 import com.synergizglobal.dms.dto.DocumentDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
+import com.synergizglobal.dms.dto.SaveMetaDataDto;
 import com.synergizglobal.dms.entity.dms.Department;
 import com.synergizglobal.dms.entity.dms.Document;
 import com.synergizglobal.dms.entity.dms.DocumentFile;
 import com.synergizglobal.dms.entity.dms.DocumentRevision;
 import com.synergizglobal.dms.entity.dms.Folder;
+import com.synergizglobal.dms.entity.dms.MetaData;
 import com.synergizglobal.dms.entity.dms.Status;
 import com.synergizglobal.dms.entity.dms.SubFolder;
+import com.synergizglobal.dms.entity.dms.UploadedMetaData;
 import com.synergizglobal.dms.repository.dms.DepartmentRepository;
 import com.synergizglobal.dms.repository.dms.DocumentFileRepository;
 import com.synergizglobal.dms.repository.dms.DocumentRepository;
 import com.synergizglobal.dms.repository.dms.DocumentRevisionRepository;
 import com.synergizglobal.dms.repository.dms.FolderRepository;
+import com.synergizglobal.dms.repository.dms.MetaDataRepository;
 import com.synergizglobal.dms.repository.dms.StatusRepository;
 import com.synergizglobal.dms.repository.dms.SubFolderRepository;
+import com.synergizglobal.dms.repository.dms.UploadedMetaDataRepository;
 import com.synergizglobal.dms.service.dms.DocumentService;
 
 @Service
@@ -60,7 +66,11 @@ public class DocumentServiceImpl implements DocumentService {
 	private DocumentFileRepository documentFileRepository;
 	@Autowired
 	private DocumentService documentService;
-
+	@Autowired
+	private UploadedMetaDataRepository uploadedMetaDataRepository;
+	@Autowired
+	private MetaDataRepository metaDataRepository;
+	
 	@Value("${file.upload-dir}")
 	private String basePath;
 
@@ -349,13 +359,16 @@ public class DocumentServiceImpl implements DocumentService {
 			mapList.add(validate(Constant.REVISION_NUMBER, headerIndexMap, row,
 					row.get(headerIndexMap.get(Constant.FILE_NAME)), row.get(headerIndexMap.get(Constant.FILE_NUMBER)),
 					row.get(headerIndexMap.get(Constant.REVISION_NUMBER))));
-			mapList.add(validate(Constant.REVISION_DATE, headerIndexMap, row, row.get(headerIndexMap.get(Constant.REVISION_DATE))));
+			mapList.add(validate(Constant.REVISION_DATE, headerIndexMap, row,
+					row.get(headerIndexMap.get(Constant.REVISION_DATE))));
 			mapList.add(validate(Constant.FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER))));
 			mapList.add(validate(Constant.SUB_FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER)),
 					row.get(headerIndexMap.get(Constant.SUB_FOLDER))));
-			mapList.add(validate(Constant.DEPARTMENT, headerIndexMap, row, row.get(headerIndexMap.get(Constant.DEPARTMENT))));
+			mapList.add(validate(Constant.DEPARTMENT, headerIndexMap, row,
+					row.get(headerIndexMap.get(Constant.DEPARTMENT))));
 			mapList.add(validate(Constant.STATUS, headerIndexMap, row, row.get(headerIndexMap.get(Constant.STATUS))));
-			mapList.add(validate(Constant.UPLOAD_DOCUMENT, headerIndexMap, row, row.get(headerIndexMap.get(Constant.UPLOAD_DOCUMENT))));
+			mapList.add(validate(Constant.UPLOAD_DOCUMENT, headerIndexMap, row,
+					row.get(headerIndexMap.get(Constant.UPLOAD_DOCUMENT))));
 
 			mapList.add(map);
 		}
@@ -364,9 +377,9 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	public String validateUploadDocument(String... args) {
-		if(args[0] == null) {
+		if (args[0] == null) {
 			return "Upload Document Cannot be empty";
-		} else if(args[0].length() == 0){
+		} else if (args[0].length() == 0) {
 			return "Upload Document Cannot be empty";
 		}
 		return "";
@@ -377,7 +390,7 @@ public class DocumentServiceImpl implements DocumentService {
 		if (department.isPresent()) {
 			return "";
 		}
-		return "\""+ args[0] +"\" Department does not exists";
+		return "\"" + args[0] + "\" Department does not exists";
 	}
 
 	public String validateStatus(String... args) {
@@ -385,23 +398,23 @@ public class DocumentServiceImpl implements DocumentService {
 		if (status.isPresent()) {
 			return "";
 		}
-		return "\""+ args[0] +"\" Status does not exists";
+		return "\"" + args[0] + "\" Status does not exists";
 	}
 
 	public String validateSubFolder(String... args) {
 		Optional<Folder> folder = folderRepository.findByName(args[0]);
 		if (folder.isPresent()) {
 			List<SubFolder> subFolders = subFolderRepository.findByFolderId(folder.get().getId());
-			if(subFolders != null && subFolders.size() > 0) {
-				for(SubFolder subFolder : subFolders) {
-					if(subFolder.getName().equals(args[1])) {
+			if (subFolders != null && subFolders.size() > 0) {
+				for (SubFolder subFolder : subFolders) {
+					if (subFolder.getName().equals(args[1])) {
 						return "";
 					}
 				}
 			}
 		}
 
-		return "\""+ args[1] +"\" Sub-Folder does not exists";
+		return "\"" + args[1] + "\" Sub-Folder does not exists";
 	}
 
 	public String validateFolder(String... args) {
@@ -409,23 +422,23 @@ public class DocumentServiceImpl implements DocumentService {
 		if (folder.isPresent()) {
 			return "";
 		}
-		return "\""+ args[0] +"\" Folder does not exists";
+		return "\"" + args[0] + "\" Folder does not exists";
 	}
 
 	public String validateRevisionDate(String... args) {
 		if (args[0] == null || args[0].trim().isEmpty()) {
-            return "Revision Date cannot be null";
-        }
-		
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        sdf.setLenient(false); // Strict parsing
+			return "Revision Date cannot be null";
+		}
 
-        try {
-            sdf.parse(args[0]);
-            return "";
-        } catch (ParseException e) {
-        	return "Date "+ args[0] + " Should be in dd-mm-yyyy format" ;
-        }
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+		sdf.setLenient(false); // Strict parsing
+
+		try {
+			sdf.parse(args[0]);
+			return "";
+		} catch (ParseException e) {
+			return "Date " + args[0] + " Should be in dd-mm-yyyy format";
+		}
 	}
 
 	public String validateRevisionNumber(String... args) {
@@ -484,5 +497,37 @@ public class DocumentServiceImpl implements DocumentService {
 				.build();
 		map.put(key, metadataDtoFileName);
 		return map;
+	}
+
+	@Override
+	public Long saveMetadata(List<SaveMetaDataDto> dto) {
+		List<MetaData> metadatas = new ArrayList<>();
+		for (SaveMetaDataDto saveMetaDataDto : dto) {
+			
+			Optional<Folder> folder = folderRepository.findById(saveMetaDataDto.getFolder());
+			Optional<SubFolder> subFolder = subFolderRepository.findById(saveMetaDataDto.getSubfolder());
+			Optional<Department> department = departmentRepository.findById(saveMetaDataDto.getDepartment());
+			Optional<Status> status = statusRepository.findById(saveMetaDataDto.getCurrentstatus());
+			
+			metadatas.add(MetaData.builder().fileName(saveMetaDataDto.getFilename())
+			.fileNumber(saveMetaDataDto.getFilenumber())
+			.revisionNo(saveMetaDataDto.getRevisionno())
+			.revisionDate(saveMetaDataDto.getRevisiondate())
+			.folder(folder.get())
+			.subFolder(subFolder.get())
+			.department(department.get())
+			.currentStatus(status.get())
+			.uploadDocument(saveMetaDataDto.getUploaddocument())
+			.build());
+		}
+		UploadedMetaData uploadedMetaData = UploadedMetaData.builder().metadatas(metadatas).build();
+		uploadedMetaData = uploadedMetaDataRepository.save(uploadedMetaData);
+		
+		for(MetaData metadata : metadatas) {
+			metadata.setUploadedMetaData(uploadedMetaData);
+			metaDataRepository.save(metadata);
+		}
+		
+		return uploadedMetaData.getId();
 	}
 }

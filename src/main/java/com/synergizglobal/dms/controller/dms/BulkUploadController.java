@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.dto.MetaDataDto;
+import com.synergizglobal.dms.dto.SaveMetaDataDto;
 import com.synergizglobal.dms.service.dms.DocumentService;
 
 import lombok.RequiredArgsConstructor;
@@ -119,5 +120,13 @@ public class BulkUploadController {
 			throws Exception {
 		List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
 		return ResponseEntity.ok(map);
+	}
+	
+	@PostMapping("/metadata/save")
+	public ResponseEntity<Long> saveMetadata(@RequestBody List<SaveMetaDataDto> dto)
+			throws Exception {
+		//List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
+		Long metadataSavedId = documentservice.saveMetadata(dto);
+		return ResponseEntity.ok(metadataSavedId);
 	}
 }

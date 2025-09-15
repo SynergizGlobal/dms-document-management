@@ -585,7 +585,7 @@ $(document).ready(function() {
 					//if (errorMessage && errorMessage.trim() !== "") {
 					const errorMessageId = fieldName.toLowerCase().replace(/\s+/g, '') + "_errormessage_" + index;
 					cellContent += `<div style="color: red; font-size: 12px;" id="${errorMessageId.trim()}">${errorMessage}</div>`;
-
+					//cellContent += `<div class="error-message">This field is required</div>`
 
 					bodyHtml += `<td>${cellContent}</td>`;
 				});
@@ -827,23 +827,56 @@ $(document).ready(function() {
 	$('#savePreview').on('click', function() {
 		// Validate required fields in the preview modal
 		let isValid = true;
+		let inputRows = [];
+		let prevIndex = "0";
+		let map = {};
 		$('#previewModal input[required], #previewModal select[required]').each(function() {
-			if (!$(this).val().trim()) {
-				$(this).addClass('error-field');
-				$(this).siblings('.error-message').addClass('show');
-				isValid = false;
-			} else {
-				$(this).removeClass('error-field');
-				$(this).siblings('.error-message').removeClass('show');
+
+			const inputId = $(this).attr('id');
+			const fieldName = inputId.split('_')[0];
+			const index = inputId.split('_')[1];
+			if (index !== prevIndex) {
+				inputRows.push(map);
+				map = {};
 			}
+			const errorMsgId = `#${fieldName}_errormessage_${index}`
+			const errorMsg = $(errorMsgId).text();
+			if (!$(this).val().trim() || errorMsg !== "") {
+				//$(this).addClass('error-field');
+				//$(this).siblings('.error-message').addClass('show');
+				isValid = false;
+			} else { // form is valid than persist at backend
+				if (fieldName === 'sub-folder') {
+					map['subfolder'] = $(this).val();
+				} else {
+					map[fieldName] = $(this).val();
+				}//inputRows.push(map);
+				//$(this).removeClass('error-field');
+				//$(this).siblings('.error-message').removeClass('show');
+			}
+			prevIndex = index;
 		});
+		inputRows.push(map);
 
 		if (!isValid) return;
-
-		$('#previewModal').css('display', 'none');
-		$('#previewModal input, #previewModal select').removeClass('error-field success-field');
-		$('#previewModal .error-message').removeClass('show');
-		showNotification('Metadata saved successfully!', 'success');
+		// Send to backend
+		$.ajax({
+		    url: '/dms/api/bulkupload/metadata/save',
+		    type: 'POST',
+		    contentType: 'application/json',
+		    data: JSON.stringify(inputRows), // 👈 Convert list to JSON string
+		    success: function(response) {
+				localStorage.setItem('uploadedMetaDataId', response);
+				$('#previewModal').css('display', 'none');
+				$('#previewModal input, #previewModal select').removeClass('error-field success-field');
+				$('#previewModal .error-message').removeClass('show');
+				showNotification('Metadata saved successfully!', 'success');
+		    },
+		    error: function(xhr) {
+		        console.error('Error:', xhr.responseText);
+		        alert('Error saving metadata: ' + xhr.responseText);
+		    }
+		});
 	});
 
 	// File input change handlers
