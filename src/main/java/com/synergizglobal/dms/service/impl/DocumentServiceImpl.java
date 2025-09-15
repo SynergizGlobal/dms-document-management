@@ -1,5 +1,8 @@
 package com.synergizglobal.dms.service.impl;
 
+import java.io.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +52,7 @@ import com.synergizglobal.dms.repository.dms.StatusRepository;
 import com.synergizglobal.dms.repository.dms.SubFolderRepository;
 import com.synergizglobal.dms.repository.dms.UploadedMetaDataRepository;
 import com.synergizglobal.dms.service.dms.DocumentService;
+import org.springframework.mock.web.MockMultipartFile;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
@@ -70,9 +76,12 @@ public class DocumentServiceImpl implements DocumentService {
 	private UploadedMetaDataRepository uploadedMetaDataRepository;
 	@Autowired
 	private MetaDataRepository metaDataRepository;
-	
+
 	@Value("${file.upload-dir}")
 	private String basePath;
+
+	@Value("${file.zip-dir}")
+	private String zipPath;
 
 	@Override
 	@Transactional
@@ -503,31 +512,136 @@ public class DocumentServiceImpl implements DocumentService {
 	public Long saveMetadata(List<SaveMetaDataDto> dto) {
 		List<MetaData> metadatas = new ArrayList<>();
 		for (SaveMetaDataDto saveMetaDataDto : dto) {
-			
+
 			Optional<Folder> folder = folderRepository.findById(saveMetaDataDto.getFolder());
 			Optional<SubFolder> subFolder = subFolderRepository.findById(saveMetaDataDto.getSubfolder());
 			Optional<Department> department = departmentRepository.findById(saveMetaDataDto.getDepartment());
 			Optional<Status> status = statusRepository.findById(saveMetaDataDto.getCurrentstatus());
-			
+
 			metadatas.add(MetaData.builder().fileName(saveMetaDataDto.getFilename())
-			.fileNumber(saveMetaDataDto.getFilenumber())
-			.revisionNo(saveMetaDataDto.getRevisionno())
-			.revisionDate(saveMetaDataDto.getRevisiondate())
-			.folder(folder.get())
-			.subFolder(subFolder.get())
-			.department(department.get())
-			.currentStatus(status.get())
-			.uploadDocument(saveMetaDataDto.getUploaddocument())
-			.build());
+					.fileNumber(saveMetaDataDto.getFilenumber()).revisionNo(saveMetaDataDto.getRevisionno())
+					.revisionDate(saveMetaDataDto.getRevisiondate()).folder(folder.get()).subFolder(subFolder.get())
+					.department(department.get()).currentStatus(status.get())
+					.uploadDocument(saveMetaDataDto.getUploaddocument()).build());
 		}
 		UploadedMetaData uploadedMetaData = UploadedMetaData.builder().metadatas(metadatas).build();
 		uploadedMetaData = uploadedMetaDataRepository.save(uploadedMetaData);
-		
-		for(MetaData metadata : metadatas) {
+
+		for (MetaData metadata : metadatas) {
 			metadata.setUploadedMetaData(uploadedMetaData);
 			metaDataRepository.save(metadata);
 		}
-		
+
 		return uploadedMetaData.getId();
+	}
+
+	@Override
+	public void saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file) {
+		if (file.isEmpty()) {
+			throw new RuntimeException("Uploaded ZIP file is empty");
+		}
+
+		try {
+			// 1. Create zipPath and extract directories
+			Path zipDir = Paths.get(zipPath);
+			String extractPath = zipPath + "\\extract\\" + System.currentTimeMillis();
+			Path extractDir = zipDir.resolve(extractPath);
+
+			if (!Files.exists(zipDir)) {
+				Files.createDirectories(zipDir);
+			}
+			if (!Files.exists(extractDir)) {
+				Files.createDirectories(extractDir);
+			}
+
+			// 2. Save the uploaded zip file to zipPath
+			String originalFileName = file.getOriginalFilename();
+			if (originalFileName == null || !originalFileName.endsWith(".zip")) {
+				throw new RuntimeException("Invalid ZIP file");
+			}
+			String newFileName = file.getOriginalFilename().split("\\.")[0] + System.currentTimeMillis() + ".zip";
+
+			Path zipFilePath = zipDir.resolve(newFileName);
+			Files.copy(file.getInputStream(), zipFilePath, StandardCopyOption.REPLACE_EXISTING);
+
+			// 3. Extract the ZIP to zipPath/extract
+			try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFilePath.toFile()))) {
+				ZipEntry entry;
+				while ((entry = zipInputStream.getNextEntry()) != null) {
+					if (entry.isDirectory())
+						continue;
+
+					// Extract file
+					Path extractedFilePath = extractDir.resolve(entry.getName());
+
+					// Ensure parent directories exist
+					Files.createDirectories(extractedFilePath.getParent());
+
+					try (OutputStream outputStream = Files.newOutputStream(extractedFilePath)) {
+						byte[] buffer = new byte[1024];
+						int len;
+						while ((len = zipInputStream.read(buffer)) > 0) {
+							outputStream.write(buffer, 0, len);
+						}
+					}
+
+					System.out.println("Extracted: " + extractedFilePath.toString());
+					zipInputStream.closeEntry();
+				}
+			}
+
+			System.out.println("ZIP file saved and extracted successfully");
+			UploadedMetaData updatedUploadedMetaData = updateUploadDataWithZipFileLocation(uploadId,
+					zipPath + "\\" + newFileName);
+
+			Map<String, String> fileNameAndPathMap = getFileNamePathMap(extractPath);
+
+			for (MetaData metadata : updatedUploadedMetaData.getMetadatas()) {
+				String filePath = fileNameAndPathMap.get(metadata.getUploadDocument());
+
+				FileInputStream input = new FileInputStream(filePath);
+
+				MockMultipartFile mockFile = new MockMultipartFile("file", // name of the parameter
+						metadata.getUploadDocument(), // original file name
+						"application/octet-stream", // content type (adjust if needed)
+						input);
+				List<MultipartFile> files = new ArrayList<>();
+				files.add(mockFile);
+				DocumentDTO documentDto = DocumentDTO.builder().fileName(metadata.getFileName())
+						.fileNumber(metadata.getFileNumber()).revisionNo(metadata.getRevisionNo())
+						.revisionDate(metadata.getRevisionDate()).folder(metadata.getFolder().getName())
+						.subFolder(metadata.getSubFolder().getName()).department(metadata.getDepartment().getName())
+						.currentStatus(metadata.getCurrentStatus().getName()).build();
+				documentService.uploadFileWithMetaData(documentDto, files);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to save or extract ZIP file", e);
+		}
+	}
+
+	private UploadedMetaData updateUploadDataWithZipFileLocation(Long uploadId, String zipFileLocation) {
+		UploadedMetaData uploadMetaData = uploadedMetaDataRepository.getById(uploadId);
+		for (MetaData metaData : uploadMetaData.getMetadatas()) {
+			metaData.setUploadedZipLocation(zipFileLocation);
+			metaDataRepository.save(metaData);
+		}
+		return uploadMetaData;
+	}
+
+	public static Map<String, String> getFileNamePathMap(String extractPathStr) {
+		Path extractPath = Paths.get(extractPathStr);
+
+		try (Stream<Path> stream = Files.walk(extractPath)) {
+			return stream.filter(Files::isRegularFile).collect(Collectors.toMap(path -> path.getFileName().toString(), // key
+																														// =
+																														// file
+																														// name
+					path -> path.toAbsolutePath().toString(), // value = full path
+					(existing, replacement) -> existing // handle duplicate file names
+			));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Map.of(); // return empty map on error
+		}
 	}
 }

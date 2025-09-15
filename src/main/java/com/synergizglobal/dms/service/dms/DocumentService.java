@@ -37,4 +37,6 @@ public interface DocumentService {
 		public String validateFileName(String... args);
 
 		public Long saveMetadata(List<SaveMetaDataDto> dto);
+
+		public void saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file);
 }

@@ -182,59 +182,94 @@ $(document).ready(function() {
 
 	$('#documentSaveBtn').click(function(e) {
 		e.preventDefault();
-		var fileName = $('#fileName').val();
-		var fileNumber = $('#fileNumber').val();
-		var revisionNo = $('#revisionNo').val();
-		var revisionDate = $('#revisionDate').val();
-		var folder = $('#folder option:selected').text();
-		var subFolder = $('#subFolder option:selected').text();
-		var department = $('#department option:selected').text();
-		var currentStatus = $('#currentStatus option:selected').text();
-		//singleFileInput = $('#currentStatus').val();
-		var files = $('#singleFileInput')[0].files;
+		const activeTab = $('#uploadModal .upload-tab.active').data('tab');
+		if (activeTab === 'single') {
+			var fileName = $('#fileName').val();
+			var fileNumber = $('#fileNumber').val();
+			var revisionNo = $('#revisionNo').val();
+			var revisionDate = $('#revisionDate').val();
+			var folder = $('#folder option:selected').text();
+			var subFolder = $('#subFolder option:selected').text();
+			var department = $('#department option:selected').text();
+			var currentStatus = $('#currentStatus option:selected').text();
+			//singleFileInput = $('#currentStatus').val();
+			var files = $('#singleFileInput')[0].files;
 
-		// Validate file
-		if (!files && files.length <= 0) {
-			alert("Please select a file.");
-			return;
-		}
+			// Validate file
+			if (!files && files.length <= 0) {
+				alert("Please select a file.");
+				return;
+			}
 
-		// Create FormData object
-		var formData = new FormData();
-		formData.append("fileName", fileName);
-		formData.append("fileNumber", fileNumber);
-		formData.append("revisionNo", revisionNo);
-		formData.append("revisionDate", revisionDate);
-		formData.append("folder", folder);
-		formData.append("subFolder", subFolder);
-		formData.append("department", department);
-		formData.append("currentStatus", currentStatus);
-		for (let i = 0; i < files.length; i++) {
-			formData.append("files", files[i]); // key must match backend param
-		}
+			// Create FormData object
+			var formData = new FormData();
+			formData.append("fileName", fileName);
+			formData.append("fileNumber", fileNumber);
+			formData.append("revisionNo", revisionNo);
+			formData.append("revisionDate", revisionDate);
+			formData.append("folder", folder);
+			formData.append("subFolder", subFolder);
+			formData.append("department", department);
+			formData.append("currentStatus", currentStatus);
+			for (let i = 0; i < files.length; i++) {
+				formData.append("files", files[i]); // key must match backend param
+			}
 
-		// Send AJAX request
-		$.ajax({
-			url: '/dms/api/documents',  // Your Spring Boot endpoint
-			type: 'POST',
-			data: formData,
-			processData: false,
-			contentType: false,
-			success: function(responseData, textStatus, jqXHR) {
-				if (responseData.errorMessage !== null) {
-					alert(responseData.errorMessage);
+			// Send AJAX request
+			$.ajax({
+				url: '/dms/api/documents',  // Your Spring Boot endpoint
+				type: 'POST',
+				data: formData,
+				processData: false,
+				contentType: false,
+				success: function(responseData, textStatus, jqXHR) {
+					if (responseData.errorMessage !== null) {
+						alert(responseData.errorMessage);
+					}
+					else {
+						$('#uploadModal').fadeOut();
+						$('#successMessage').text("Successfully uploaded " + files.length + " files(s)");
+						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
+
+					}
+				},
+				error: function(xhr, status, error) {
+					alert("Upload failed: " + xhr.responseText);
 				}
-				else {
-					$('#uploadModal').fadeOut();
-					$('#successMessage').text("Successfully uploaded " + files.length + " files(s)");
-					$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
+			});
+		} else { // bulk upload
+			const formData = new FormData();
+			formData.append('file', uploadedZipFile);
+			const uploadId = localStorage.getItem("uploadedMetaDataId");
 
-				}
-			},
-			error: function(xhr, status, error) {
+			if (!uploadId) {
+			    alert("Upload ID is missing from local storage.");
+			    return;
+			}
+			
+			try {
+				// Step 1: Upload metadata file and get response
+				$.ajax({
+				    url: '/dms/api/bulkupload/zipfile/save/' + uploadId,
+				    type: 'POST',
+				    data: formData,
+				    processData: false,
+				    contentType: false,
+				    success: function(response) {
+				       $('#successMessage').text("Processing bulk upload...");
+				    },
+				    error: function(xhr) {
+				        console.error("Upload failed:", xhr.responseText);
+				        alert("Upload failed: " + xhr.responseText);
+				    }
+				});
+				
+				
+
+			} catch (xhr) {
 				alert("Upload failed: " + xhr.responseText);
 			}
-		});
+		}
 	});
 
 	// Draft button click: show draft table, hide main table
@@ -296,6 +331,7 @@ $(document).ready(function() {
 		if (e.target === this) {
 			$(this).hide();
 			resetUploadForm();
+			//disableUploadMetaDataAndPreviewMetaData();
 		}
 	});
 
@@ -824,6 +860,18 @@ $(document).ready(function() {
 		}
 	});
 
+	const disableUploadMetaDataAndPreviewMetaData = function() {
+		if (localStorage.getItem("uploadedMetaDataId")) {
+			$('#uploadMetadata').css({
+				'pointer-events': 'none',
+				'color': 'gray',
+				'cursor': 'not-allowed',
+				'text-decoration': 'none'
+			});
+			$('#previewMetadata').prop('disabled', true);
+		}
+	};
+
 	$('#savePreview').on('click', function() {
 		// Validate required fields in the preview modal
 		let isValid = true;
@@ -861,21 +909,22 @@ $(document).ready(function() {
 		if (!isValid) return;
 		// Send to backend
 		$.ajax({
-		    url: '/dms/api/bulkupload/metadata/save',
-		    type: 'POST',
-		    contentType: 'application/json',
-		    data: JSON.stringify(inputRows), // 👈 Convert list to JSON string
-		    success: function(response) {
+			url: '/dms/api/bulkupload/metadata/save',
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(inputRows), // 👈 Convert list to JSON string
+			success: function(response) {
 				localStorage.setItem('uploadedMetaDataId', response);
 				$('#previewModal').css('display', 'none');
 				$('#previewModal input, #previewModal select').removeClass('error-field success-field');
 				$('#previewModal .error-message').removeClass('show');
 				showNotification('Metadata saved successfully!', 'success');
-		    },
-		    error: function(xhr) {
-		        console.error('Error:', xhr.responseText);
-		        alert('Error saving metadata: ' + xhr.responseText);
-		    }
+				disableUploadMetaDataAndPreviewMetaData();
+			},
+			error: function(xhr) {
+				console.error('Error:', xhr.responseText);
+				alert('Error saving metadata: ' + xhr.responseText);
+			}
 		});
 	});
 

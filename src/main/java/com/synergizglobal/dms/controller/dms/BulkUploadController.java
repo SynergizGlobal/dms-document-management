@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -128,5 +129,12 @@ public class BulkUploadController {
 		//List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
 		Long metadataSavedId = documentservice.saveMetadata(dto);
 		return ResponseEntity.ok(metadataSavedId);
+	}
+	
+	@PostMapping("/zipfile/save/{uploadId}")
+	public ResponseEntity<Long> saveZipFileAndCreateDocuments(@PathVariable("uploadId") Long uploadId, @RequestParam("file") MultipartFile file)
+			throws Exception {
+		documentservice.saveZipFileAndCreateDocuments(uploadId, file);
+		return ResponseEntity.ok(uploadId);
 	}
 }
