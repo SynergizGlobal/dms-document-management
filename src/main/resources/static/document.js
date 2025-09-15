@@ -494,73 +494,6 @@ $(document).ready(function() {
 		input.click();
 	});
 
-	/*$(document).on('change', '.preview_folder', function() {
-		const elementId = $(this).attr('id'); // e.g., "folder_3"
-		const index = elementId.split('_')[1]; // Get the part after "folder_"
-		const folderId = $(this).val();
-		const subfolderId = "#subfolder_" + index; // ✅ consistent variable name
-
-		$(subfolderId).empty().append('<option value="">--Select--</option>');
-
-		// Fetch subfolders
-		$.ajax({
-			url: `/dms/api/subfolders/${folderId}`,
-			type: "GET",
-			success: function(data) {
-				if (Array.isArray(data)) {
-					data.forEach(sub => {
-						// Assuming each subfolder has `id` and `name`
-						$(subfolderId).append(
-							$('<option>', {
-								value: sub.id,
-								text: sub.name
-							})
-						);
-					});
-				} else {
-					console.error("Expected array but got:", data);
-				}
-			},
-			error: function() {
-				console.error("Failed to load subfolders");
-			}
-		});
-	});*/
-
-	$(document).on('change', '.preview_folder', function() {
-		const elementId = $(this).attr('id');           // e.g. "folder_3"
-		const index = elementId.split('_')[1];          // Get "3"
-		const folderId = $(this).val();                 // Selected folder ID
-		const subfolderSelectId = `#subfolder_${index}`;
-
-		$(subfolderSelectId).empty().append('<option value="">--Select--</option>');
-
-		if (!folderId) return;
-
-		$.ajax({
-			url: `/dms/api/subfolders/${folderId}`,
-			type: "GET",
-			success: function(data) {
-				if (Array.isArray(data)) {
-					let selectedSubfolderName = $(`#subfolder_${index}`).data('selected-subfolder-name'); // from metadata
-
-					data.forEach(sub => {
-						let selected = selectedSubfolderName && sub.name === selectedSubfolderName ? 'selected' : '';
-						$(subfolderSelectId).append(
-							$('<option>', {
-								value: sub.id,
-								text: sub.name,
-								selected: selected
-							})
-						);
-					});
-				}
-			},
-			error: function() {
-				console.error("Failed to load subfolders");
-			}
-		});
-	});
 
 
 
@@ -626,32 +559,33 @@ $(document).ready(function() {
 					const { value, errorMessage } = field[fieldName];
 					let cellContent = "";
 					let isValid = value && (!errorMessage || errorMessage.trim() === "");
-					let validClass = isValid ? "valid-input" : "";
+					let validClass = isValid ? "is-valid" : "is-invalid";
 					if (["Folder", "Department", "Current Status"].includes(fieldName)) {
 						let options = [];
 						if (fieldName === "Folder") {
-							cellContent += buildSelect(index, fieldName, value, folders, `preview_folder ${validClass}`);
+							cellContent += buildSelect(index, fieldName, value, folders, `preview_folder ${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}`);
 						} else if (fieldName === "Department") {
-							cellContent += buildSelect(index, fieldName, value, departments, `${validClass}`);
+							cellContent += buildSelect(index, fieldName, value, departments, `${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}`);
 						} else if (fieldName === "Current Status") {
-							cellContent += buildSelect(index, fieldName, value, statuses, `${validClass}`);
+							cellContent += buildSelect(index, fieldName, value, statuses, `${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}`);
 						}
 					} else if (fieldName === "Sub-Folder") {
 						// Add a data attribute with the subfolder name
-						cellContent += `<select class="${validClass}" name="${fieldName}" id="subfolder_${index}" data-selected-subfolder-name="${value}" required>
+						cellContent += `<select class="${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}" name="${fieldName}" id="sub-folder_${index}" data-selected-subfolder-name="${value}" required>
 								<option value="">--Select--</option>
 							</select>`;
 					} else if (fieldName === "Revision Date") {
 						// Add a data attribute with the subfolder name
-						cellContent += `<input type="date" class="${validClass}" name="${fieldName}" value="${value}" required/>`;
+						cellContent += `<input type="date" class="${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}" name="${fieldName}" value="${value}" id="${fieldName.toLowerCase().replace(/\s+/g, '')}_${index}" required/>`;
 					}
 					else {
-						cellContent += `<input type="text" class="${validClass}" name="${fieldName}" value="${value}" required/>`;
+						cellContent += `<input type="text" class="${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}" name="${fieldName}" value="${value}" id="${fieldName.toLowerCase().replace(/\s+/g, '')}_${index}" required/>`;
 					}
 
-					if (errorMessage && errorMessage.trim() !== "") {
-						cellContent += `<div style="color: red; font-size: 12px;">${errorMessage}</div>`;
-					}
+					//if (errorMessage && errorMessage.trim() !== "") {
+					const errorMessageId = fieldName.toLowerCase().replace(/\s+/g, '') + "_errormessage_" + index;
+					cellContent += `<div style="color: red; font-size: 12px;" id="${errorMessageId.trim()}">${errorMessage}</div>`;
+
 
 					bodyHtml += `<td>${cellContent}</td>`;
 				});
@@ -670,6 +604,159 @@ $(document).ready(function() {
 			alert("Upload failed: " + xhr.responseText);
 		}
 	});
+
+	const rowValidatorFunction = function() {
+		const input = $(this);
+		const inputId = input.attr('id');
+
+		const fieldName = inputId.split('_')[0];
+		const index = inputId.split('_')[1];
+
+		const filenameId = "#filename_" + index;
+		const fileNameValue = $(filenameId).val().trim();
+
+		const fileNumberId = "#filenumber_" + index;
+		const fileNumberValue = $(fileNumberId).val().trim();
+
+		const revisionNoId = "#revisionno_" + index;
+		const revisionNoValue = $(revisionNoId).val().trim();
+
+		const revisionDateId = "#revisiondate_" + index;
+		const revisionDateValue = $(revisionDateId).val().trim();
+
+		const folderId = "#folder_" + index;
+		const folderValue = $(folderId + " option:selected").text().trim();
+
+		const subfolderId = "#sub-folder_" + index;
+		const subfolderValue = $(subfolderId + " option:selected").text().trim();
+
+		const departmentId = "#department_" + index;
+		const departmentValue = $(departmentId + " option:selected").text().trim();
+
+		const statusId = "#currentstatus_" + index;
+		const statusValue = $(statusId + " option:selected").text().trim();
+
+		const uploadDocId = "#uploaddocument_" + index;
+		const uploadDocValue = $(uploadDocId).val().trim();
+
+
+		//const formData = new FormData();
+
+		// Example 2D array
+		const rows = [
+			["File Name", "File Number", "Revision No", "Revision Date", "Folder", "Sub-Folder", "Department", "Current Status", "Upload Document"],
+			[fileNameValue, fileNumberValue, revisionNoValue, revisionDateValue, folderValue, subfolderValue, departmentValue, statusValue, uploadDocValue]
+		];
+
+		// Convert to JSON string and append
+		//formData.append('rows', );
+
+		$.ajax({
+			url: '/dms/api/bulkupload/metadata/validate',  // Change to your actual endpoint
+			type: 'POST',
+			data: JSON.stringify(rows),
+			processData: false,
+			contentType: 'application/json',
+			success: function(response) {
+				//const rowIndex = 0; // Update this as needed (0 for first row, 1 for second, etc.)
+
+				response.forEach((fieldObj, i) => {
+					if (Object.keys(fieldObj).length === 0) return; // Skip empty objects
+
+					const fieldName = Object.keys(fieldObj)[0]; // e.g., "File Name"
+					const { errorMessage } = fieldObj[fieldName];
+
+					const fieldKey = fieldName.toLowerCase().replace(/\s+/g, ''); // e.g., "File Name" ➜ "filename"
+					const errorDivId = `#${fieldKey}_errormessage_${index}`;
+
+					$(errorDivId).text(errorMessage || '');
+					var fieldId = "#" + fieldKey + "_" + index; // Update the text (empty if no error)
+					if (errorMessage !== "") {
+						$(fieldId).removeClass('is-valid').addClass('is-invalid');
+					} else {
+						$(fieldId).removeClass('is-invalid').addClass('is-valid');
+					}
+				});
+			}
+		});
+
+
+	};
+
+	// Validations of file name
+	$(document).on('change', '.filename', rowValidatorFunction);
+	// Validations of file number
+	$(document).on('change', '.filenumber', rowValidatorFunction);
+	// Validations of revisionno
+	$(document).on('change', '.revisionno', rowValidatorFunction);
+	// Validations of revisiondate
+	$(document).on('change', '.revisiondate', rowValidatorFunction);
+	// Validations of folder
+	$(document).on('change', '.preview_folder', function() {
+		const elementId = $(this).attr('id');           // e.g. "folder_3"
+		const index = elementId.split('_')[1];          // Get "3"
+		const folderId = $(this).val();                 // Selected folder ID
+		const subfolderSelectId = `#sub-folder_${index}`;
+		const folderErrorMsgId = `#folder_errormessage_${index}`;
+
+		$(subfolderSelectId).empty().append('<option value="">--Select--</option>');
+		$(subfolderSelectId).removeClass('is-valid').addClass('is-invalid');
+		if (!folderId) {
+			$(this).removeClass('is-valid').addClass('is-invalid');
+			return;
+		}
+		$(folderErrorMsgId).text('');
+		$(this).removeClass('is-invalid').addClass('is-valid');
+
+		$.ajax({
+			url: `/dms/api/subfolders/${folderId}`,
+			type: "GET",
+			success: function(data) {
+				if (Array.isArray(data)) {
+					let selectedSubfolderName = $(`#sub-folder_${index}`).data('selected-subfolder-name'); // from metadata
+
+					data.forEach(sub => {
+						let selected = selectedSubfolderName && sub.name === selectedSubfolderName ? 'selected' : '';
+						$(subfolderSelectId).append(
+							$('<option>', {
+								value: sub.id,
+								text: sub.name,
+								selected: selected
+							})
+						);
+					});
+					if ($(subfolderSelectId).val() && $(subfolderSelectId).val() !== "") {
+						isAnySubFolderSelected = true;
+						//return false; // exit loop early
+					}
+
+					if (isAnySubFolderSelected !== '') {
+						// set error message to blank
+						$(`#sub-folder_errormessage_${index}`).text('');
+						$(subfolderSelectId).removeClass('is-invalid').addClass('is-valid');
+					} else {
+						$(subfolderSelectId).removeClass('is-valid').addClass('is-invalid');
+					}
+				}
+			},
+			error: function() {
+				console.error("Failed to load subfolders");
+			}
+		});
+
+
+	});
+	//$(document).on('change', '.folder',rowValidatorFunction);
+	// Validations of Sub Folder
+	$(document).on('change', '.sub-folder', rowValidatorFunction);
+	// Validations of file number
+	$(document).on('change', '.department', rowValidatorFunction);
+	// Validations of file number
+	$(document).on('change', '.currentstatus', rowValidatorFunction);
+	//
+
+
+
 
 	// Bulk update link handlers
 	$('#downloadUpdateTemplate').click(function(e) {
@@ -1051,12 +1138,14 @@ $(document).ready(function() {
 		updateUploadedZipFile = null;
 	}
 
+
+
 	function showPreviewMetadata() {
 		$('#previewFileName, #previewFileNumber').val('');
 		$('#previewFolder, #previewSubFolder, #previewDepartment, #previewCurrentStatus').val('');
 		$('#previewRevisionDate').val('');
 
-		$('#previewModal input, #previewModal select').addClass('error-field');
+		//$('#previewModal input, #previewModal select').addClass('error-field');
 		$('#previewModal .error-message').addClass('show');
 
 		$('#previewModal').css('display', 'flex');

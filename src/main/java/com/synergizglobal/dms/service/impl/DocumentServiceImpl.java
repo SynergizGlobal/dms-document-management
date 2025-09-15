@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -348,13 +349,13 @@ public class DocumentServiceImpl implements DocumentService {
 			mapList.add(validate(Constant.REVISION_NUMBER, headerIndexMap, row,
 					row.get(headerIndexMap.get(Constant.FILE_NAME)), row.get(headerIndexMap.get(Constant.FILE_NUMBER)),
 					row.get(headerIndexMap.get(Constant.REVISION_NUMBER))));
-			mapList.add(validate(Constant.REVISION_DATE, headerIndexMap, row));
+			mapList.add(validate(Constant.REVISION_DATE, headerIndexMap, row, row.get(headerIndexMap.get(Constant.REVISION_DATE))));
 			mapList.add(validate(Constant.FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER))));
 			mapList.add(validate(Constant.SUB_FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER)),
 					row.get(headerIndexMap.get(Constant.SUB_FOLDER))));
 			mapList.add(validate(Constant.DEPARTMENT, headerIndexMap, row, row.get(headerIndexMap.get(Constant.DEPARTMENT))));
 			mapList.add(validate(Constant.STATUS, headerIndexMap, row, row.get(headerIndexMap.get(Constant.STATUS))));
-			mapList.add(validate(Constant.UPLOAD_DOCUMENT, headerIndexMap, row));
+			mapList.add(validate(Constant.UPLOAD_DOCUMENT, headerIndexMap, row, row.get(headerIndexMap.get(Constant.UPLOAD_DOCUMENT))));
 
 			mapList.add(map);
 		}
@@ -363,7 +364,11 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	public String validateUploadDocument(String... args) {
-		// TODO Auto-generated method stub
+		if(args[0] == null) {
+			return "Upload Document Cannot be empty";
+		} else if(args[0].length() == 0){
+			return "Upload Document Cannot be empty";
+		}
 		return "";
 	}
 
@@ -372,7 +377,7 @@ public class DocumentServiceImpl implements DocumentService {
 		if (department.isPresent()) {
 			return "";
 		}
-		return "Department does not exists";
+		return "\""+ args[0] +"\" Department does not exists";
 	}
 
 	public String validateStatus(String... args) {
@@ -380,7 +385,7 @@ public class DocumentServiceImpl implements DocumentService {
 		if (status.isPresent()) {
 			return "";
 		}
-		return "Status does not exists";
+		return "\""+ args[0] +"\" Status does not exists";
 	}
 
 	public String validateSubFolder(String... args) {
@@ -396,7 +401,7 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 		}
 
-		return "Sub-Folder does not exists";
+		return "\""+ args[1] +"\" Sub-Folder does not exists";
 	}
 
 	public String validateFolder(String... args) {
@@ -404,12 +409,23 @@ public class DocumentServiceImpl implements DocumentService {
 		if (folder.isPresent()) {
 			return "";
 		}
-		return "Folder does not exists";
+		return "\""+ args[0] +"\" Folder does not exists";
 	}
 
 	public String validateRevisionDate(String... args) {
-		// TODO Auto-generated method stub
-		return "";
+		if (args[0] == null || args[0].trim().isEmpty()) {
+            return "Revision Date cannot be null";
+        }
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        sdf.setLenient(false); // Strict parsing
+
+        try {
+            sdf.parse(args[0]);
+            return "";
+        } catch (ParseException e) {
+        	return "Date "+ args[0] + " Should be in dd-mm-yyyy format" ;
+        }
 	}
 
 	public String validateRevisionNumber(String... args) {

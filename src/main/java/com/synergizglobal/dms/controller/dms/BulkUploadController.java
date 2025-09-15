@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -79,9 +80,12 @@ public class BulkUploadController {
 
 			for (Row row : sheet) {
 				List<String> cellValues = new ArrayList<>();
-				for (Cell cell : row) {
-					FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
-		            CellValue evaluated = evaluator.evaluate(cell);
+				int lastCellNum = row.getLastCellNum(); // gets the total number of cells (including blanks)
+				for (int i = 0; i < lastCellNum; i++) {
+					Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+					FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper()
+							.createFormulaEvaluator();
+					CellValue evaluated = evaluator.evaluate(cell);
 					if (cell.getCellType().equals(CellType.STRING)) {
 						cell.setCellType(CellType.STRING); // convert to String for simplicity
 						cellValues.add(cell.getStringCellValue().trim());
@@ -92,9 +96,9 @@ public class BulkUploadController {
 						} else {
 							double numericValue = evaluated.getNumberValue();
 							if (numericValue == Math.floor(numericValue)) {
-							    cellValue = String.valueOf((long) numericValue); // No decimal part
+								cellValue = String.valueOf((long) numericValue); // No decimal part
 							} else {
-							    cellValue = String.valueOf(numericValue); // Keep decimal
+								cellValue = String.valueOf(numericValue); // Keep decimal
 							}
 						}
 						cellValues.add(cellValue);
@@ -108,5 +112,12 @@ public class BulkUploadController {
 		} catch (Exception e) {
 			throw e;
 		}
+	}
+
+	@PostMapping("/metadata/validate")
+	public ResponseEntity<List<Map<String, MetaDataDto>>> validateMetadataFile(@RequestBody List<List<String>> rows)
+			throws Exception {
+		List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
+		return ResponseEntity.ok(map);
 	}
 }

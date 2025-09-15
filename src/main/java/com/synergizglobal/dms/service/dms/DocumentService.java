@@ -3,17 +3,11 @@ package com.synergizglobal.dms.service.dms;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.dto.DocumentDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
-import com.synergizglobal.dms.entity.dms.Department;
-import com.synergizglobal.dms.entity.dms.Document;
-import com.synergizglobal.dms.entity.dms.Folder;
-import com.synergizglobal.dms.entity.dms.Status;
-import com.synergizglobal.dms.entity.dms.SubFolder;
 
 
 public interface DocumentService {
