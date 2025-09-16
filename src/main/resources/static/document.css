@@ -1986,3 +1986,9 @@ table.dataTable tbody td {
     background-color: #ccc;
     color: #000;
 }
+.filter-dropdown-toggle[disabled] {
+  pointer-events: none;      /* Disable clicks and other pointer events */
+  opacity: 0.5;              /* Make it look disabled (optional) */
+  cursor: default;           /* Change cursor to default arrow */
+  user-select: none;         /* Prevent text selection */
+}

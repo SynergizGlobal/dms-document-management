@@ -1,29 +1,36 @@
 package com.synergizglobal.dms.service.impl;
 
-import java.io.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+//import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.constant.Constant;
 import com.synergizglobal.dms.dto.DocumentDTO;
+import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
 import com.synergizglobal.dms.dto.SaveMetaDataDto;
 import com.synergizglobal.dms.entity.dms.Department;
@@ -52,7 +60,15 @@ import com.synergizglobal.dms.repository.dms.StatusRepository;
 import com.synergizglobal.dms.repository.dms.SubFolderRepository;
 import com.synergizglobal.dms.repository.dms.UploadedMetaDataRepository;
 import com.synergizglobal.dms.service.dms.DocumentService;
-import org.springframework.mock.web.MockMultipartFile;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
@@ -82,6 +98,13 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Value("${file.zip-dir}")
 	private String zipPath;
+
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	@Override
 	@Transactional
@@ -291,7 +314,7 @@ public class DocumentServiceImpl implements DocumentService {
 					DocumentFile documentFile = new DocumentFile();
 					documentFile.setFileName(targetFileName);
 					documentFile.setFilePath(filePath);
-					documentFile.setFileType(CommonUtil.getExtensionFromContentType(file.getContentType()));
+					documentFile.setFileType(getExtension(dest));
 					// assuming relation exists
 					DocumentFile savedDocumentFile = documentFileRepository.save(documentFile);
 
@@ -306,7 +329,14 @@ public class DocumentServiceImpl implements DocumentService {
 
 		return savedFiles;
 	}
-
+	public static String getExtension(File file) {
+	    String name = file.getName();
+	    int lastIndex = name.lastIndexOf(".");
+	    if (lastIndex != -1 && lastIndex < name.length() - 1) {
+	        return name.substring(lastIndex + 1);
+	    }
+	    return "";
+	}
 	private List<DocumentFile> moveFilesToArchiveFolder(List<DocumentFile> files, SubFolder subFolder)
 			throws IOException {
 		List<DocumentFile> savedFiles = new ArrayList<>();
@@ -609,7 +639,7 @@ public class DocumentServiceImpl implements DocumentService {
 				FileInputStream input = new FileInputStream(filePath);
 				File fileForContentType = new File(filePath);
 				Path path = fileForContentType.toPath();
-	            String contentType = Files.probeContentType(path);
+				String contentType = Files.probeContentType(path);
 				MockMultipartFile mockFile = new MockMultipartFile("file", // name of the parameter
 						metadata.getUploadDocument(), // original file name
 						contentType, // content type (adjust if needed)
@@ -667,4 +697,255 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		return null;
 	}
+
+	@Override
+	public List<String> findGroupedFileNames() {
+		return documentRepository.findGroupedFileNames();
+	}
+
+	@Override
+	public List<String> findGroupedFileTypes() {
+		return documentRepository.findGroupedFileTypes();
+	}
+
+	@Override
+	public List<String> findGroupedFileNumbers() {
+		return documentRepository.findGroupedFileNumbers();
+	}
+
+	@Override
+	public List<String> findGroupedRevisionNos() {
+		return documentRepository.findGroupedRevisionNos();
+	}
+
+	@Override
+	public List<String> findGroupedStatus() {
+		return documentRepository.findGroupedStatus();
+	}
+
+	@Override
+	public List<String> findGroupedFolders() {
+		return documentRepository.findGroupedFolders();
+	}
+
+	@Override
+	public List<String> findGroupedSubFolders() {
+		return documentRepository.findGroupedSubFolders();
+	}
+
+	@Override
+	public List<String> findGroupedUploadedDate() {
+		return documentRepository.findGroupedUploadedDate();
+	}
+
+	@Override
+	public List<String> findGroupedRevisionDate() {
+		return documentRepository.findGroupedRevisionDate();
+	}
+
+	@Override
+	public List<String> findGroupedDepartment() {
+		return documentRepository.findGroupedDepartment();
+	}
+
+	@Override
+	public List<DocumentGridDTO> getFilteredDocuments(
+	    Map<Integer, List<String>> columnFilters,
+	    int start,   // offset (zero-based)
+	    int length   // max number of records to return
+	) {
+	    jakarta.persistence.criteria.CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	    jakarta.persistence.criteria.CriteriaQuery<jakarta.persistence.Tuple> cq = cb.createTupleQuery();
+	    jakarta.persistence.criteria.Root<Document> root = cq.from(Document.class);
+
+	    // Joins
+	    jakarta.persistence.criteria.Join<Document, Folder> folderJoin = root.join("folder", jakarta.persistence.criteria.JoinType.LEFT);
+	    jakarta.persistence.criteria.Join<Document, SubFolder> subFolderJoin = root.join("subFolder", jakarta.persistence.criteria.JoinType.LEFT);
+	    jakarta.persistence.criteria.Join<Document, Department> departmentJoin = root.join("department", jakarta.persistence.criteria.JoinType.LEFT);
+	    jakarta.persistence.criteria.Join<Document, Status> statusJoin = root.join("currentStatus", jakarta.persistence.criteria.JoinType.LEFT);
+	    jakarta.persistence.criteria.Join<Document, DocumentFile> docFileJoin = root.join("documentFiles", jakarta.persistence.criteria.JoinType.LEFT);
+
+	    List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	    for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
+	        Integer columnIndex = entry.getKey();
+	        List<String> values = entry.getValue();
+
+	        if (values == null || values.isEmpty()) continue;
+
+	        String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
+	        if (path == null || path.isBlank()) continue;
+
+	        jakarta.persistence.criteria.Path<?> fieldPath;
+	        switch (path) {
+	            case "folder.name" -> fieldPath = folderJoin.get("name");
+	            case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
+	            case "department.name" -> fieldPath = departmentJoin.get("name");
+	            case "currentStatus.name" -> fieldPath = statusJoin.get("name");
+	            case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
+	            default -> fieldPath = root.get(path);
+	        }
+
+	        if ("revisionDate".equals(path) || "createdAt".equals(path)) {
+	            List<LocalDate> dates = new ArrayList<>();
+	            for (String dateStr : values) {
+	                try {
+	                    LocalDate date = LocalDate.parse(dateStr, formatter);
+	                    dates.add(date);
+	                } catch (DateTimeParseException e) {
+	                    // skip invalid dates or log
+	                }
+	            }
+
+	            if (!dates.isEmpty()) {
+	                predicates.add(fieldPath.in(dates));  // fieldPath must be Path<LocalDate>
+	            }
+	        } /*else if ("createdAt".equals(path)) {
+	        	predicates.add(filterExactDateTimeField(cb, (jakarta.persistence.criteria.Path<LocalDateTime>) fieldPath, values));
+	        }*/ else {
+	            predicates.add(fieldPath.in(values));
+	        }
+	    }
+
+	    cq.multiselect(root, docFileJoin)
+	      .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])))
+	      .orderBy(cb.desc(root.get("updatedAt")));
+
+	    var query = entityManager.createQuery(cq);
+	    query.setFirstResult(start);   // offset
+	    query.setMaxResults(length);   // limit
+
+	    List<jakarta.persistence.Tuple> tuples = query.getResultList();
+
+	    return tuples.stream()
+	        .map(tuple -> {
+	            Document doc = tuple.get(root);
+	            DocumentFile file = tuple.get(docFileJoin);
+	            return convertToDTOWithSingleFile(doc, file);
+	        })
+	        .collect(Collectors.toList());
+	}
+	
+	private jakarta.persistence.criteria.Predicate filterExactDateTimeField(
+		    jakarta.persistence.criteria.CriteriaBuilder cb,
+		    jakarta.persistence.criteria.Path<LocalDateTime> path,
+		    List<String> dateTimeStrings
+		) {
+		    // Formatter with space between date and time (not 'T')
+		    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		    List<jakarta.persistence.criteria.Predicate> exactMatches = new ArrayList<>();
+
+		    for (String dateTimeStr : dateTimeStrings) {
+		        try {
+		            // Parse string with space separator using custom formatter
+		            LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, formatter);
+		            exactMatches.add(cb.equal(path, dateTime));
+		        } catch (DateTimeParseException e) {
+		            // Log or ignore invalid date-time strings
+		            System.out.println("Invalid date-time format: " + dateTimeStr + " - " + e.getMessage());
+		        }
+		    }
+
+		    if (exactMatches.isEmpty()) {
+		        return cb.conjunction(); // Always true if no valid datetime found
+		    }
+
+		    // Combine predicates with OR (match any of the given dateTimes)
+		    return cb.or(exactMatches.toArray(new jakarta.persistence.criteria.Predicate[0]));
+		}
+
+
+	
+	@Override
+	public long countFilteredDocuments(Map<Integer, List<String>> columnFilters) {
+	    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+	    Root<Document> root = countQuery.from(Document.class);
+
+	    // Join DocumentFile explicitly (you want duplicate rows per file)
+	    Join<Document, DocumentFile> docFileJoin = root.join("documentFiles", JoinType.LEFT);
+	    Join<Document, Folder> folderJoin = root.join("folder", JoinType.LEFT);
+	    Join<Document, SubFolder> subFolderJoin = root.join("subFolder", JoinType.LEFT);
+	    Join<Document, Department> departmentJoin = root.join("department", JoinType.LEFT);
+	    Join<Document, Status> statusJoin = root.join("currentStatus", JoinType.LEFT);
+
+	    List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	    for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
+	        Integer columnIndex = entry.getKey();
+	        List<String> values = entry.getValue();
+
+	        if (values == null || values.isEmpty()) continue;
+
+	        String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
+	        if (path == null || path.isBlank()) continue;
+
+	        jakarta.persistence.criteria.Path<?> fieldPath;
+	        switch (path) {
+	            case "folder.name" -> fieldPath = folderJoin.get("name");
+	            case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
+	            case "department.name" -> fieldPath = departmentJoin.get("name");
+	            case "currentStatus.name" -> fieldPath = statusJoin.get("name");
+	            case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
+	            default -> fieldPath = root.get(path);
+	        }
+
+	        if ("revisionDate".equals(path) || "createdAt".equals(path)) {
+	            List<LocalDate> dates = new ArrayList<>();
+	            for (String dateStr : values) {
+	                try {
+	                    LocalDate date = LocalDate.parse(dateStr, formatter);
+	                    dates.add(date);
+	                } catch (DateTimeParseException e) {
+	                    // skip invalid dates or log
+	                }
+	            }
+
+	            if (!dates.isEmpty()) {
+	                predicates.add(fieldPath.in(dates));  // fieldPath must be Path<LocalDate>
+	            }
+	        }/* else if ("createdAt".equals(path)) {
+	        	predicates.add(filterExactDateTimeField(cb, (jakarta.persistence.criteria.Path<LocalDateTime>) fieldPath, values));
+	        }*/ else {
+	            predicates.add(fieldPath.in(values));
+	        }
+	    }
+
+	    countQuery.select(cb.count(docFileJoin))
+	              .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
+
+	    return entityManager.createQuery(countQuery).getSingleResult();
+	}
+
+
+	private DocumentGridDTO convertToDTOWithSingleFile(Document doc, DocumentFile file) {
+	    return DocumentGridDTO.builder()
+	        .fileName(doc.getFileName())
+	        .fileNumber(doc.getFileNumber())
+	        .revisionNumber(doc.getRevisionNo())
+	        .revisionDate(doc.getRevisionDate() != null ? doc.getRevisionDate().toString() : null)
+	        .folder(doc.getFolder() != null ? doc.getFolder().getName() : null)
+	        .subFolder(doc.getSubFolder() != null ? doc.getSubFolder().getName() : null)
+	        .department(doc.getDepartment() != null ? doc.getDepartment().getName() : null)
+	        .status(doc.getCurrentStatus() != null ? doc.getCurrentStatus().getName() : null)
+	       // .createdAt(doc.getCreatedAt() != null ? doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
+	        .dateUploaded(doc.getCreatedAt() != null ? doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
+	        .documentType("")
+	        .createdBy("")
+	        .viewedOrDownloaded("")
+	        // Add file info
+	        .fileType(file != null ? file.getFileType() : null)
+	        //.filePath(file != null ? file.getFilePath() : null)
+	        //.fileNameInFile(file != null ? file.getFileName() : null) // avoid name clash with doc.fileName
+	        .build();
+	}
+
+	@Override
+	public long countAllFiles() {
+		// TODO Auto-generated method stub
+		return documentRepository.countAllFiles();
+	}
+
 }

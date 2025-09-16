@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
+import com.synergizglobal.dms.dto.DocumentGridDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.dto.DocumentDTO;
@@ -41,4 +42,30 @@ public interface DocumentService {
 		public String saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file);
 
 		public Long getMetadata();
+
+		public List<String> findGroupedFileNames();
+
+		public List<String> findGroupedFileTypes();
+
+		public List<String> findGroupedFileNumbers();
+
+		public List<String> findGroupedRevisionNos();
+		
+		public List<String> findGroupedStatus();
+		
+		public List<String> findGroupedFolders();
+		
+		public List<String> findGroupedSubFolders();
+
+		public List<String> findGroupedUploadedDate();
+		
+		public List<String> findGroupedRevisionDate();
+
+		public List<String> findGroupedDepartment();
+
+		public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, int length);
+
+		public long countAllFiles();
+
+		public long countFilteredDocuments(Map<Integer, List<String>> columnFilters);
 }

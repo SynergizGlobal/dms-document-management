@@ -1,9 +1,11 @@
 package com.synergizglobal.dms.repository.dms;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.synergizglobal.dms.entity.dms.Document;
 
@@ -15,5 +17,37 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	
 	@EntityGraph(attributePaths = "documentFiles")
 	Optional<Document> findByFileName(String fileName);
+	
+	@Query("SELECT distinct d.fileName FROM Document d GROUP BY d.fileName")
+    List<String> findGroupedFileNames();
+	
+	@Query("SELECT DISTINCT df.fileType FROM Document d JOIN d.documentFiles df GROUP BY df.fileType")
+	List<String> findGroupedFileTypes();
+	
+	@Query("SELECT distinct d.fileNumber FROM Document d GROUP BY d.fileNumber")
+	List<String> findGroupedFileNumbers();
+	
+	@Query("SELECT distinct d.revisionNo FROM Document d GROUP BY d.revisionNo")
+	List<String> findGroupedRevisionNos();
+	
+	@Query("SELECT DISTINCT ds.name FROM Document d JOIN d.currentStatus ds GROUP BY d.currentStatus")
+	List<String> findGroupedStatus();
+	
+	@Query("SELECT DISTINCT ds.name FROM Document d JOIN d.folder ds GROUP BY d.folder")
+	List<String> findGroupedFolders();
+	
+	@Query("SELECT DISTINCT ds.name FROM Document d JOIN d.subFolder ds GROUP BY d.subFolder")
+	List<String> findGroupedSubFolders();
 
+	@Query("SELECT distinct DATE_FORMAT(d.createdAt, '%Y-%m-%d') FROM Document d GROUP BY DATE_FORMAT(d.createdAt, '%Y-%m-%d')")
+	List<String> findGroupedUploadedDate();
+	
+	@Query("SELECT distinct DATE_FORMAT(d.revisionDate, '%Y-%m-%d') FROM Document d GROUP BY d.revisionDate")
+	List<String> findGroupedRevisionDate();
+
+	@Query("SELECT DISTINCT ds.name FROM Document d JOIN d.department ds GROUP BY d.department")
+	List<String> findGroupedDepartment();
+	
+	@Query("SELECT COUNT(df.id) FROM Document d JOIN d.documentFiles df")
+	long countAllFiles();
 }

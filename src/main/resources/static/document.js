@@ -29,8 +29,45 @@ $(document).ready(function() {
 
 	// Initialize DataTables
 	function initializeDataTables() {
+		if (mainTableInstance) {
+			mainTableInstance.destroy(); // Add this before creating again
+		}
 		if (!mainTableInstance && $('#mainTable').length) {
+			//if (mainTableInstance) {
+			//	mainTableInstance.destroy(); // Add this before creating again
+			//}
 			mainTableInstance = $('#mainTable').DataTable({
+				serverSide: true, // <-- This is crucial
+				processing: true, // Optional: shows a loading indicator
+				ajax: {
+					url: '/dms/api/documents/filter-data', // Your API
+					type: 'POST',
+					contentType: 'application/json',
+					data: function(d) {
+						return JSON.stringify({
+							draw: d.draw,
+							start: d.start,
+							length: d.length,
+							columnFilters: columnFilters
+						})
+					},
+					dataSrc: 'data' // Assuming backend returns a plain array
+				},
+				columns: [
+					{ data: 'fileType' },
+					{ data: 'fileNumber' },
+					{ data: 'fileName' },
+					{ data: 'revisionNumber' },
+					{ data: 'status' },
+					{ data: 'documentType' },
+					{ data: 'folder' },
+					{ data: 'subFolder' },
+					{ data: 'createdBy' },
+					{ data: 'dateUploaded' },
+					{ data: 'revisionDate' },
+					{ data: 'department' },
+					{ data: 'viewedOrDownloaded' }
+				],
 				"language": {
 					"lengthMenu": "Show _MENU_ entries",
 					"info": "Showing _START_ to _END_ of _TOTAL_ entries"
@@ -231,6 +268,7 @@ $(document).ready(function() {
 						$('#successMessage').text("Successfully uploaded " + files.length + " files(s)");
 						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
 
+						initializeDataTables();
 					}
 				},
 				error: function(xhr, status, error) {
@@ -248,9 +286,9 @@ $(document).ready(function() {
 				const errorMsg = $(errorMsgId).text();
 				if (!$(this).val().trim() || errorMsg !== "") {
 					isValid = false;
-				} 
+				}
 			});
-			if(!isValid) {
+			if (!isValid) {
 				alert("Errors in Uploaded Metadata, click on preview to review.");
 				return;
 			}
@@ -286,13 +324,13 @@ $(document).ready(function() {
 					processData: false,
 					contentType: false,
 					success: function(response) {
-						
-						if(response) {
+
+						if (response) {
 							alert(response);
 							return;
 						}
-						
-						
+
+
 						$('#uploadModal').fadeOut();
 						$('#successMessage').text("Processing bulk upload...");
 						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
@@ -300,11 +338,12 @@ $(document).ready(function() {
 						removeUploadedFile('metadata');
 						$('#previewMetadata').prop('disabled', false);
 						$('#uploadMetadata').css({
-						    'pointer-events': 'auto',
-						    'color': '#2b5797', // Reset to original or specific color
-						    'cursor': '',
-						    'text-decoration': ''
+							'pointer-events': 'auto',
+							'color': '#2b5797', // Reset to original or specific color
+							'cursor': '',
+							'text-decoration': ''
 						});
+						initializeDataTables();
 					},
 					error: function(xhr) {
 						console.error("Upload failed:", xhr.responseText);
@@ -318,6 +357,7 @@ $(document).ready(function() {
 				alert("Upload failed: " + xhr.responseText);
 			}
 		}
+
 	});
 
 	// Draft button click: show draft table, hide main table
@@ -1427,12 +1467,28 @@ $(document).ready(function() {
                 `);
 
 		const uniqueValues = new Set();
-		$('#mainTable tbody tr').each(function() {
+		/*$('#mainTable tbody tr').each(function() {
 			const cell = $(this).find('td').eq(columnIndex);
 			let value = cell.find('input').length ? cell.find('input').val() : cell.text();
 			value = value.trim();
 			if (value) uniqueValues.add(value);
+		});*/
+		$.ajax({
+			url: `/dms/api/documents/filters/${columnIndex}`, // Dynamic URL with column index
+			type: 'GET',
+			async: false,
+			contentType: 'application/json',
+			success: function(values) {
+				values.forEach(value => {
+					uniqueValues.add(value);
+				});
+
+			},
+			error: function(xhr, status, error) {
+				console.error("Error fetching filter values:", error);
+			}
 		});
+
 
 		const optionsContainer = dropdown.find('.filter-options');
 		Array.from(uniqueValues).sort().forEach((value, idx) => {
@@ -1493,7 +1549,7 @@ $(document).ready(function() {
 
 	// Filter table rows
 	function applyColumnFilters() {
-		$('#mainTable tbody tr').each(function() {
+		/*$('#mainTable tbody tr').each(function() {
 			let show = true;
 			$(this).find('td').each(function(colIdx) {
 				if (columnFilters[colIdx] && columnFilters[colIdx].length > 0) {
@@ -1505,7 +1561,50 @@ $(document).ready(function() {
 				}
 			});
 			$(this).toggle(show);
+		});*/
+		$.ajax({
+			url: '/dms/api/documents/filter-data', // Your backend endpoint
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(columnFilters),
+			success: function(data) {
+				renderMainTableRows(data);
+			},
+			error: function(xhr, status, error) {
+				console.error("Failed to load filtered data:", error);
+			}
 		});
+	}
+	function renderMainTableRows(data) {
+		const tbody = $('#mainTable tbody');
+		tbody.empty(); // Clear existing rows
+
+		data.forEach(doc => {
+			tbody.append(`
+				<tr>
+					<td>${doc.fileType || ''}</td>
+					<td>${doc.fileNumber || ''}</td>
+					<td>${doc.fileName || ''}</td>
+					<td>${doc.revisionNumber || ''}</td>
+					<td>${doc.status || ''}</td>
+					<td>${doc.documentType || ''}</td>
+					<td>${doc.folder || ''}</td>
+					<td>${doc.subFolder || ''}</td>
+					<td>${doc.createdBy || ''}</td>
+					<td>${doc.dateUploaded || ''}</td>
+					<td>${doc.revisionDate || ''}</td>
+					<td>${doc.department || ''}</td>
+					<td>${doc.viewedOrDownloaded || ''}</td>
+				</tr>
+			`);
+		});
+
+		// Optional: Redraw DataTable if already initialized
+		if (mainTableInstance) {
+			mainTableInstance.clear().destroy(); // Destroy and re-init
+			mainTableInstance = null;
+		}
+		initializeDataTables(); // Re-initialize
 	}
 
 	function updateAllColumnFilters() {
