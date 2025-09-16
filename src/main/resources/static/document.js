@@ -286,11 +286,25 @@ $(document).ready(function() {
 					processData: false,
 					contentType: false,
 					success: function(response) {
+						
+						if(response) {
+							alert(response);
+							return;
+						}
+						
+						
 						$('#uploadModal').fadeOut();
 						$('#successMessage').text("Processing bulk upload...");
 						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
-
-						//$('#successMessage').text();
+						removeUploadedFile('zip');
+						removeUploadedFile('metadata');
+						$('#previewMetadata').prop('disabled', false);
+						$('#uploadMetadata').css({
+						    'pointer-events': 'auto',
+						    'color': '#2b5797', // Reset to original or specific color
+						    'cursor': '',
+						    'text-decoration': ''
+						});
 					},
 					error: function(xhr) {
 						console.error("Upload failed:", xhr.responseText);

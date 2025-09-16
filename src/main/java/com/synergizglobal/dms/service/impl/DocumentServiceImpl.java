@@ -536,7 +536,7 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public void saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file) {
+	public String saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file) {
 		if (file.isEmpty()) {
 			throw new RuntimeException("Uploaded ZIP file is empty");
 		}
@@ -590,20 +590,29 @@ public class DocumentServiceImpl implements DocumentService {
 				}
 			}
 
-			System.out.println("ZIP file saved and extracted successfully");
-			UploadedMetaData updatedUploadedMetaData = updateUploadDataWithZipFileLocation(uploadId,
-					zipPath + "\\" + newFileName);
+			UploadedMetaData uploadMetaData = uploadedMetaDataRepository.getById(uploadId);
 
 			Map<String, String> fileNameAndPathMap = getFileNamePathMap(extractPath);
+
+			for (MetaData metadata : uploadMetaData.getMetadatas()) {
+				if (fileNameAndPathMap.get(metadata.getUploadDocument()) == null) {
+					return metadata.getUploadDocument() + " file is missing in zip file";
+				}
+			}
+
+			UploadedMetaData updatedUploadedMetaData = updateUploadDataWithZipFileLocation(uploadId,
+					zipPath + "\\" + newFileName);
 
 			for (MetaData metadata : updatedUploadedMetaData.getMetadatas()) {
 				String filePath = fileNameAndPathMap.get(metadata.getUploadDocument());
 
 				FileInputStream input = new FileInputStream(filePath);
-
+				File fileForContentType = new File(filePath);
+				Path path = fileForContentType.toPath();
+	            String contentType = Files.probeContentType(path);
 				MockMultipartFile mockFile = new MockMultipartFile("file", // name of the parameter
 						metadata.getUploadDocument(), // original file name
-						"application/octet-stream", // content type (adjust if needed)
+						contentType, // content type (adjust if needed)
 						input);
 				List<MultipartFile> files = new ArrayList<>();
 				files.add(mockFile);
@@ -617,6 +626,7 @@ public class DocumentServiceImpl implements DocumentService {
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to save or extract ZIP file", e);
 		}
+		return "";
 	}
 
 	private UploadedMetaData updateUploadDataWithZipFileLocation(Long uploadId, String zipFileLocation) {
@@ -648,10 +658,10 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public Long getMetadata() {
 		List<UploadedMetaData> list = uploadedMetaDataRepository.findAll();
-		for(UploadedMetaData uploadMetaData : list) {
+		for (UploadedMetaData uploadMetaData : list) {
 			List<MetaData> metaData = uploadMetaData.getMetadatas();
-			if(metaData.get(0).getUploadedZipLocation() == null 
-			        || metaData.get(0).getUploadedZipLocation().isEmpty()) {
+			if (metaData.get(0).getUploadedZipLocation() == null
+					|| metaData.get(0).getUploadedZipLocation().isEmpty()) {
 				return uploadMetaData.getId();
 			}
 		}

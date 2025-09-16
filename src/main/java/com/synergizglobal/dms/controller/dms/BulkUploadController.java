@@ -140,9 +140,9 @@ public class BulkUploadController {
 	}
 	
 	@PostMapping("/zipfile/save/{uploadId}")
-	public ResponseEntity<Long> saveZipFileAndCreateDocuments(@PathVariable("uploadId") Long uploadId, @RequestParam("file") MultipartFile file)
+	public ResponseEntity<String> saveZipFileAndCreateDocuments(@PathVariable("uploadId") Long uploadId, @RequestParam("file") MultipartFile file)
 			throws Exception {
-		documentservice.saveZipFileAndCreateDocuments(uploadId, file);
-		return ResponseEntity.ok(uploadId);
+		return ResponseEntity.ok(documentservice.saveZipFileAndCreateDocuments(uploadId, file));
+		//return uploadId);
 	}
 }
