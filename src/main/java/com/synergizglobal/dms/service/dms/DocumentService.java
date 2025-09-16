@@ -39,4 +39,6 @@ public interface DocumentService {
 		public Long saveMetadata(List<SaveMetaDataDto> dto);
 
 		public void saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file);
+
+		public Long getMetadata();
 }

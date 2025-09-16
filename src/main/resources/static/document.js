@@ -238,33 +238,67 @@ $(document).ready(function() {
 				}
 			});
 		} else { // bulk upload
+			let isValid = true;
+			$('#previewModal input[required], #previewModal select[required]').each(function() {
+
+				const inputId = $(this).attr('id');
+				const fieldName = inputId.split('_')[0];
+				const index = inputId.split('_')[1];
+				const errorMsgId = `#${fieldName}_errormessage_${index}`
+				const errorMsg = $(errorMsgId).text();
+				if (!$(this).val().trim() || errorMsg !== "") {
+					isValid = false;
+				} 
+			});
+			if(!isValid) {
+				alert("Errors in Uploaded Metadata, click on preview to review.");
+				return;
+			}
 			const formData = new FormData();
 			formData.append('file', uploadedZipFile);
-			const uploadId = localStorage.getItem("uploadedMetaDataId");
-
+			//const uploadId = localStorage.getItem("uploadedMetaDataId");
+			$.ajax({
+				url: '/dms/api/bulkupload/metadata/get',
+				type: 'GET',
+				//data: formData,
+				//processData: false,
+				//contentType: false,
+				async: false,
+				success: function(response) {
+					uploadId = response;
+				},
+				error: function(xhr) {
+					console.error("Upload failed:", xhr.responseText);
+					alert("Upload failed: " + xhr.responseText);
+				}
+			});
 			if (!uploadId) {
-			    alert("Upload ID is missing from local storage.");
-			    return;
+				alert("Please save the metadata before clicking on save.");
+				return;
 			}
-			
+
 			try {
 				// Step 1: Upload metadata file and get response
 				$.ajax({
-				    url: '/dms/api/bulkupload/zipfile/save/' + uploadId,
-				    type: 'POST',
-				    data: formData,
-				    processData: false,
-				    contentType: false,
-				    success: function(response) {
-				       $('#successMessage').text("Processing bulk upload...");
-				    },
-				    error: function(xhr) {
-				        console.error("Upload failed:", xhr.responseText);
-				        alert("Upload failed: " + xhr.responseText);
-				    }
+					url: '/dms/api/bulkupload/zipfile/save/' + uploadId,
+					type: 'POST',
+					data: formData,
+					processData: false,
+					contentType: false,
+					success: function(response) {
+						$('#uploadModal').fadeOut();
+						$('#successMessage').text("Processing bulk upload...");
+						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
+
+						//$('#successMessage').text();
+					},
+					error: function(xhr) {
+						console.error("Upload failed:", xhr.responseText);
+						alert("Upload failed: " + xhr.responseText);
+					}
 				});
-				
-				
+
+
 
 			} catch (xhr) {
 				alert("Upload failed: " + xhr.responseText);
@@ -914,7 +948,7 @@ $(document).ready(function() {
 			contentType: 'application/json',
 			data: JSON.stringify(inputRows), // 👈 Convert list to JSON string
 			success: function(response) {
-				localStorage.setItem('uploadedMetaDataId', response);
+				//localStorage.setItem('uploadedMetaDataId', response);
 				$('#previewModal').css('display', 'none');
 				$('#previewModal input, #previewModal select').removeClass('error-field success-field');
 				$('#previewModal .error-message').removeClass('show');

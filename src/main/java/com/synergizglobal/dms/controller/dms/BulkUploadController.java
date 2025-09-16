@@ -131,6 +131,14 @@ public class BulkUploadController {
 		return ResponseEntity.ok(metadataSavedId);
 	}
 	
+	@GetMapping("/metadata/get")
+	public ResponseEntity<Long> getMetadata()
+			throws Exception {
+		//List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
+		Long metadataSavedId = documentservice.getMetadata();
+		return ResponseEntity.ok(metadataSavedId);
+	}
+	
 	@PostMapping("/zipfile/save/{uploadId}")
 	public ResponseEntity<Long> saveZipFileAndCreateDocuments(@PathVariable("uploadId") Long uploadId, @RequestParam("file") MultipartFile file)
 			throws Exception {

@@ -644,4 +644,17 @@ public class DocumentServiceImpl implements DocumentService {
 			return Map.of(); // return empty map on error
 		}
 	}
+
+	@Override
+	public Long getMetadata() {
+		List<UploadedMetaData> list = uploadedMetaDataRepository.findAll();
+		for(UploadedMetaData uploadMetaData : list) {
+			List<MetaData> metaData = uploadMetaData.getMetadatas();
+			if(metaData.get(0).getUploadedZipLocation() == null 
+			        || metaData.get(0).getUploadedZipLocation().isEmpty()) {
+				return uploadMetaData.getId();
+			}
+		}
+		return null;
+	}
 }
