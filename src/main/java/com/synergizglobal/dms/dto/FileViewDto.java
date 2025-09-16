@@ -11,4 +11,5 @@ public class FileViewDto {
     private String fileName;
     private String fileType;
     private String filePath;
+    private String downloadUrl;
 }

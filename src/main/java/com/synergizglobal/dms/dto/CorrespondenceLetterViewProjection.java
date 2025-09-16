@@ -17,4 +17,5 @@ public interface CorrespondenceLetterViewProjection {
     String getFileName();
     String getFilePath();
     String getFileType();
+    String getRefLetter();
 }

@@ -6,15 +6,6 @@ function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 }
-/*
-// Validate all emails in a list
-function validateEmailList(emails) {
-    const invalidEmails = emails.filter(email => !isValidEmail(email));
-    return {
-        isValid: invalidEmails.length === 0,
-        invalidEmails: invalidEmails
-    };
-}*/
 
 // Sidebar navigation
 document.querySelectorAll('.sidebar-item').forEach(item => {
@@ -133,45 +124,6 @@ function removeAttachment(button) {
     button.parentElement.remove();
 }
 
-//// Function to add letter to table - UPDATED TO SUPPORT ANY FILE TYPE
-//function addLetterToTable(letterData, isDraft = false) {
-//    const tableBody = isDraft ? document.getElementById('draftTableBody') : document.getElementById('documentTableBody');
-//
-//    // Create new row
-//    const targetRow = tableBody.insertRow();
-//
-//    // Get file count and handle any file type
-//    const fileCount = letterData.documents ? letterData.documents.length : 0;
-//
-//    // Display logic for file types
-//    let fileDisplay = 'No files';
-//    if (fileCount > 0) {
-//        if (fileCount === 1) {
-//            // Single file - show its extension
-//            const fileName = letterData.documents[0].name || letterData.documents[0].fileName || 'file';
-//            const fileExtension = fileName.split('.').pop().toUpperCase();
-//            fileDisplay = fileExtension;
-//        } else {
-//            // Multiple files - show count with "Files" indicator
-//            fileDisplay = `${fileCount} Files`;
-//        }
-//    }
-//
-//    targetRow.innerHTML = `
-//        <td><span class="file-type-label">${fileDisplay}</span></td>
-//        <td><input type="text" class="editable-input" value="${letterData.category || ''}"></td>
-//        <td><span class="letter-no-link" onclick="openLetterDetails('${letterData.letterName}')">${letterData.letterName || ''}</span></td>
-//        <td><input type="text" class="editable-input" value="System"></td>
-//        <td><input type="text" class="editable-input" value="${letterData.to || ''}"></td>
-//        <td><input type="text" class="editable-input" value="${letterData.subject || ''}"></td>
-//        <td><input type="text" class="editable-input" value="${letterData.requiredResponse || ''}"></td>
-//        <td><input type="text" class="editable-input" value="${letterData.dueDate || ''}"></td>
-//        <td><input type="text" class="editable-input" value="${letterData.currentStatus || ''}"></td>
-//        <td><input type="text" class="editable-input" value="${letterData.department || ''}"></td>
-//        <td><input type="text" class="editable-input" value="General"></td>
-//        <td><input type="text" class="editable-input" value="${fileCount}"></td>
-//    `;
-//}
 function addLetterToTable(letterData, isDraft = false) {
     const tableBody = isDraft
         ? document.getElementById('draftTableBody')
@@ -183,7 +135,8 @@ function addLetterToTable(letterData, isDraft = false) {
     }
 
     const row = tableBody.insertRow();
-
+	const viewPage = 'view.html';
+    const corrId = letterData.correspondenceId || '';
     // File display logic
     let fileDisplay = 'No files';
     if (letterData.fileCount && letterData.fileCount > 0) {
@@ -194,28 +147,32 @@ function addLetterToTable(letterData, isDraft = false) {
     // For draft table (different structure)
     if (isDraft) {
         row.innerHTML = `
-            <td>${letterData.category || ''}</td>
-            <td>${letterData.letterNumber || ''}</td>
-            <td>${letterData.letterDate || 'N/A'}</td>
-            <td>${letterData.recipient || ''}</td>
-            <td>${letterData.cc || 'N/A'}</td>
-            <td>${letterData.referenceLetters || 'N/A'}</td>
-            <td>${letterData.subject || ''}</td>
-            <td>${letterData.requiredResponse || ''}</td>
-            <td>${letterData.dueDate || 'N/A'}</td>
-            <td>${letterData.currentStatus || ''}</td>
-            <td>${fileDisplay}</td>
+		<td>${fileDisplay}</td>
+		       <td>${letterData.category || ''}</td>
+			   <td>
+              <a href="${viewPage}?id=${encodeURIComponent(corrId)}" class="letter-link" data-id="${corrId}">
+               ${letterData.letterNumber || ''}
+             </a>
+                </td>
+		       <td>System</td>
+		       <td>${letterData.recipient || ''}</td>
+		       <td>${letterData.subject || ''}</td>
+		       <td>${letterData.requiredResponse || ''}</td>
+		       <td>${letterData.dueDate || ''}</td>
+		       <td>${letterData.currentStatus || ''}</td>
+		       <td>${letterData.department || ''}</td>
+		       <td>${letterData.fileCount || ''}</td>
         `;
     } else {
         // For main table
         row.innerHTML = `
             <td>${fileDisplay}</td>
             <td>${letterData.category || ''}</td>
-           <td>
-         <a href="#" class="letter-link" data-id="${letterData.correspondenceId}">
-          ${letterData.letterNumber || ''}
-           </a>
-                  </td>
+		<td>
+              <a href="${viewPage}?id=${encodeURIComponent(corrId)}" class="letter-link" data-id="${corrId}">
+               ${letterData.letterNumber || ''}
+             </a>
+                </td>
             <td>System</td>
             <td>${letterData.recipient || ''}</td>
             <td>${letterData.subject || ''}</td>
@@ -313,21 +270,6 @@ function validateForm(formData) {
         alert('Please enter a Letter Number');
         return false;
     }
-
-    // Validate "to" email
-  /*  if (formData.to && !isValidEmail(formData.to)) {
-        alert('Please enter a valid email address in the "To" field');
-        return false;
-    }
-
-    // Validate CC emails
-    if (formData.cc && formData.cc.length > 0) {
-        const ccValidation = validateEmailList(formData.cc);
-        if (!ccValidation.isValid) {
-            alert(`Invalid email addresses in CC field: ${ccValidation.invalidEmails.join(', ')}`);
-            return false;
-        }
-    }*/
 
     return true;
 }
@@ -481,74 +423,6 @@ saveAsDraftBtn.addEventListener('click', async function () {
     }
 });
 
-//// Load correspondence list from server
-//async function loadCorrespondenceList(action) {
-//    try {
-//        const letters = await getCorrespondenceList(action);
-//
-//        // Clear the tables
-//        clearTable('documentTableBody');
-//        clearTable('draftTableBody');
-//
-//        // Store letters data for later use
-//        lettersData = {};
-//
-//        // Add letters to appropriate tables
-//        letters.forEach(letter => {
-//            // Store letter data for details view
-//            lettersData[letter.letterName] = letter;
-//
-//            // Add to appropriate table based on status
-//           /* if (letter.currenetStatus === 'Draft') {
-//                addLetterToTable(letter, true); // Add to draft table
-//            } else {
-//                addLetterToTable(letter, false); // Add to main table
-//            }*/
-//        });
-//
-//        // Update draft count
-//        updateDraftCount();
-//
-//    } catch (error) {
-//        console.error('Error loading correspondence list:', error);
-//        alert('Failed to load correspondence list: ' + error.message);
-//    }
-//}
-
-
-// Load correspondence list from server
-//async function loadCorrespondenceList(action) {
-//    try {
-//        const letters = await getCorrespondenceList(action);
-//
-//        // Clear the tables
-//        clearTable('documentTableBody');
-//        clearTable('draftTableBody');
-//
-//        // Store letters data for later use
-//        lettersData = {};
-//
-//        // Add letters to appropriate tables
-//        letters.forEach(letter => {
-//            // Store letter data for details view
-//            lettersData[letter.letterName] = letter;
-//
-//            // Add to appropriate table based on status
-//            if (letter.currentStatus && letter.currentStatus.toLowerCase() === 'draft') {
-//                addLetterToTable(letter, true); // Add to draft table
-//            } else {
-//                addLetterToTable(letter, false); // Add to main table
-//            }
-//        });
-//
-//        // Update draft count
-//        updateDraftCount();
-//
-//    } catch (error) {
-//        console.error('Error loading correspondence list:', error);
-//        alert('Failed to load correspondence list: ' + error.message);
-//    }
-//}
 
 async function loadCorrespondenceList(action) {
     try {
@@ -1061,43 +935,6 @@ $(document).ready(function () {
         });
     });
 });
-/*function setupAutocomplete(nameInputId, emailHiddenId) {
-    $("#" + nameInputId).autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                url: "http://localhost:8000/dms/api/users/search",
-                data: { query: request.term },
-                success: function (data) {
-                    response($.map(data, function (item) {
-                        return {
-                            label: item.userName + " (" + item.emailId + ")", // dropdown
-                            value: item.userName,                             // textbox shows name
-                            email: item.emailId                               // store email separately
-                        };
-                    }));
-                },
-
-            });
-        },
-        minLength: 1,
-        select: function (event, ui) {
-            event.preventDefault();
-
-            // Visible: Name
-            let currentName = $("#" + nameInputId).val();
-            $("#" + nameInputId).val(
-                currentName.length > 0 ? currentName + ";" + ui.item.value : ui.item.value
-            );
-
-            // Hidden: Email
-            let currentEmail = $("#" + emailHiddenId).val();
-            $("#" + emailHiddenId).val(
-                currentEmail.length > 0 ? currentEmail + ";" + ui.item.email : ui.item.email
-            );
-        }
-    });
-}*/
-
 function setupAutocomplete(inputId) {
     $("#" + inputId).autocomplete({
         source: function (request, response) {
@@ -1237,7 +1074,7 @@ function populateStatusDropdown(statuses) {
 }
 
 // Call this function when your modal opens or page loads
-// For example, in your upload modal open event:
+
 uploadBtn.addEventListener('click', function() {
     // Your existing code
     fetchStatuses(); // Add this to load statuses when modal opens
@@ -1307,56 +1144,6 @@ function openLetterDetails(letterNo) {
     // Your existing code
     fetchDepartments(); // Add this to load departments when opening letter details
 }
-
-$(document).on("click", ".letter-link", function (e) {
-    e.preventDefault();
-    const id = $(this).data("id");
-    console.log("🔎 letter-link clicked, data-id =", id);
-
-    $.ajax({
-        url: `${API_BASE_URL}/view/${id}`,
-        method: "GET",
-        success: function (data) {
-            // Fill modal fields
-            $("#modalLetterNo").text(data.letterNumber);
-            $("#detailCategory").val(data.category);
-            $("#detailLetterNo").val(data.letterNumber);
-            $("#detailLetterDate").val(data.letterDate);
-            $("#detailFromField").val(data.sender || "");
-            $("#detailToField").val(data.recipient || "");
-            $("#detailCcField").val(data.cc || "");
-            $("#detailDepartment").val(data.department || "");
-            $("#detailSubject").val(data.subject || "");
-            $("#detailKeyInformation").val(data.keyInformation || "");
-            $("#detailRequiredResponse").val(data.requiredResponse || "");
-            $("#detailDueDate").val(data.dueDate);
-            $("#detailStatus").val(data.currentStatus || "");
-
-            // Attachments
-            let attachHtml = "";
-            if (data.attachments) {
-                data.attachments.forEach(att => {
-                    attachHtml += `<div><a href="/files/${att.id}" target="_blank">${att.fileName}</a></div>`;
-                });
-            }
-            $("#seeAttachmentsList").html(attachHtml);
-
-            // Reference letters
-            let refsHtml = "";
-            if (data.referenceLetters) {
-                data.referenceLetters.forEach(ref => {
-                    refsHtml += `<div><a href="#" class="letter-link" data-id="${ref.id}">${ref.refNo}</a></div>`;
-                });
-            }
-            $("#referenceLettersList").html(refsHtml);
-
-            $("#letterDetailsModal").show();
-        },
-        error: function () {
-            alert("Failed to load correspondence details.");
-        }
-    });
-});
 
 // Close modal
 $("#closeLetterModal, #cancelDetailBtn").on("click", function () {

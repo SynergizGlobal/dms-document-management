@@ -20,8 +20,8 @@ public class ReferenceLetter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long refId;
 
-    @Column(name = "LETTER_NUMBER", length = 100, nullable = false)
-    private String letterNumber;
+    @Column(name = "ref_letters", length = 100, nullable = false)
+    private String refLetters;
 
    
     @OneToMany(mappedBy = "referenceLetter", cascade = CascadeType.ALL)

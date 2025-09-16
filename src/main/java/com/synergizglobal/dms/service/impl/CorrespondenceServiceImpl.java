@@ -84,7 +84,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
         for (String refNum : refNumbers) {
             ReferenceLetter ref = new ReferenceLetter();
-            ref.setLetterNumber(refNum);
+            ref.setRefLetters(refNum);
             ReferenceLetter savedRef = referenceRepo.save(ref);
 
             CorrespondenceReference corrRef = new CorrespondenceReference();
@@ -166,13 +166,13 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
         List<ReferenceLetter> entities;
 
         if (query != null && !query.isBlank()) {
-            entities = referenceRepo.findDistinctByLetterNumberContainingIgnoreCase(query);
+            entities = referenceRepo. findDistinctByRefLettersContainingIgnoreCase(query);
         } else {
             entities = referenceRepo.findAll();
         }
 
         return entities.stream()
-                .map(ReferenceLetter::getLetterNumber)
+                .map(ReferenceLetter::getRefLetters)
                 .filter(Objects::nonNull).distinct()
                 .map(String::trim)
                 .filter(s -> !s.isEmpty() && s.length() <= 100)
@@ -194,7 +194,13 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
         // Map files
         List<FileViewDto> files = flatList.stream()
                 .filter(f -> f.getFileName() != null)
-                .map(f -> new FileViewDto(f.getFileName(), f.getFilePath(), f.getFileType()))
+                .map(f -> new FileViewDto(f.getFileName(), f.getFilePath(), f.getFileType(),null))
+                .toList();
+
+        List<String> refLetters = flatList.stream()
+                .map(CorrespondenceLetterViewProjection::getRefLetter)
+                .filter(Objects::nonNull)
+                .distinct()
                 .toList();
 
 
@@ -213,6 +219,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
         dto.setDueDate(first.getDueDate());
         dto.setCurrentStatus(first.getCurrentStatus());
         dto.setFiles(files);
+        dto.setRefLetters(refLetters);
 
         return dto;
     }

@@ -24,6 +24,7 @@ public class CorrespondenceLetterViewDto {
     private LocalDate dueDate;
     private String currentStatus;
     private List<FileViewDto> files;
+    private List<String> refLetters;
 }
 
 

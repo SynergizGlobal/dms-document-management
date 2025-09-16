@@ -37,26 +37,32 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     List<CorrespondenceLetterProjection> findLetters(@Param("action") String action);
       
     @Query(value = """
-    	    SELECT 
-    	        c.category,
-    	        c.letter_number AS letterNumber,
-    	        c.letter_date AS letterDate,
-    	        c.recipient AS sender,
-    	        c.recipient AS copiedTo,
-    	        c.cc_recipient AS ccRecipient,
-    	        c.department,
-    	        c.subject,
-    	        c.key_information AS keyInformation,
-    	        c.required_response AS requiredResponse,
-    	        c.due_date AS dueDate,
-    	        c.current_status AS currentStatus,
-    	        f.file_name AS fileName,
-    	        f.file_path AS filePath,
-    	        f.file_type AS fileType
-    	    FROM correspondence_letter c
-    	    LEFT JOIN correspondence_file f 
-    	        ON c.correspondence_id = f.correspondence_id
-    	    WHERE c.correspondence_id = :id
+
+			SELECT
+                                            	        c.category,
+                                            	        c.letter_number AS letterNumber,
+                                            	        c.letter_date AS letterDate,
+                                            	        c.recipient AS sender,
+                                            	        c.recipient AS copiedTo,
+                                            	        c.cc_recipient AS ccRecipient,
+                                            	        c.department,
+                                            	        c.subject,
+                                            	        c.key_information AS keyInformation,
+                                            	        c.required_response AS requiredResponse,
+                                            	        c.due_date AS dueDate,
+                                            	        c.current_status AS currentStatus,
+                                            	        f.file_name AS fileName,
+                                            	        f.file_path AS filePath,
+                                            	        f.file_type AS fileType,
+                                                        rf.ref_letters AS refLetter
+                                            	    FROM correspondence_letter c
+                                            	    LEFT JOIN correspondence_file f\s
+                                            	        ON c.correspondence_id = f.correspondence_id
+                                        			LEFT JOIN correspondence_reference as cr
+                                        				ON c.correspondence_id = cr.correspondence_letter_id
+                                        			LEFT JOIN  reference_letter as rf\s
+                                                        ON cr.reference_letter_id = rf.ref_id
+                                            	    WHERE c.correspondence_id = :id
     	    """, nativeQuery = true)
     	List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesView(@Param("id") Long id);
 

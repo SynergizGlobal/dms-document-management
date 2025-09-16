@@ -1,9 +1,12 @@
 package com.synergizglobal.dms.controller.dms;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -17,6 +20,7 @@ import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/correspondence")
@@ -71,10 +75,25 @@ public class CorrespondenceController {
 
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<CorrespondenceLetterViewDto> getCorrespondenceWithFiles(@PathVariable Long id) {
+    public ResponseEntity<CorrespondenceLetterViewDto> getCorrespondenceWithFiles(@PathVariable Long id, HttpServletRequest request) {
         CorrespondenceLetterViewDto dto = correspondenceService.getCorrespondenceWithFiles(id);
         if (dto == null) {
             return ResponseEntity.notFound().build();
+        }
+
+        String origin = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+
+        if (dto.getFiles() != null) {
+            dto.getFiles().forEach(f -> {
+                if (f.getFileName() != null && !f.getFileName().isBlank()) {
+                    String encoded = URLEncoder.encode(f.getFileName(), StandardCharsets.UTF_8);
+                    String url = origin + "/api/correspondence/files/" + encoded;
+                    f.setDownloadUrl(url);
+                }
+            });
         }
         return ResponseEntity.ok(dto);
     }
