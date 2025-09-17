@@ -130,6 +130,8 @@ public class DocumentServiceImpl implements DocumentService {
 						.folder(folder.getName()).subFolder(subFolder.getName()).department(department.getName())
 						.currentStatus(status.getName()).errorMessage("File name already exists with File number: "
 								+ document.getFileNumber() + ". Change the File name or File number to accept.")
+						.projectName(document.getProjectName())
+						.contractName(document.getContractName())
 						.build();
 			}
 		}
@@ -144,6 +146,8 @@ public class DocumentServiceImpl implements DocumentService {
 						.folder(folder.getName()).subFolder(subFolder.getName()).department(department.getName())
 						.currentStatus(status.getName()).errorMessage("File number already exists for File name: "
 								+ document.getFileName() + ". Change the File name or File number to accept.")
+						.projectName(document.getProjectName())
+						.contractName(document.getContractName())
 						.build();
 			}
 		}
@@ -166,6 +170,8 @@ public class DocumentServiceImpl implements DocumentService {
 								+ documentDto.getFileNumber()
 								+ " already has file with same Revision number. The Revision number has to be more than "
 								+ dbRevisionNo)
+						.projectName(document.getProjectName())
+						.contractName(document.getContractName())
 						.build();
 
 			}
@@ -196,6 +202,8 @@ public class DocumentServiceImpl implements DocumentService {
 					.revisionDate(documentDto.getRevisionDate()).folder(folder).subFolder(subFolder)
 					.department(department).fileDBNumber(UUID.randomUUID().toString()).documentFiles(newDocumentFiles)
 					.currentStatus(status)
+					.projectName(documentDto.getProjectName())
+					.contractName(documentDto.getContractName())
 					.createdBy(userId).build();
 
 			// Save the new Document first
@@ -221,6 +229,8 @@ public class DocumentServiceImpl implements DocumentService {
 					.fileDBNumber(documentInDB.getFileDBNumber())
 					.createdBy(documentInDB.getCreatedBy())
 					// .document(latestFromDB.get()) // still valid at this point
+					.projectName(documentInDB.getProjectName())
+					.contractName(documentInDB.getContractName())
 					.build();
 
 			documentRevisionRepository.save(documentRevision);
@@ -258,6 +268,8 @@ public class DocumentServiceImpl implements DocumentService {
 				.fileNumber(documentDto.getFileNumber()).revisionNo("R01").revisionDate(documentDto.getRevisionDate())
 				.folder(folder).subFolder(subFolder).department(department).currentStatus(status)
 				.fileDBNumber(UUID.randomUUID().toString())
+				.projectName(documentDto.getProjectName())
+				.contractName(documentDto.getContractName())
 				.createdBy(userId).build();
 		Document savedDocument = documentRepository.save(document);
 		for (DocumentFile documentFile : newDocumentFiles) {
@@ -290,6 +302,8 @@ public class DocumentServiceImpl implements DocumentService {
 		return DocumentDTO.builder().fileName(document.getFileName()).fileNumber(document.getFileNumber())
 				.revisionNo(document.getRevisionNo()).revisionDate(document.getRevisionDate()).folder(folder.getName())
 				.subFolder(subFolder.getName()).department(department.getName()).currentStatus(status.getName())
+				.projectName(document.getProjectName())
+				.contractName(document.getContractName())
 				.build();
 	}
 

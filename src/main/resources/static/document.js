@@ -1,20 +1,20 @@
 $(document).ready(function() {
 	const params = new URLSearchParams(window.location.search);
 	var token = params.get('token');
-	
+
 	$.ajax({
-	    url: `/dms/api/users/setsession`,
-	    method: 'GET',
-	    data: { token: token }, // token as query param
-	    success: function(response) {
-	      console.log("Session set successfully:", response);
-	      // You can proceed with further logic here
-	    },
-	    error: function(xhr, status, error) {
-	      console.error("Failed to set session:", error);
-	    }
-	  });
-	
+		url: `/dms/api/users/setsession`,
+		method: 'GET',
+		data: { token: token }, // token as query param
+		success: function(response) {
+			console.log("Session set successfully:", response);
+			// You can proceed with further logic here
+		},
+		error: function(xhr, status, error) {
+			console.error("Failed to set session:", error);
+		}
+	});
+
 	// Global variables
 	let selectedDocument = null;
 	let uploadedMetadataFile = null;
@@ -241,6 +241,8 @@ $(document).ready(function() {
 			var fileNumber = $('#fileNumber').val();
 			var revisionNo = $('#revisionNo').val();
 			var revisionDate = $('#revisionDate').val();
+			var projectName = $('#projectName').val();
+			var contractName = $('#contractName').val();
 			var folder = $('#folder option:selected').text();
 			var subFolder = $('#subFolder option:selected').text();
 			var department = $('#department option:selected').text();
@@ -260,6 +262,8 @@ $(document).ready(function() {
 			formData.append("fileNumber", fileNumber);
 			formData.append("revisionNo", revisionNo);
 			formData.append("revisionDate", revisionDate);
+			formData.append("projectName", projectName);
+			formData.append("contractName", contractName);
 			formData.append("folder", folder);
 			formData.append("subFolder", subFolder);
 			formData.append("department", department);
@@ -1740,6 +1744,50 @@ $(document).ready(function() {
 				// Append new options
 				$.each(data, function(index, folder) {
 					$('#folder').append(
+						$('<option>', {
+							value: folder.id,
+							text: folder.name
+						})
+					);
+				});
+			},
+			error: function(xhr) {
+				console.error('Failed to load departments:', xhr.responseText);
+			}
+		});
+		// inititialize Project Name dropdown
+		$.ajax({
+			url: '/dms/api/projects/get',  // Replace with your actual API endpoint
+			method: 'GET',
+			success: function(data) {
+				// Clear previous options except the default
+				$('#projectName').find('option:not(:first)').remove();
+
+				// Append new options
+				$.each(data, function(index, folder) {
+					$('#projectName').append(
+						$('<option>', {
+							value: folder.id,
+							text: folder.name
+						})
+					);
+				});
+			},
+			error: function(xhr) {
+				console.error('Failed to load departments:', xhr.responseText);
+			}
+		});
+		// inititialize Project Name dropdown
+		$.ajax({
+			url: '/dms/api/contracts/get',  // Replace with your actual API endpoint
+			method: 'GET',
+			success: function(data) {
+				// Clear previous options except the default
+				$('#contractName').find('option:not(:first)').remove();
+
+				// Append new options
+				$.each(data, function(index, folder) {
+					$('#contractName').append(
 						$('<option>', {
 							value: folder.id,
 							text: folder.name

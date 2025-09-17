@@ -17,6 +17,8 @@ public class DocumentDTO {
     private String fileNumber;
     private String revisionNo;
     private LocalDate revisionDate;
+    private String projectName;
+    private String contractName;
     private String folder;
     private String subFolder;
     private String department;
