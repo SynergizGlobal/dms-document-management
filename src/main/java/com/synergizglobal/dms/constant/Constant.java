@@ -27,7 +27,7 @@ public class Constant {
 		    put(5, "documentFiles.documentType");
 		    put(6, "folder.name");
 		    put(7, "subFolder.name");
-		    put(8, "documentFiles.createdBy");
+		    put(8, "createdBy");
 		    put(9, "createdAt");
 		    put(10, "revisionDate");
 		    put(11, "department.name");

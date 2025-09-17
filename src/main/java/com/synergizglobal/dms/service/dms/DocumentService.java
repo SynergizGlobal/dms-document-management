@@ -68,4 +68,6 @@ public interface DocumentService {
 		public long countAllFiles();
 
 		public long countFilteredDocuments(Map<Integer, List<String>> columnFilters);
+
+		public List<String> findGroupedCreatedBy();
 }

@@ -148,7 +148,7 @@ public class DocumentController {
 			return ResponseEntity.ok(documentService.findGroupedSubFolders());
 		}
 		if (columnIndex == 8) {
-			return null;
+			return ResponseEntity.ok(documentService.findGroupedCreatedBy());
 		}
 		if (columnIndex == 9) {
 			return ResponseEntity.ok(documentService.findGroupedUploadedDate());

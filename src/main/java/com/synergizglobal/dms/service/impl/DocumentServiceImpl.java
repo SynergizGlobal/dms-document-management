@@ -942,7 +942,7 @@ public class DocumentServiceImpl implements DocumentService {
 	       // .createdAt(doc.getCreatedAt() != null ? doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
 	        .dateUploaded(doc.getCreatedAt() != null ? doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
 	        .documentType("")
-	        .createdBy("")
+	        .createdBy(doc.getCreatedBy())
 	        .viewedOrDownloaded("")
 	        // Add file info
 	        .fileType(file != null ? file.getFileType() : null)
@@ -955,6 +955,11 @@ public class DocumentServiceImpl implements DocumentService {
 	public long countAllFiles() {
 		// TODO Auto-generated method stub
 		return documentRepository.countAllFiles();
+	}
+
+	@Override
+	public List<String> findGroupedCreatedBy() {
+		return documentRepository.findGroupedCreatedBy();
 	}
 
 }
