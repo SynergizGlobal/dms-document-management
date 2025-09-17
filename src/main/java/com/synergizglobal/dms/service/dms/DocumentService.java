@@ -17,7 +17,7 @@ public interface DocumentService {
 	 public DocumentDTO uploadFileWithMetaData( DocumentDTO documentDto,
 	    		List<MultipartFile> files, String userId) ;
 	 
-	 public List<Map<String, MetaDataDto>> validateMetadata(List<List<String>> rows) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException;
+	 public List<Map<String, MetaDataDto>> validateMetadata(List<List<String>> rows, String userId, String userRoleName) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException;
 	 
 		public String validateUploadDocument(String... args);
 
@@ -70,4 +70,8 @@ public interface DocumentService {
 		public long countFilteredDocuments(Map<Integer, List<String>> columnFilters);
 
 		public List<String> findGroupedCreatedBy();
+
+		public List<String> findGroupedProjectNames();
+
+		public List<String> findGroupedContractNames();
 }

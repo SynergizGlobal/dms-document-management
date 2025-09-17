@@ -75,7 +75,8 @@ $(document).ready(function() {
 					{ data: 'fileName' },
 					{ data: 'revisionNumber' },
 					{ data: 'status' },
-					{ data: 'documentType' },
+					{ data: 'projectName' },
+					{ data: 'contractName' },
 					{ data: 'folder' },
 					{ data: 'subFolder' },
 					{ data: 'createdBy' },
@@ -676,7 +677,9 @@ $(document).ready(function() {
 			$("#tableHeaderRow").html(headerHtml);
 
 			// Step 4: Preload dropdowns (folders, departments, statuses)
-			const [folders, departments, statuses] = await Promise.all([
+			const [projectNames, contractNames, folders, departments, statuses] = await Promise.all([
+				$.get("/dms/api/projects/get"),
+				$.get("/dms/api/contracts/get"),
 				$.get("/dms/api/folders/get"),
 				$.get("/dms/api/departments/get"),
 				$.get("/dms/api/statuses/get"),
@@ -704,7 +707,7 @@ $(document).ready(function() {
 					let cellContent = "";
 					let isValid = value && (!errorMessage || errorMessage.trim() === "");
 					let validClass = isValid ? "is-valid" : "is-invalid";
-					if (["Folder", "Department", "Current Status"].includes(fieldName)) {
+					if (["Project Name", "Contract Name", "Folder", "Department", "Current Status"].includes(fieldName)) {
 						let options = [];
 						if (fieldName === "Folder") {
 							cellContent += buildSelect(index, fieldName, value, folders, `preview_folder ${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}`);
@@ -712,6 +715,10 @@ $(document).ready(function() {
 							cellContent += buildSelect(index, fieldName, value, departments, `${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}`);
 						} else if (fieldName === "Current Status") {
 							cellContent += buildSelect(index, fieldName, value, statuses, `${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}`);
+						} else if (fieldName === "Project Name") {
+							cellContent += buildSelect(index, fieldName, value, projectNames, `${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}`);
+						} else if (fieldName === "Contract Name") {
+							cellContent += buildSelect(index, fieldName, value, contractNames, `${validClass} ${fieldName.toLowerCase().replace(/\s+/g, '')}`);
 						}
 					} else if (fieldName === "Sub-Folder") {
 						// Add a data attribute with the subfolder name
@@ -768,6 +775,12 @@ $(document).ready(function() {
 		const revisionDateId = "#revisiondate_" + index;
 		const revisionDateValue = $(revisionDateId).val().trim();
 
+		const projectnameId = "#projectname_" + index;
+		const projectnameValue = $(projectnameId).val().trim();
+
+		const contractnameId = "#contractname_" + index;
+		const contractnameValue = $(contractnameId).val().trim();
+
 		const folderId = "#folder_" + index;
 		const folderValue = $(folderId + " option:selected").text().trim();
 
@@ -788,8 +801,8 @@ $(document).ready(function() {
 
 		// Example 2D array
 		const rows = [
-			["File Name", "File Number", "Revision No", "Revision Date", "Folder", "Sub-Folder", "Department", "Current Status", "Upload Document"],
-			[fileNameValue, fileNumberValue, revisionNoValue, revisionDateValue, folderValue, subfolderValue, departmentValue, statusValue, uploadDocValue]
+			["File Name", "File Number", "Revision No", "Revision Date", "Project Name", "Contract Name", "Folder", "Sub-Folder", "Department", "Current Status", "Upload Document"],
+			[fileNameValue, fileNumberValue, revisionNoValue, revisionDateValue, projectnameValue, contractnameValue, folderValue, subfolderValue, departmentValue, statusValue, uploadDocValue]
 		];
 
 		// Convert to JSON string and append
@@ -835,6 +848,11 @@ $(document).ready(function() {
 	$(document).on('change', '.revisionno', rowValidatorFunction);
 	// Validations of revisiondate
 	$(document).on('change', '.revisiondate', rowValidatorFunction);
+	// Validations of revisiondate
+	$(document).on('change', '.projectname', rowValidatorFunction);
+	// Validations of revisiondate
+	$(document).on('change', '.contractname', rowValidatorFunction);
+
 	// Validations of folder
 	$(document).on('change', '.preview_folder', function() {
 		const elementId = $(this).attr('id');           // e.g. "folder_3"
@@ -1607,7 +1625,8 @@ $(document).ready(function() {
 					<td>${doc.fileName || ''}</td>
 					<td>${doc.revisionNumber || ''}</td>
 					<td>${doc.status || ''}</td>
-					<td>${doc.documentType || ''}</td>
+					<td>${doc.projectName || ''}</td>
+					<td>${doc.contractName || ''}</td>
 					<td>${doc.folder || ''}</td>
 					<td>${doc.subFolder || ''}</td>
 					<td>${doc.createdBy || ''}</td>

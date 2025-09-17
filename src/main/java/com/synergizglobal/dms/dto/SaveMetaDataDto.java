@@ -18,6 +18,8 @@ public class SaveMetaDataDto {
 	private String filenumber;
 	private String revisionno;
 	private LocalDate revisiondate;
+	private String projectname;
+	private String contractname;
 	private Long folder;
 	private Long subfolder;
 	private Long department;

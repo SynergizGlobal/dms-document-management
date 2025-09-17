@@ -37,9 +37,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.constant.Constant;
+import com.synergizglobal.dms.dto.ContractDTO;
 import com.synergizglobal.dms.dto.DocumentDTO;
 import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
+import com.synergizglobal.dms.dto.ProjectDTO;
 import com.synergizglobal.dms.dto.SaveMetaDataDto;
 import com.synergizglobal.dms.entity.dms.Department;
 import com.synergizglobal.dms.entity.dms.Document;
@@ -62,6 +64,8 @@ import com.synergizglobal.dms.repository.dms.SubFolderRepository;
 import com.synergizglobal.dms.repository.dms.UploadedMetaDataRepository;
 import com.synergizglobal.dms.repository.pmis.UserRepository;
 import com.synergizglobal.dms.service.dms.DocumentService;
+import com.synergizglobal.dms.service.pmis.ContractService;
+import com.synergizglobal.dms.service.pmis.ProjectService;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -96,7 +100,11 @@ public class DocumentServiceImpl implements DocumentService {
 	private MetaDataRepository metaDataRepository;
 
 	@Autowired
-	private UserRepository userRepository;
+	private ProjectService projectService;
+	
+	@Autowired
+	private ContractService contractService;
+	
 	
 	@Value("${file.upload-dir}")
 	private String basePath;
@@ -398,7 +406,7 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<Map<String, MetaDataDto>> validateMetadata(List<List<String>> rows)
+	public List<Map<String, MetaDataDto>> validateMetadata(List<List<String>> rows, String userId, String userRoleName)
 			throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {
 		List<Map<String, MetaDataDto>> mapList = new ArrayList<>();
 
@@ -423,6 +431,10 @@ public class DocumentServiceImpl implements DocumentService {
 					row.get(headerIndexMap.get(Constant.REVISION_NUMBER))));
 			mapList.add(validate(Constant.REVISION_DATE, headerIndexMap, row,
 					row.get(headerIndexMap.get(Constant.REVISION_DATE))));
+			
+			mapList.add(validate(Constant.PROJECT_NAME, headerIndexMap, row, row.get(headerIndexMap.get(Constant.PROJECT_NAME)), userId, userRoleName));
+			mapList.add(validate(Constant.CONTRACT_NAME, headerIndexMap, row, row.get(headerIndexMap.get(Constant.CONTRACT_NAME)), userId, userRoleName));
+			
 			mapList.add(validate(Constant.FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER))));
 			mapList.add(validate(Constant.SUB_FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER)),
 					row.get(headerIndexMap.get(Constant.SUB_FOLDER))));
@@ -486,6 +498,27 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		return "\"" + args[0] + "\" Folder does not exists";
 	}
+	
+	public String validateProjectName(String... args) {
+		List<ProjectDTO> projectDtos = projectService.getProjects(args[1], args[2]);
+		for (ProjectDTO projectDTO : projectDtos) {
+			if(projectDTO.getName().equals(args[0])) {
+				return "";
+			}
+		}
+		return "\"" + args[0] + "\" Project Name does not exists";
+	}
+	
+	public String validateContractName(String... args) {
+		List<ContractDTO> contractDTOs = contractService.getContracts(args[1], args[2]);
+		for (ContractDTO contractDTO : contractDTOs) {
+			if(contractDTO.getName().equals(args[0])) {
+				return "";
+			}
+		}
+		return "\"" + args[0] + "\" Contract Name does not exists";
+	}
+	
 
 	public String validateRevisionDate(String... args) {
 		if (args[0] == null || args[0].trim().isEmpty()) {
@@ -575,7 +608,9 @@ public class DocumentServiceImpl implements DocumentService {
 					.fileNumber(saveMetaDataDto.getFilenumber()).revisionNo(saveMetaDataDto.getRevisionno())
 					.revisionDate(saveMetaDataDto.getRevisiondate()).folder(folder.get()).subFolder(subFolder.get())
 					.department(department.get()).currentStatus(status.get())
-					.uploadDocument(saveMetaDataDto.getUploaddocument()).build());
+					.uploadDocument(saveMetaDataDto.getUploaddocument())
+					.projectName(saveMetaDataDto.getProjectname())
+					.contractName(saveMetaDataDto.getContractname()).build());
 		}
 		UploadedMetaData uploadedMetaData = UploadedMetaData.builder().metadatas(metadatas).build();
 		uploadedMetaData = uploadedMetaDataRepository.save(uploadedMetaData);
@@ -673,7 +708,9 @@ public class DocumentServiceImpl implements DocumentService {
 						.fileNumber(metadata.getFileNumber()).revisionNo(metadata.getRevisionNo())
 						.revisionDate(metadata.getRevisionDate()).folder(metadata.getFolder().getName())
 						.subFolder(metadata.getSubFolder().getName()).department(metadata.getDepartment().getName())
-						.currentStatus(metadata.getCurrentStatus().getName()).build();
+						.currentStatus(metadata.getCurrentStatus().getName())
+						.projectName(metadata.getProjectName())
+						.contractName(metadata.getContractName()).build();
 				documentService.uploadFileWithMetaData(documentDto, files, userId);
 			}
 		} catch (IOException e) {
@@ -960,6 +997,8 @@ public class DocumentServiceImpl implements DocumentService {
 	        .viewedOrDownloaded("")
 	        // Add file info
 	        .fileType(file != null ? file.getFileType() : null)
+	        .projectName(doc.getProjectName())
+	        .contractName(doc.getContractName())
 	        //.filePath(file != null ? file.getFilePath() : null)
 	        //.fileNameInFile(file != null ? file.getFileName() : null) // avoid name clash with doc.fileName
 	        .build();
@@ -974,6 +1013,18 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public List<String> findGroupedCreatedBy() {
 		return documentRepository.findGroupedCreatedBy();
+	}
+
+	@Override
+	public List<String> findGroupedProjectNames() {
+		// TODO Auto-generated method stub
+		return documentRepository.findGroupedProjectNames();
+	}
+
+	@Override
+	public List<String> findGroupedContractNames() {
+		// TODO Auto-generated method stub
+		return documentRepository.findGroupedContractNames();
 	}
 
 }

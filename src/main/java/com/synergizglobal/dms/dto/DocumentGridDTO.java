@@ -17,6 +17,8 @@ public class DocumentGridDTO {
     private String fileNumber;
     private String revisionNumber;
     private String revisionDate;
+    private String projectName;
+    private String contractName;
     private String folder;
     private String subFolder;
     private String department;

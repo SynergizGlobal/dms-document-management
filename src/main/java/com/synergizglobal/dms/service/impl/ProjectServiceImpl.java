@@ -18,17 +18,40 @@ public class ProjectServiceImpl implements ProjectService {
 
 	private final ProjectRepository projectRepository;
 	
+	
 	@Override
 	public List<ProjectDTO> getAllProjects() {
 		// TODO Auto-generated method stub
 		List<ProjectDTO> projectDTOs = new ArrayList<>();
 		for (Project project : projectRepository.findAll()) {
 			projectDTOs.add(ProjectDTO.builder()
-					.id(project.getProjectId())
-					.name(project.getProjectId())		
+					.id(project.getProjectName())
+					.name(project.getProjectName())		
 					.build());
 		}
 		return projectDTOs;
+	}
+
+	@Override
+	public List<ProjectDTO> getProjectsByUserId(String userId) {
+		List<ProjectDTO> projectDTOs = new ArrayList<>();
+		for (String projectName : projectRepository.findByUserId(userId)) {
+			projectDTOs.add(ProjectDTO.builder()
+					.id(projectName)
+					.name(projectName)		
+					.build());
+		}
+		return projectDTOs;
+	}
+
+	@Override
+	public List<ProjectDTO> getProjects(String userId, String userRoleNameFk) {
+    	if(userRoleNameFk.equals("IT Admin")) {
+    		//IT Admin
+    		return this.getAllProjects();
+    	} else {
+    		return this.getProjectsByUserId(userId);
+    	}
 	}
 
 }

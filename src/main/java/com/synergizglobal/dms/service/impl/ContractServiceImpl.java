@@ -35,4 +35,28 @@ public class ContractServiceImpl implements ContractService {
 		return projectDTOs;
 	}
 
+
+	@Override
+	public List<ContractDTO> getContractsByUserId(String userId) {
+		List<ContractDTO> projectDTOs = new ArrayList<>();
+		for (String contract : contractRepository.getContractsByUserId(userId)) {
+			projectDTOs.add(ContractDTO.builder()
+					.id(contract)
+					.name(contract)		
+					.build());
+		}
+		return projectDTOs;
+	}
+
+
+	@Override
+	public List<ContractDTO> getContracts(String userId, String userRole) {
+		if(userRole.equals("IT Admin")) {
+    		//IT Admin
+    		return this.getAllContracts();
+    	} else {
+    		return this.getContractsByUserId(userId);
+    	}
+	}
+
 }

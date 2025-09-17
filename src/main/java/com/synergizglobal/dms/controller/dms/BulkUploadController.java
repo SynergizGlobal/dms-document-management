@@ -64,8 +64,9 @@ public class BulkUploadController {
 	}
 
 	@PostMapping("/metadata/upload")
-	public ResponseEntity<List<Map<String, MetaDataDto>>> uploadMetadataFile(@RequestParam("file") MultipartFile file)
+	public ResponseEntity<List<Map<String, MetaDataDto>>> uploadMetadataFile(@RequestParam("file") MultipartFile file, HttpSession session)
 			throws Exception {
+		User user = (User) session.getAttribute("user");
 		if (file.isEmpty()) {
 			throw new Exception("File is Empty");
 		}
@@ -110,7 +111,7 @@ public class BulkUploadController {
 				}
 				rows.add(cellValues);
 			}
-			List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
+			List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows, user.getUserId(), user.getUserRoleNameFk());
 			return ResponseEntity.ok(map);
 
 		} catch (Exception e) {
@@ -119,9 +120,10 @@ public class BulkUploadController {
 	}
 
 	@PostMapping("/metadata/validate")
-	public ResponseEntity<List<Map<String, MetaDataDto>>> validateMetadataFile(@RequestBody List<List<String>> rows)
+	public ResponseEntity<List<Map<String, MetaDataDto>>> validateMetadataFile(@RequestBody List<List<String>> rows, HttpSession session)
 			throws Exception {
-		List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
+		User user = (User) session.getAttribute("user");
+		List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows, user.getUserId(), user.getUserRoleNameFk());
 		return ResponseEntity.ok(map);
 	}
 	

@@ -53,4 +53,10 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
 	@Query("SELECT distinct d.createdBy FROM Document d GROUP BY d.createdBy")
 	List<String> findGroupedCreatedBy();
+
+	@Query("SELECT distinct d.projectName FROM Document d GROUP BY d.projectName")
+	List<String> findGroupedProjectNames();
+
+	@Query("SELECT distinct d.contractName FROM Document d GROUP BY d.contractName")
+	List<String> findGroupedContractNames();
 }

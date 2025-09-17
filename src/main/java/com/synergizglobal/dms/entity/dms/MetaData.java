@@ -42,6 +42,12 @@ public class MetaData {
     @Column(name = "revision_date")
     private LocalDate revisionDate;
     
+    @Column(name = "project_name")
+    private String projectName;
+    
+    @Column(name = "contract_name")
+    private String contractName;
+    
     @ManyToOne
     @JoinColumn(name = "folder_id")
     private Folder folder;

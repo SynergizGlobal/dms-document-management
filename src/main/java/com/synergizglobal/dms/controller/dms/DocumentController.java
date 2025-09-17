@@ -138,25 +138,27 @@ public class DocumentController {
 			return ResponseEntity.ok(documentService.findGroupedStatus());
 		}
 		if (columnIndex == 5) {
-			return null;
-			//return ResponseEntity.ok(documentService.findGroupedStatus());
+			return ResponseEntity.ok(documentService.findGroupedProjectNames());
 		}
 		if (columnIndex == 6) {
-			return ResponseEntity.ok(documentService.findGroupedFolders());
+			return ResponseEntity.ok(documentService.findGroupedContractNames());
 		}
 		if (columnIndex == 7) {
-			return ResponseEntity.ok(documentService.findGroupedSubFolders());
+			return ResponseEntity.ok(documentService.findGroupedFolders());
 		}
 		if (columnIndex == 8) {
-			return ResponseEntity.ok(documentService.findGroupedCreatedBy());
+			return ResponseEntity.ok(documentService.findGroupedSubFolders());
 		}
 		if (columnIndex == 9) {
-			return ResponseEntity.ok(documentService.findGroupedUploadedDate());
+			return ResponseEntity.ok(documentService.findGroupedCreatedBy());
 		}
 		if (columnIndex == 10) {
-			return ResponseEntity.ok(documentService.findGroupedRevisionDate());
+			return ResponseEntity.ok(documentService.findGroupedUploadedDate());
 		}
 		if (columnIndex == 11) {
+			return ResponseEntity.ok(documentService.findGroupedRevisionDate());
+		}
+		if (columnIndex == 12) {
 			return ResponseEntity.ok(documentService.findGroupedDepartment());
 		}
 		return null;

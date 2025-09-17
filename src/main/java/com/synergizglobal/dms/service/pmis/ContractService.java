@@ -8,4 +8,8 @@ public interface ContractService {
 	
 	public List<ContractDTO> getAllContracts();
 
+	public List<ContractDTO> getContractsByUserId(String userId);
+
+	public List<ContractDTO> getContracts(String userId, String userRole);
+
 }

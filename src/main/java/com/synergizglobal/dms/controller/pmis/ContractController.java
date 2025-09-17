@@ -24,15 +24,6 @@ public class ContractController {
     @GetMapping("/get")
     public ResponseEntity<List<ContractDTO>> getAllProjects(HttpSession session) {
     	User user = (User) session.getAttribute("user");
-    	/*if(user.getUserRoleNameFk().equals("Contractor")) {
-    		// fetch only contractor related project names
-    		return ResponseEntity.ok(projectService.getProjectsByContractor());
-    	} else if(user.getUserRoleNameFk().equals("IT Admin")) {
-    		//IT Admin
-    		return ResponseEntity.ok(projectService.getAllProjects());
-    	} else if(user.getUserRoleNameFk().equals("Regular User")) {
-    		
-    	}*/
-    	return ResponseEntity.ok(contractService.getAllContracts());
+    	return ResponseEntity.ok(contractService.getContracts(user.getUserId(), user.getUserRoleNameFk()));
     }
 }
