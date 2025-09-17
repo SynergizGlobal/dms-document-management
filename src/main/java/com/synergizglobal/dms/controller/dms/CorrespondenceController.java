@@ -89,8 +89,11 @@ public class CorrespondenceController {
         if (dto.getFiles() != null) {
             dto.getFiles().forEach(f -> {
                 if (f.getFileName() != null && !f.getFileName().isBlank()) {
-                    String encoded = URLEncoder.encode(f.getFileName(), StandardCharsets.UTF_8);
-                    String url = origin + "/api/correspondence/files/" + encoded;
+                    String url = ServletUriComponentsBuilder
+                            .fromCurrentContextPath()                       // includes context path e.g. http://host:port/dms
+                            .path("/api/correspondence/files/")            // controller mapping
+                            .pathSegment(f.getFileName())                  // encodes filename safely
+                            .toUriString();
                     f.setDownloadUrl(url);
                 }
             });
