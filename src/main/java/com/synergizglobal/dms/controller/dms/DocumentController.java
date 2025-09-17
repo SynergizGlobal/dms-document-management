@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.synergizglobal.dms.dto.DocumentGridDTO;
+import com.synergizglobal.dms.entity.pmis.User;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +26,7 @@ import com.synergizglobal.dms.dto.DocumentDTO;
 //import com.synergizglobal.dms.service.dms.DepartmentService;
 import com.synergizglobal.dms.service.dms.DocumentService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -35,10 +38,12 @@ public class DocumentController {
 
 	@PostMapping(consumes = { "multipart/form-data" })
 	public ResponseEntity<?> uploadFileWithMetaData(@ModelAttribute DocumentDTO documentDto,
-			@RequestParam("files") List<MultipartFile> files) {
+			@RequestParam("files") List<MultipartFile> files, HttpSession session) {
 		try {
+			User user = (User) session.getAttribute("user");
+			String userId = user.getUserId();
 			return ResponseEntity.status(HttpStatus.CREATED)
-					.body(documentService.uploadFileWithMetaData(documentDto, files));
+					.body(documentService.uploadFileWithMetaData(documentDto, files, userId));
 		} catch (IllegalArgumentException ex) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
 		}

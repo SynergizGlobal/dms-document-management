@@ -15,7 +15,7 @@ import com.synergizglobal.dms.dto.SaveMetaDataDto;
 public interface DocumentService {
 
 	 public DocumentDTO uploadFileWithMetaData( DocumentDTO documentDto,
-	    		List<MultipartFile> files) ;
+	    		List<MultipartFile> files, String userId) ;
 	 
 	 public List<Map<String, MetaDataDto>> validateMetadata(List<List<String>> rows) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException;
 	 
@@ -39,7 +39,7 @@ public interface DocumentService {
 
 		public Long saveMetadata(List<SaveMetaDataDto> dto);
 
-		public String saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file);
+		public String saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file, String userId);
 
 		public Long getMetadata();
 

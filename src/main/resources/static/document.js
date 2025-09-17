@@ -1,4 +1,20 @@
 $(document).ready(function() {
+	const params = new URLSearchParams(window.location.search);
+	var token = params.get('token');
+	
+	$.ajax({
+	    url: `/dms/api/users/setsession`,
+	    method: 'GET',
+	    data: { token: token }, // token as query param
+	    success: function(response) {
+	      console.log("Session set successfully:", response);
+	      // You can proceed with further logic here
+	    },
+	    error: function(xhr, status, error) {
+	      console.error("Failed to set session:", error);
+	    }
+	  });
+	
 	// Global variables
 	let selectedDocument = null;
 	let uploadedMetadataFile = null;

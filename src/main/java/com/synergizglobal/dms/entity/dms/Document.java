@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.synergizglobal.dms.entity.pmis.User;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,7 +67,15 @@ public class Document {
     @JoinColumn(name = "status_id")
     private Status currentStatus;
 
+    @Column(name = "created_by")
+    private String createdBy;
    
+    @Column(name = "project_name")
+    private String projectName;
+    
+    @Column(name = "contract_name")
+    private String contractName;
+    
 	  @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval =
 	  true, fetch = FetchType.EAGER) 
 	  private List<DocumentFile> documentFiles;

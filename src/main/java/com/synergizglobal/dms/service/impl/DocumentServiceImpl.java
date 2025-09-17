@@ -50,6 +50,7 @@ import com.synergizglobal.dms.entity.dms.MetaData;
 import com.synergizglobal.dms.entity.dms.Status;
 import com.synergizglobal.dms.entity.dms.SubFolder;
 import com.synergizglobal.dms.entity.dms.UploadedMetaData;
+import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.repository.dms.DepartmentRepository;
 import com.synergizglobal.dms.repository.dms.DocumentFileRepository;
 import com.synergizglobal.dms.repository.dms.DocumentRepository;
@@ -59,6 +60,7 @@ import com.synergizglobal.dms.repository.dms.MetaDataRepository;
 import com.synergizglobal.dms.repository.dms.StatusRepository;
 import com.synergizglobal.dms.repository.dms.SubFolderRepository;
 import com.synergizglobal.dms.repository.dms.UploadedMetaDataRepository;
+import com.synergizglobal.dms.repository.pmis.UserRepository;
 import com.synergizglobal.dms.service.dms.DocumentService;
 
 import jakarta.persistence.EntityManager;
@@ -93,6 +95,9 @@ public class DocumentServiceImpl implements DocumentService {
 	@Autowired
 	private MetaDataRepository metaDataRepository;
 
+	@Autowired
+	private UserRepository userRepository;
+	
 	@Value("${file.upload-dir}")
 	private String basePath;
 
@@ -108,12 +113,13 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	@Transactional
-	public DocumentDTO uploadFileWithMetaData(DocumentDTO documentDto, List<MultipartFile> files) {
+	public DocumentDTO uploadFileWithMetaData(DocumentDTO documentDto, List<MultipartFile> files, String userId) {
 		Folder folder = folderRepository.findByName(documentDto.getFolder()).get();
 		SubFolder subFolder = subFolderRepository.findByName(documentDto.getSubFolder()).get();
 		Department department = departmentRepository.findByName(documentDto.getDepartment()).get();
 		Status status = statusRepository.findByName(documentDto.getCurrentStatus()).get();
-
+		//User user = userRepository.findById(userId).get();
+		
 		Optional<Document> documentInDBOptional = documentRepository.findByFileName(documentDto.getFileName());
 		// 1. If file name is same but file number is different
 		if (documentInDBOptional.isPresent()) {
@@ -189,7 +195,8 @@ public class DocumentServiceImpl implements DocumentService {
 					.fileNumber(documentDto.getFileNumber()).revisionNo(documentDto.getRevisionNo())
 					.revisionDate(documentDto.getRevisionDate()).folder(folder).subFolder(subFolder)
 					.department(department).fileDBNumber(UUID.randomUUID().toString()).documentFiles(newDocumentFiles)
-					.currentStatus(status).build();
+					.currentStatus(status)
+					.createdBy(userId).build();
 
 			// Save the new Document first
 			Document savedNewDocument = documentRepository.save(document);
@@ -212,6 +219,7 @@ public class DocumentServiceImpl implements DocumentService {
 					.revisionDate(documentInDB.getRevisionDate()).folder(folder).subFolder(subFolder)
 					.department(department).currentStatus(status).documentFiles(archivedDocumentFiles)
 					.fileDBNumber(documentInDB.getFileDBNumber())
+					.createdBy(documentInDB.getCreatedBy())
 					// .document(latestFromDB.get()) // still valid at this point
 					.build();
 
@@ -233,11 +241,11 @@ public class DocumentServiceImpl implements DocumentService {
 
 		}
 
-		return saveNewDocument(documentDto, files, folder, subFolder, department, status);
+		return saveNewDocument(documentDto, files, folder, subFolder, department, status, userId);
 	}
 
 	private DocumentDTO saveNewDocument(DocumentDTO documentDto, List<MultipartFile> files, Folder folder,
-			SubFolder subFolder, Department department, Status status) {
+			SubFolder subFolder, Department department, Status status, String userId) {
 		List<DocumentFile> newDocumentFiles;
 
 		try {
@@ -249,7 +257,8 @@ public class DocumentServiceImpl implements DocumentService {
 		Document document = Document.builder().fileName(documentDto.getFileName())
 				.fileNumber(documentDto.getFileNumber()).revisionNo("R01").revisionDate(documentDto.getRevisionDate())
 				.folder(folder).subFolder(subFolder).department(department).currentStatus(status)
-				.fileDBNumber(UUID.randomUUID().toString()).build();
+				.fileDBNumber(UUID.randomUUID().toString())
+				.createdBy(userId).build();
 		Document savedDocument = documentRepository.save(document);
 		for (DocumentFile documentFile : newDocumentFiles) {
 			documentFile.setDocument(savedDocument);
@@ -566,7 +575,7 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public String saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file) {
+	public String saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file, String userId) {
 		if (file.isEmpty()) {
 			throw new RuntimeException("Uploaded ZIP file is empty");
 		}
@@ -651,7 +660,7 @@ public class DocumentServiceImpl implements DocumentService {
 						.revisionDate(metadata.getRevisionDate()).folder(metadata.getFolder().getName())
 						.subFolder(metadata.getSubFolder().getName()).department(metadata.getDepartment().getName())
 						.currentStatus(metadata.getCurrentStatus().getName()).build();
-				documentService.uploadFileWithMetaData(documentDto, files);
+				documentService.uploadFileWithMetaData(documentDto, files, userId);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to save or extract ZIP file", e);

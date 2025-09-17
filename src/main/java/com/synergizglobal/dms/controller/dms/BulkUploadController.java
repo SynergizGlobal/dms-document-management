@@ -33,8 +33,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.dto.MetaDataDto;
 import com.synergizglobal.dms.dto.SaveMetaDataDto;
+import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.DocumentService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -140,9 +142,11 @@ public class BulkUploadController {
 	}
 	
 	@PostMapping("/zipfile/save/{uploadId}")
-	public ResponseEntity<String> saveZipFileAndCreateDocuments(@PathVariable("uploadId") Long uploadId, @RequestParam("file") MultipartFile file)
+	public ResponseEntity<String> saveZipFileAndCreateDocuments(@PathVariable("uploadId") Long uploadId, @RequestParam("file") MultipartFile file, HttpSession session)
 			throws Exception {
-		return ResponseEntity.ok(documentservice.saveZipFileAndCreateDocuments(uploadId, file));
+		User user = (User) session.getAttribute("user");
+		String userId = user.getUserId();
+		return ResponseEntity.ok(documentservice.saveZipFileAndCreateDocuments(uploadId, file, userId));
 		//return uploadId);
 	}
 }
