@@ -1016,6 +1016,7 @@ public class DocumentServiceImpl implements DocumentService {
 	        .projectName(doc.getProjectName())
 	        .contractName(doc.getContractName())
 	        .id(""+doc.getId())
+	        .viewedOrDownloaded(file.getFilePath())
 	        //.filePath(file != null ? file.getFilePath() : null)
 	        //.fileNameInFile(file != null ? file.getFileName() : null) // avoid name clash with doc.fileName
 	        .build();

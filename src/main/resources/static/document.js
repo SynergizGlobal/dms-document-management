@@ -90,7 +90,25 @@ $(document).ready(function() {
 					{ data: 'dateUploaded' },
 					{ data: 'revisionDate' },
 					{ data: 'department' },
-					{ data: 'viewedOrDownloaded' }
+					{
+						data: 'viewedOrDownloaded',
+						render: function(data, type, row, meta) {
+							if (!row.fileName) return '';
+
+							const fileName = row.viewedOrDownloaded.split('\\').pop(); // Get file name only
+							const encodedPath = encodeURIComponent(row.viewedOrDownloaded);
+							const fileType = row.fileType?.toLowerCase();
+
+							// Customize this based on types you want to open in browser
+							const viewableTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
+
+							if (viewableTypes.includes(fileType)) {
+								return `<a href="/dms/api/documents/view?path=${encodedPath}" target="_blank">View</a>`;
+							} else {
+								return `<a href="/dms/api/documents/download?path=${encodedPath}" download>Download</a>`;
+							}
+						}
+					}
 				],
 				"language": {
 					"lengthMenu": "Show _MENU_ entries",

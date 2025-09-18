@@ -1,5 +1,6 @@
 package com.synergizglobal.dms.controller.dms;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,10 @@ import com.synergizglobal.dms.dto.DataTableResponse;
 import com.synergizglobal.dms.dto.DocumentDTO;
 //import com.synergizglobal.dms.service.dms.DepartmentService;
 import com.synergizglobal.dms.service.dms.DocumentService;
-
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -165,6 +169,37 @@ public class DocumentController {
 			return ResponseEntity.ok(documentService.findGroupedDepartment());
 		}
 		return null;
+	}
+	
+	@GetMapping("/view")
+	public ResponseEntity<Resource> viewFile(@RequestParam("path") String path) throws IOException {
+		java.nio.file.Path filePath = java.nio.file.Paths.get(path);
+	    Resource resource = new UrlResource(filePath.toUri());
+
+	    if (!resource.exists()) {
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    String mimeType = java.nio.file.Files.probeContentType(filePath);
+	    return ResponseEntity.ok()
+	        .contentType(MediaType.parseMediaType(mimeType))
+	        .body(resource);
+	}
+	
+	@GetMapping("/download")
+	public ResponseEntity<Resource> downloadFile(@RequestParam("path") String path) throws IOException {
+		java.nio.file.Path filePath = java.nio.file.Paths.get(path);
+	    Resource resource = new UrlResource(filePath.toUri());
+
+	    if (!resource.exists()) {
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    String fileName = filePath.getFileName().toString();
+	    return ResponseEntity.ok()
+	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+	        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+	        .body(resource);
 	}
 
 }
