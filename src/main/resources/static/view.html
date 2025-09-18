@@ -473,7 +473,17 @@
     const reply = document.getElementById('replyBtn');
     const cancel = document.getElementById('cancelBtn');
 
-    if (reply) reply.addEventListener('click', ()=> window.location.href = `compose.html?replyTo=${encodeURIComponent(id)}`);
+    if (reply) reply.addEventListener('click', function(e){
+      e.preventDefault();
+      const from = (document.getElementById('detailFromField') || {}).value || '';
+      const subject = (document.getElementById('detailSubject') || {}).value || '';
+      const params = new URLSearchParams();
+      if (id) params.set('replyTo', id);
+      if (from) params.set('from', from);
+      if (subject) params.set('subject', subject);
+      // go to correspondence page (adjust filename if different)
+      window.location.href = 'correspondance.html?' + params.toString();
+    });
     if (cancel) cancel.addEventListener('click', ()=> window.history.back());
   }
 
@@ -497,9 +507,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', loadData);
-
-
-
 </script>
 </body>
 </html>

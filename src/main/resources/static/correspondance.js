@@ -1149,3 +1149,78 @@ function openLetterDetails(letterNo) {
 $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
     $("#letterDetailsModal").hide();
 });
+// ---------- Auto-trigger uploadBtn flow when arriving with ?replyTo=... ----------
+(function(){
+    function $id(id){ try { return document.getElementById(id); } catch(e){ return null; } }
+
+    function triggerUploadFlow({ replyTo='', from='', subject='' } = {}) {
+        try {
+            // Prefer the existing globals if available
+            const modal = (typeof uploadModal !== 'undefined' && uploadModal) ? uploadModal : $id('uploadModal');
+            const btn   = (typeof uploadBtn !== 'undefined' && uploadBtn) ? uploadBtn : $id('uploadBtn');
+
+            // If neither modal nor button found, bail with message for debugging
+            if (!modal && !btn) { console.error('AutoOpen: uploadModal and uploadBtn not found'); return; }
+
+            // Ensure upload mode (same as your uploadBtn handler)
+            try { currentAttachMode = false; } catch(_) {}
+            try { attachToLetterNo = null; } catch(_) {}
+
+            // If your app has an updateModalForMode() helper, call it
+            if (typeof updateModalForMode === 'function') {
+                try { updateModalForMode(); } catch(err) { console.warn('updateModalForMode threw', err); }
+            }
+
+            // Show the modal using same mechanism your handler uses
+            if (modal) {
+                try { modal.style.display = 'block'; } catch(e){ console.error('Failed to display modal', e); }
+            } else if (btn) {
+                // fallback: simulate a click on uploadBtn
+                try { btn.click(); } catch(e){ console.error('Failed to click uploadBtn', e); }
+            }
+
+            // Prefill fields (if present)
+            if (from && $id('toField')) $id('toField').value = decodeURIComponent(from);
+            if (subject && $id('subject')) $id('subject').value = 'RE: ' + decodeURIComponent(subject);
+            if (replyTo && $id('referenceLetters')) $id('referenceLetters').value = decodeURIComponent(replyTo);
+            if (replyTo && $id('letterNo')) $id('letterNo').value = 'RE-' + decodeURIComponent(replyTo) + '-' + String(Date.now()).slice(-4);
+            if ($id('letterDate')) $id('letterDate').value = new Date().toISOString().split('T')[0];
+
+            // Enable inputs in case they were disabled in some mode
+            document.querySelectorAll('#uploadForm input, #uploadForm select, #uploadForm textarea')
+                .forEach(el => { try { el.disabled = false; } catch(_){} });
+
+            // Refresh dropdowns if functions exist
+            if (typeof fetchDepartments === 'function') try { fetchDepartments(); } catch(_) {}
+            if (typeof fetchStatuses === 'function') try { fetchStatuses(); } catch(_) {}
+
+            // Clean URL to avoid re-open on reload
+            try {
+                const u = new URL(window.location.href);
+                u.searchParams.delete('replyTo'); u.searchParams.delete('from'); u.searchParams.delete('subject'); u.searchParams.delete('openUpload');
+                history.replaceState(null, '', u.pathname + u.search);
+            } catch(_) {}
+        } catch(err){
+            console.error('AutoOpen: unexpected error', err);
+        }
+    }
+
+    function checkAndOpen() {
+        try {
+            const qp = new URLSearchParams(window.location.search);
+            if (qp.has('replyTo') || qp.has('openUpload')) {
+                triggerUploadFlow({
+                    replyTo: qp.get('replyTo') || qp.get('id') || '',
+                    from: qp.get('from') || '',
+                    subject: qp.get('subject') || ''
+                });
+            }
+        } catch(e){ console.error('AutoOpen parse error', e); }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAndOpen);
+    } else {
+        checkAndOpen();
+    }
+})();
