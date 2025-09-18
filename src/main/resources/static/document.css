@@ -1992,3 +1992,25 @@ table.dataTable tbody td {
   cursor: default;           /* Change cursor to default arrow */
   user-select: none;         /* Prevent text selection */
 }
+/* Red place holder*/
+/* For most browsers */
+.red-placeholder::placeholder {
+    color: red;
+    opacity: 1; /* Full opacity */
+}
+
+/* For Firefox */
+.red-placeholder::-moz-placeholder {
+    color: red;
+    opacity: 1;
+}
+
+/* For Internet Explorer (older versions) */
+.red-placeholder:-ms-input-placeholder {
+    color: red;
+}
+
+/* For Edge */
+.red-placeholder::-ms-input-placeholder {
+    color: red;
+}

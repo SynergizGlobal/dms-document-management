@@ -36,6 +36,9 @@ public class DocumentController {
 
 	private final DocumentService documentService;
 
+	
+	
+	
 	@PostMapping(consumes = { "multipart/form-data" })
 	public ResponseEntity<?> uploadFileWithMetaData(@ModelAttribute DocumentDTO documentDto,
 			@RequestParam("files") List<MultipartFile> files, HttpSession session) {
@@ -122,43 +125,43 @@ public class DocumentController {
 
 	@GetMapping("/filters/{columnIndex}")
 	public ResponseEntity<List<String>> filters(@PathVariable("columnIndex") Integer columnIndex) {
-		if (columnIndex == 0) {
+		if (columnIndex == 1) {
 			return ResponseEntity.ok(documentService.findGroupedFileTypes());
 		}
-		if (columnIndex == 1) {
+		if (columnIndex == 2) {
 			return ResponseEntity.ok(documentService.findGroupedFileNumbers());
 		}
-		if (columnIndex == 2) {
+		if (columnIndex == 3) {
 			return ResponseEntity.ok(documentService.findGroupedFileNames());
 		}
-		if (columnIndex == 3) {
+		if (columnIndex == 4) {
 			return ResponseEntity.ok(documentService.findGroupedRevisionNos());
 		}
-		if (columnIndex == 4) {
+		if (columnIndex == 5) {
 			return ResponseEntity.ok(documentService.findGroupedStatus());
 		}
-		if (columnIndex == 5) {
+		if (columnIndex == 6) {
 			return ResponseEntity.ok(documentService.findGroupedProjectNames());
 		}
-		if (columnIndex == 6) {
+		if (columnIndex == 7) {
 			return ResponseEntity.ok(documentService.findGroupedContractNames());
 		}
-		if (columnIndex == 7) {
+		if (columnIndex == 8) {
 			return ResponseEntity.ok(documentService.findGroupedFolders());
 		}
-		if (columnIndex == 8) {
+		if (columnIndex == 9) {
 			return ResponseEntity.ok(documentService.findGroupedSubFolders());
 		}
-		if (columnIndex == 9) {
+		if (columnIndex == 10) {
 			return ResponseEntity.ok(documentService.findGroupedCreatedBy());
 		}
-		if (columnIndex == 10) {
-			return ResponseEntity.ok(documentService.findGroupedUploadedDate());
-		}
 		if (columnIndex == 11) {
-			return ResponseEntity.ok(documentService.findGroupedRevisionDate());
+			return null;//ResponseEntity.ok(documentService.findGroupedUploadedDate());
 		}
 		if (columnIndex == 12) {
+			return ResponseEntity.ok(documentService.findGroupedRevisionDate());
+		}
+		if (columnIndex == 13) {
 			return ResponseEntity.ok(documentService.findGroupedDepartment());
 		}
 		return null;

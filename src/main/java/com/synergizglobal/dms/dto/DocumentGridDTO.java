@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class DocumentGridDTO {
+	private String id;
 	private String fileType;
     private String fileName;
     private String fileNumber;

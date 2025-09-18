@@ -16,6 +16,7 @@ $(document).ready(function() {
 	});
 
 	// Global variables
+	let selectedDocumentId = null;
 	let selectedDocument = null;
 	let uploadedMetadataFile = null;
 	let uploadedZipFile = null;
@@ -70,6 +71,12 @@ $(document).ready(function() {
 					dataSrc: 'data' // Assuming backend returns a plain array
 				},
 				columns: [
+					{
+						data: 'id', visible: false,
+						render: function(data) {
+							return `<input type="hidden" class="doc-id-hidden" value="${data}">`;
+						}
+					},
 					{ data: 'fileType' },
 					{ data: 'fileNumber' },
 					{ data: 'fileName' },
@@ -93,6 +100,9 @@ $(document).ready(function() {
 				"destroy": true,
 				"drawCallback": function() {
 					updateAllColumnFilters();
+				}, rowCallback: function(row, data, index) {
+					// Attach the document ID directly as a data attribute to the row
+					$(row).attr('data-doc-id', data.id);
 				}
 			});
 		}
@@ -454,6 +464,23 @@ $(document).ready(function() {
 		}
 	});
 
+	$('#mainTable tbody').on('contextmenu', 'tr', function(e) {
+		e.preventDefault(); // prevent browser default menu
+
+		const $row = $(this);
+
+		// Option 1: if you use a hidden input inside a cell
+		selectedDocumentId = $row.data('doc-id');
+
+		// Option 2: if you have data-id directly in row (you can add it using rowCallback or render)
+		// selectedDocumentId = $row.data('id');
+		$('#contextMenu').data('target-row', $row);
+		// Show the context menu at mouse position
+		$('#contextMenu')
+			.css({ top: e.pageY + 'px', left: e.pageX + 'px' })
+			.show();
+	});
+
 	// Right-click context menu for file name cells
 	$(document).on('contextmenu', '.file-name-cell', function(e) {
 		e.preventDefault();
@@ -477,9 +504,9 @@ $(document).ready(function() {
 	// Handle context menu item clicks
 	$('.context-menu-item').click(function() {
 		const action = $(this).data('action');
-		const targetCell = $('#contextMenu').data('target-cell');
+		const $targetRow = $('#contextMenu').data('target-row');  // Retrieve stored row
 
-		handleContextMenuAction(action, targetCell);
+		handleContextMenuAction(action, $targetRow);
 		$('#contextMenu').hide();
 	});
 
@@ -550,6 +577,12 @@ $(document).ready(function() {
 			$(this).hide();
 			resetUpdateForm();
 		}
+		//Populate Project Name
+
+		//Populate Contract Name
+		// 
+
+
 	});
 
 	$('#updateDocument').on('click', function() {
@@ -1075,9 +1108,9 @@ $(document).ready(function() {
 
 	// HELPER FUNCTIONS
 
-	function handleContextMenuAction(action, targetCell) {
-		const fileName = targetCell.val() || targetCell.text();
-		const row = targetCell.closest('tr');
+	function handleContextMenuAction(action, targetRow) {
+		//const fileName = targetCell.val() || targetCell.text();
+		const row = targetRow;
 
 		switch (action) {
 			case 'send':
@@ -1102,18 +1135,19 @@ $(document).ready(function() {
 				break;
 			case 'update':
 				const updateData = {
-					fileName: fileName,
-					fileType: row.find('.file-type-label').text(),
-					fileNumber: row.find('td:nth-child(2) input').val() || row.find('td:nth-child(2)').text(),
-					revisionNo: row.find('td:nth-child(4) input').val() || row.find('td:nth-child(4)').text(),
-					status: row.find('td:nth-child(5) input').val() || row.find('td:nth-child(5)').text(),
-					documentType: row.find('td:nth-child(6) input').val() || row.find('td:nth-child(6)').text(),
-					folder: row.find('td:nth-child(7) input').val() || row.find('td:nth-child(7)').text(),
-					subFolder: row.find('td:nth-child(8) input').val() || row.find('td:nth-child(8)').text(),
-					createdBy: row.find('td:nth-child(9) input').val() || row.find('td:nth-child(9)').text(),
-					dateUploaded: row.find('td:nth-child(10) input').val() || row.find('td:nth-child(10)').text(),
-					revisionDate: row.find('td:nth-child(11) input').val() || row.find('td:nth-child(11)').text(),
-					department: row.find('td:nth-child(12) input').val() || row.find('td:nth-child(12)').text()
+					fileType: row.find('td:nth-child(1)').text(),
+					fileNumber: row.find('td:nth-child(2)').text(),
+					fileName: row.find('td:nth-child(3)').text(),
+					revisionNo: row.find('td:nth-child(4)').text(),
+					status: row.find('td:nth-child(5)').text(),
+					projectName: row.find('td:nth-child(6)').text(),
+					contractName: row.find('td:nth-child(7)').text(),
+					folder: row.find('td:nth-child(8)').text(),
+					subFolder: row.find('td:nth-child(9)').text(),
+					createdBy: row.find('td:nth-child(10)').text(),
+					dateUploaded: row.find('td:nth-child(11)').text(),
+					revisionDate: row.find('td:nth-child(12)').text(),
+					department: row.find('td:nth-child(13)').text()
 				};
 
 				selectedDocument = updateData;
@@ -1267,7 +1301,14 @@ $(document).ready(function() {
 
 		$('#sendDocumentsModal').css('display', 'flex');
 	}
+	function getNextRevision(revisionNo) {
+	    const match = revisionNo.match(/^R(\d+)$/i);
+	    if (!match) return revisionNo; // fallback if format is wrong
 
+	    const nextNumber = String(parseInt(match[1]) + 1).padStart(2, '0');
+	    return `R${nextNumber}`;
+	}
+	
 	function showUpdateDocumentsModal() {
 		resetUpdateForm();
 
@@ -1277,26 +1318,187 @@ $(document).ready(function() {
 		$('#singleUpdateTab').addClass('active');
 
 		if (selectedDocument) {
-			$('#updateFileName').val(selectedDocument.fileName);
-			$('#updateFileNumber').val(selectedDocument.fileNumber);
-			$('#updateRevisionNo').val(selectedDocument.revisionNo);
-
-			if (selectedDocument.revisionDate) {
-				const dateParts = selectedDocument.revisionDate.split('.');
-				if (dateParts.length === 3) {
-					const formattedDate = `${dateParts[2]}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
-					$('#updateRevisionDate').val(formattedDate);
-				}
-			}
-
-			$('#updateCurrentStatus').val(selectedDocument.status);
-			$('#updateDepartment').val(selectedDocument.department);
-			$('#updateFolder').val(selectedDocument.folder);
-
-			// Update sub-folder options and set value
-			updateSubFolderOptions('#updateFolder', '#updateSubFolder');
+			$('#updateDocumentsModal').css('display', 'flex');
 			setTimeout(() => {
-				$('#updateSubFolder').val(selectedDocument.subFolder);
+				$('#updateFileName').val(selectedDocument.fileName);
+				$('#updateFileNumber').val(selectedDocument.fileNumber);
+				$('#updateRevisionNo').val(''); // Optional: Clear any existing value
+				$('#updateRevisionNo').attr('placeholder', getNextRevision(selectedDocument.revisionNo)).addClass('red-placeholder');;
+
+				/*if (selectedDocument.revisionDate) {
+					const dateParts = selectedDocument.revisionDate.split('.');
+					if (dateParts.length === 3) {
+						const formattedDate = `${dateParts[2]}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
+						$('#updateRevisionDate').val(formattedDate);
+					}
+				}*/
+
+				$('#updateCurrentStatus').val(selectedDocument.status);
+				//$('#updateDepartment').val(selectedDocument.department);
+				$.ajax({
+					url: '/dms/api/projects/get', // your actual API endpoint
+					method: 'GET',
+					success: function(departments) {
+						const $select = $('#updateProjectName');
+						$select.empty(); // clear existing options
+
+						// Optionally add a default prompt
+						$select.append('<option value="">-- Select Folder --</option>');
+
+						departments.forEach(function(department) {
+							const isSelected = selectedDocument.projectName && department.name === selectedDocument.projectName;
+							$select.append(
+								$('<option>', {
+									value: department.id,
+									text: department.name,
+									selected: isSelected
+								})
+							);
+						});
+						//$('#updateFolder').text(selectedDocument.folder);
+					},
+					error: function() {
+						alert('Failed to load folders');
+					}
+				});
+				$.ajax({
+					url: '/dms/api/statuses/get', // your actual API endpoint
+					method: 'GET',
+					success: function(departments) {
+						const $select = $('#updateCurrentStatus');
+						$select.empty(); // clear existing options
+
+						// Optionally add a default prompt
+						$select.append('<option value="">-- Select Folder --</option>');
+
+						departments.forEach(function(department) {
+							//const isSelected = selectedDocument.status && department.name === selectedDocument.status;
+							$select.append(
+								$('<option>', {
+									value: department.id,
+									text: department.name,
+									selected: false
+								})
+							);
+						});
+						//$('#updateFolder').text(selectedDocument.folder);
+					},
+					error: function() {
+						alert('Failed to load folders');
+					}
+				});
+				$.ajax({
+					url: '/dms/api/contracts/get', // your actual API endpoint
+					method: 'GET',
+					success: function(departments) {
+						const $select = $('#updateContractName');
+						$select.empty(); // clear existing options
+
+						// Optionally add a default prompt
+						$select.append('<option value="">-- Select Folder --</option>');
+
+						departments.forEach(function(department) {
+							const isSelected = selectedDocument.contractName && department.name === selectedDocument.contractName;
+							$select.append(
+								$('<option>', {
+									value: department.id,
+									text: department.name,
+									selected: isSelected
+								})
+							);
+						});
+						//$('#updateFolder').text(selectedDocument.folder);
+					},
+					error: function() {
+						alert('Failed to load folders');
+					}
+				});
+				$.ajax({
+					url: '/dms/api/departments/get', // your actual API endpoint
+					method: 'GET',
+					success: function(departments) {
+						const $select = $('#updateDepartment');
+						$select.empty(); // clear existing options
+
+						// Optionally add a default prompt
+						$select.append('<option value="">-- Select Folder --</option>');
+
+						departments.forEach(function(department) {
+							const isSelected = selectedDocument.department && department.name === selectedDocument.department;
+							$select.append(
+								$('<option>', {
+									value: department.id,
+									text: department.name,
+									selected: isSelected
+								})
+							);
+						});
+						//$('#updateFolder').text(selectedDocument.folder);
+					},
+					error: function() {
+						alert('Failed to load folders');
+					}
+				});
+				$.ajax({
+					url: '/dms/api/folders/get', // your actual API endpoint
+					method: 'GET',
+					success: function(folders) {
+						const $select = $('#updateFolder');
+						$select.empty(); // clear existing options
+
+						// Optionally add a default prompt
+						$select.append('<option value="">-- Select Folder --</option>');
+
+						folders.forEach(function(folder) {
+							const isSelected = selectedDocument.folder && folder.name === selectedDocument.folder;
+							$select.append(
+								$('<option>', {
+									value: folder.id,
+									text: folder.name,
+									selected: isSelected
+								})
+							);
+
+						});
+						$.ajax({
+							url: '/dms/api/subfolders/' + $('#updateFolder option:selected').val(), // your actual API endpoint
+							method: 'GET',
+							success: function(folders) {
+								const $select = $('#updateSubFolder');
+								$select.empty(); // clear existing options
+
+								// Optionally add a default prompt
+								$select.append('<option value="">-- Select Folder --</option>');
+
+								folders.forEach(function(folder) {
+									const isSelected = selectedDocument.subFolder && folder.name === selectedDocument.subFolder;
+									$select.append(
+										$('<option>', {
+											value: folder.id,
+											text: folder.name,
+											selected: isSelected
+										})
+									);
+								});
+								//$('#updateFolder').text(selectedDocument.folder);
+							},
+							error: function() {
+								alert('Failed to load folders');
+							}
+						});
+						//$('#updateFolder').text(selectedDocument.folder);
+					},
+					error: function() {
+						alert('Failed to load folders');
+					}
+				});
+
+
+
+				// Update sub-folder options and set value
+				//updateSubFolderOptions('#updateFolder', '#updateSubFolder');
+
+				//$('#updateSubFolder').val(selectedDocument.subFolder);
 			}, 100);
 
 			const currentDocumentItem = `
@@ -1307,6 +1509,8 @@ $(document).ready(function() {
                                     File Number: ${selectedDocument.fileNumber} | 
                                     Revision: ${selectedDocument.revisionNo} | 
                                     Status: ${selectedDocument.status} | 
+									ProjectName: ${selectedDocument.projectName} |
+									ContractName: ${selectedDocument.contractName} |
                                     Department: ${selectedDocument.department} |
                                     Folder: ${selectedDocument.folder} |
                                     Sub-Folder: ${selectedDocument.subFolder}
@@ -1318,7 +1522,7 @@ $(document).ready(function() {
 			$('#currentDocumentInfo').html(currentDocumentItem);
 		}
 
-		$('#updateDocumentsModal').css('display', 'flex');
+		//$('#updateDocumentsModal').css('display', 'flex');
 	}
 
 	function resetSendForm() {
@@ -1341,7 +1545,7 @@ $(document).ready(function() {
 		$('#updateDocumentFile').val('');
 		$('#currentDocumentInfo').empty();
 
-		resetBulkUpdateForm();
+		//resetBulkUpdateForm();
 		updateUploadedMetadataFile = null;
 		updateUploadedZipFile = null;
 	}
