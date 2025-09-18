@@ -35,7 +35,7 @@ public class CorrespondenceLetter {
     @Column(name = "CATEGORY", length = 100)
     private String category;
 
-    @Column(name = "letter_number", length = 200, nullable = false)
+    @Column(name = "letter_number",unique = true, length = 200, nullable = false)
     private String letterNumber;
 
     @Column(name = "LETTER_DATE")

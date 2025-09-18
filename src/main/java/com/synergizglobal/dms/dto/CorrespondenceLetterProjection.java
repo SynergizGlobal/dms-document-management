@@ -1,6 +1,7 @@
 package com.synergizglobal.dms.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public interface CorrespondenceLetterProjection {
 	Long   getCorrespondenceId();
@@ -15,4 +16,6 @@ public interface CorrespondenceLetterProjection {
     String getDepartment();
     Integer getFileCount();
     String getAction();
+    LocalDateTime getCreatedAt();
+    LocalDateTime getUpdatedAt();
 }

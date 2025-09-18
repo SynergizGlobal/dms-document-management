@@ -1,7 +1,7 @@
 package com.synergizglobal.dms.repository.dms;
 
 import java.util.List;
-
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +23,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                c.category,
                c.recipient,
                c.subject,
+               c.created_at as createdAt,
+               c.updated_at as updatedAt,
                c.required_response as requiredResponse,
                c.due_date as dueDate,
                c.current_status as currentStatus,
@@ -33,12 +35,13 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         join correspondence_file cf on c.correspondence_id = cf.correspondence_id
         where c.action = :action
         group by c.correspondence_id
+        order by c.updated_at desc, c.created_at desc
         """, nativeQuery = true)
     List<CorrespondenceLetterProjection> findLetters(@Param("action") String action);
       
     @Query(value = """
 
-			SELECT
+			        SELECT
                                             	        c.category,
                                             	        c.letter_number AS letterNumber,
                                             	        c.letter_date AS letterDate,
@@ -65,6 +68,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                             	    WHERE c.correspondence_id = :id
     	    """, nativeQuery = true)
     	List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesView(@Param("id") Long id);
+    
+    Optional<CorrespondenceLetter> findByLetterNumber(String letterNumber);
 
 }
 

@@ -28,4 +28,5 @@ public class CorrespondenceUploadLetter {
 	private String action;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private LocalDate dueDate;
+	private LocalDate letterDate;
 }

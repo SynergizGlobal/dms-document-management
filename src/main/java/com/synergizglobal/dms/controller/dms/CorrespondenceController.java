@@ -1,11 +1,7 @@
 package com.synergizglobal.dms.controller.dms;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
 import java.util.List;
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.synergizglobal.dms.controller.pmis.ContractController;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
@@ -28,9 +24,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequiredArgsConstructor
 public class CorrespondenceController {
 
+	
+	
+    private final ContractController contractController;
+
 
     private final ICorrespondenceService correspondenceService;
     private final ObjectMapper objectMapper;
+
+	
 
     @PostMapping(value = "/uploadLetter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadLetter(
@@ -43,8 +45,7 @@ public class CorrespondenceController {
 
             dto.setDocuments(Arrays.asList(documentsArray));
 
-            System.out.println("Due Date " + dto.getDueDate());
-
+          
             CorrespondenceLetter savedLetter = correspondenceService.saveLetter(dto);
 
             return ResponseEntity.ok("Letter uploaded successfully: " + savedLetter.getLetterNumber());

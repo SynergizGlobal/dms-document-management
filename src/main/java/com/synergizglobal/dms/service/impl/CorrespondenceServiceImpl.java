@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,11 +49,18 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
     @Transactional
     public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto) throws Exception {
 
+    	
+        Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
 
+        if (existingLetter.isPresent()) {
+            throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
+        }
+        
+        
         CorrespondenceLetter entity = new CorrespondenceLetter();
         entity.setCategory(dto.getCategory());
         entity.setLetterNumber(dto.getLetterNumber());
-        entity.setLetterDate(LocalDate.now());
+        entity.setLetterDate(dto.getLetterDate());
         entity.setTo(dto.getTo());
         if (dto.getCc() != null && !dto.getCc().isEmpty()) {
             entity.setCcRecipient(String.join(",", dto.getCc()));

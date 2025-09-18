@@ -2,6 +2,7 @@ package com.synergizglobal.dms.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ import jakarta.mail.util.ByteArrayDataSource;
 public class EmailServiceImpl {
 
     JavaMailSender javaMailSender;
-
+    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     public EmailServiceImpl(JavaMailSender javaMailSender) {
 
         this.javaMailSender = javaMailSender;
@@ -40,7 +41,7 @@ public class EmailServiceImpl {
                 "Letter Number: " + letter.getLetterNumber() + "\n" +
                 "From: Project Team" + "\n" +
                 "Subject: " + letter.getSubject() + "\n" +
-                "Due Date: " + letter.getLetterDate() + "\n" +
+                "Due Date: " + (letter.getDueDate() != null ? letter.getDueDate().format(fmt) : "N/A") + "\n" +
                 "Status: " + letter.getCurrentStatus();
 
         // Create the MimeMessage

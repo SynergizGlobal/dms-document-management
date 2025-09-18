@@ -143,7 +143,7 @@ function addLetterToTable(letterData, isDraft = false) {
         fileDisplay = letterData.fileCount === 1 ? (letterData.fileType || 'File')
                                                  : `${letterData.fileCount} Files`;
     }
-
+	const formattedDue = formatApiDate(letterData.dueDate);
     // For draft table (different structure)
     if (isDraft) {
         row.innerHTML = `
@@ -158,7 +158,7 @@ function addLetterToTable(letterData, isDraft = false) {
 		       <td>${letterData.recipient || ''}</td>
 		       <td>${letterData.subject || ''}</td>
 		       <td>${letterData.requiredResponse || ''}</td>
-		       <td>${letterData.dueDate || ''}</td>
+		       <td>${formattedDue || ''}</td>
 		       <td>${letterData.currentStatus || ''}</td>
 		       <td>${letterData.department || ''}</td>
 		       <td>${letterData.fileCount || ''}</td>
@@ -177,7 +177,7 @@ function addLetterToTable(letterData, isDraft = false) {
             <td>${letterData.recipient || ''}</td>
             <td>${letterData.subject || ''}</td>
             <td>${letterData.requiredResponse || ''}</td>
-            <td>${letterData.dueDate || ''}</td>
+            <td>${formattedDue || ''}</td>
             <td>${letterData.currentStatus || ''}</td>
             <td>${letterData.department || ''}</td>
             <td>${letterData.fileCount || ''}</td>
@@ -254,7 +254,7 @@ function getFormData() {
         requiredResponse: document.getElementById('requiredResponse').value,
         currentStatus: document.getElementById('currentStatus').value,
         department: document.getElementById('department').value,
-        dueDate: document.getElementById('detailDueDate').value,
+        dueDate: document.getElementById('dueDate').value, 
         action: 'upload'
     };
 }
@@ -293,8 +293,11 @@ async function uploadLetterToServer(formData, files) {
             currentStatus: formData.currentStatus,
             department : formData.department,
 			dueDate: formData.dueDate,
+			letterDate: formData.letterDate,  
             action: formData.action
         };
+		
+		console.log('Sending DTO:', dto);
 
         requestFormData.append('dto', JSON.stringify(dto));
 
@@ -1224,3 +1227,56 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
         checkAndOpen();
     }
 })();
+
+
+// ---------- date formatting helpers ----------
+function pad(n){ return String(n).padStart(2, '0'); }
+
+function formatApiDate(value) {
+  if (!value) return '';
+  // backend sometimes returns arrays like [2025,9,18,...]
+  if (Array.isArray(value)) {
+    const year = value[0], month = value[1], day = value[2];
+    return `${pad(day)}-${pad(month)}-${year}`;
+  }
+  // ISO string "2025-09-18" or "2025-09-18T11:44:46..."
+  if (typeof value === 'string') {
+    const iso = value.split('T')[0];                // "yyyy-mm-dd"
+    const parts = iso.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    // fallback: try parsing Date
+    const dt = new Date(value);
+    if (!isNaN(dt)) return dt.toLocaleDateString('en-GB').replace(/\//g, '-');
+    return value;
+  }
+  // fallback to string
+  return String(value);
+}
+
+function formatApiDateTime(value) {
+  if (!value) return '';
+  if (Array.isArray(value)) {
+    const y = value[0], m = value[1], d = value[2], hh = value[3] || 0, mm = value[4] || 0, ss = value[5] || 0;
+    return `${pad(d)}-${pad(m)}-${y} ${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+  }
+  if (typeof value === 'string') {
+    // try "YYYY-MM-DDTHH:MM:SS" or "YYYY-MM-DD"
+    const [datePart, timePart] = value.split('T');
+    const dateParts = (datePart || '').split('-');
+    if (dateParts.length === 3) {
+      const dateStr = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+      if (timePart) {
+        const time = timePart.split('.')[0]; // remove ms
+        return `${dateStr} ${time}`;
+      }
+      return dateStr;
+    }
+    const dt = new Date(value);
+    if (!isNaN(dt)) return dt.toLocaleString('en-GB').replace(',', '');
+    return value;
+  }
+  return String(value);
+}
+
