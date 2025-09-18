@@ -63,4 +63,13 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
 	@Query("SELECT distinct d.contractName FROM Document d GROUP BY d.contractName")
 	List<String> findGroupedContractNames();
+	
+	@Query(value = "select \r\n"
+			+ "f.file_path\r\n"
+			+ "from dms.document_file f\r\n"
+			+ "join dms.documents d on f.document_id = d.id\r\n"
+			+ "where d.file_name = :fileName\r\n"
+			+ "and d.file_number = :fileNumber\r\n"
+			+ "and d.revision_no = :revisionNo", nativeQuery = true)
+	String getFilePath(@Param("fileName")String fileName, @Param("fileNumber")String fileNumber,@Param("revisionNo") String revisionNo);
 }

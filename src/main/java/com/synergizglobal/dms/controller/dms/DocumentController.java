@@ -62,6 +62,14 @@ public class DocumentController {
 		String msg = documentService.validateFileName(fileName, fileNumber);
 		return ResponseEntity.ok(msg);
 	}
+	
+	@GetMapping("/get/filePath")
+	public ResponseEntity<String> getFilePath(@RequestParam("fileName") String fileName
+			, @RequestParam("fileNumber") String fileNumber
+			, @RequestParam("revisionNo") String revisionNo) {
+		String msg = documentService.getFilePath(fileName, fileNumber, revisionNo);
+		return ResponseEntity.ok(msg);
+	}
 
 	@GetMapping("/validate/fileNumber")
 	public ResponseEntity<String> validateFileNumber(@RequestParam String fileNumber, @RequestParam String fileName) {

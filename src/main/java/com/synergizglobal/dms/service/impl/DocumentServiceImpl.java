@@ -1051,5 +1051,11 @@ public class DocumentServiceImpl implements DocumentService {
 		return documentRepository.findGroupedContractNames();
 	}
 
+	@Override
+	public String getFilePath(String fileName, String fileNumber, String revisionNo) {
+		// TODO Auto-generated method stub
+		return documentRepository.getFilePath(fileName, fileNumber, revisionNo);
+	}
+
 
 }

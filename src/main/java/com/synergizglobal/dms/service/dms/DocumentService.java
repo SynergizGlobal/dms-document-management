@@ -75,4 +75,6 @@ public interface DocumentService {
 		public List<String> findGroupedContractNames();
 
 		public long countAllFiles(User user);
+
+		public String getFilePath(String fileName, String fileNumber, String revisionNo);
 }

@@ -1250,19 +1250,147 @@ $(document).ready(function() {
 				showUpdateDocumentsModal();
 				break;
 			case 'view-old':
-				showNotification('Viewing old versions: ' + fileName, 'info');
+				populateVersionTable(row);
+				$('#versionModal').css('display', 'flex');
+				//showNotification('Viewing old versions: ' + fileName, 'info');
 				break;
 			case 'not-required':
 				showNotification('Marked as not required: ' + fileName, 'info');
 				break;
 			case 'download':
-				showNotification('Downloading: ' + fileName, 'info');
+				//showNotification('Downloading: ' + fileName, 'info');
+
+				const fileNumberFetched = row.find('td:nth-child(2)').text();
+				const fileName = row.find('td:nth-child(3)').text();
+				let revisionNoFetched = row.find('td:nth-child(4)').text();
+
+				$.ajax({
+					url: '/dms/api/documents/get/filePath',
+					method: 'GET',
+					data: {
+						fileNumber: fileNumberFetched,
+						fileName: fileName,
+						revisionNo: revisionNoFetched
+					},
+					success: function(filePath) {
+
+
+						//let filePath = row.find('td:nth-child(0)').text();
+						const encodedPath = encodeURIComponent(filePath); // or however you get it
+						const downloadUrl = `/dms/api/documents/download?path=${encodedPath}`;
+
+						// Create a temporary <a> tag and trigger click
+						const link = document.createElement('a');
+						link.href = downloadUrl;
+						link.download = ''; // Optional; hints browser to download
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+
+						$('#contextMenu').hide(); // Hide the context menu
+					},
+					error: function(xhr, status, error) {
+						console.error("Failed to fetch file path:", error);
+						alert("File not found or could not be retrieved.");
+					}
+				});
 				break;
 			case 'print':
-				showNotification('Printing: ' + fileName, 'info');
+				const fileNumberFetched2 = row.find('td:nth-child(2)').text();
+				const fileName2 = row.find('td:nth-child(3)').text();
+				let revisionNoFetched2 = row.find('td:nth-child(4)').text();
+
+				$.ajax({
+					url: '/dms/api/documents/get/filePath',
+					method: 'GET',
+					data: {
+						fileNumber: fileNumberFetched2,
+						fileName: fileName2,
+						revisionNo: revisionNoFetched2
+					},
+					success: function(filePath) {
+						const encodedPath = encodeURIComponent(filePath);
+						const viewUrl = `/dms/api/documents/view?path=${encodedPath}`;
+						printDocument(viewUrl);
+					},
+					error: function(xhr, status, error) {
+						console.error("Failed to fetch file path:", error);
+						alert("File not found or could not be retrieved.");
+					}
+				});
+				//showNotification('Printing: ' + fileName, 'info');
 				break;
 		}
 	}
+	function printDocument(url) {
+	    const printWindow = window.open(url, '_blank');
+
+	    if (printWindow) {
+	        printWindow.onload = function () {
+	            printWindow.focus();
+	            printWindow.print();
+	        };
+	    } else {
+	        alert("Pop-up blocked. Please allow pop-ups for this site.");
+	    }
+	}
+
+	function populateVersionTable(row) {
+		let fileNumber = row.find('td:nth-child(2)').text();
+		let fileName = row.find('td:nth-child(3)').text();
+		$.ajax({
+			url: '/dms/api/documentversion/get',
+			method: 'GET',
+			data: {
+				fileNumber: fileNumber,
+				fileName: fileName
+			},
+			success: function(data) {
+				const $versionBody = $('#versionBody');
+				$versionBody.empty(); // Clear previous data
+
+				if (data && data.length > 0) {
+					data.forEach(item => {
+						const fileName = item.filePath.split('\\').pop(); // Get file name only
+						const encodedPath = encodeURIComponent(item.filePath);
+						let fileType = item.fileType;
+
+						// Customize this based on types you want to open in browser
+						const viewableTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
+
+						if (viewableTypes.includes(fileType)) {
+							downloadLink = `<a href="/dms/api/documents/view?path=${encodedPath}" target="_blank">View</a>`;
+						} else {
+							downloadLink = `<a href="/dms/api/documents/download?path=${encodedPath}" download>Download</a>`;
+						}
+
+						const row = `
+		                        <tr>
+		                            <td>${item.fileName}</td>
+		                            <td>${item.fileNumber}</td>
+		                            <td>${item.revisionNo}</td>
+		                            <td>${downloadLink}</td>
+		                        </tr>
+		                    `;
+						$versionBody.append(row);
+					});
+				} else {
+					$versionBody.append(`<tr><td colspan="4">No versions found.</td></tr>`);
+				}
+
+				$('#versionModal').css('display', 'flex'); // Show the modal
+			},
+			error: function(xhr) {
+				console.error('Error fetching document versions:', xhr);
+				alert('Failed to load older versions.');
+			}
+		});
+
+
+	}
+	$('#cancelVersion').on('click', function() {
+		$('#versionModal').hide(); // or use .css('display', 'none')
+	});
 
 	function handleSingleUpload() {
 		if (!validateForm('#singleUploadTab')) {
