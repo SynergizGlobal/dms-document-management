@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.synergizglobal.dms.entity.dms.Document;
 
@@ -51,6 +52,9 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	@Query("SELECT COUNT(df.id) FROM Document d JOIN d.documentFiles df")
 	long countAllFiles();
 
+	@Query("SELECT COUNT(df.id) FROM Document d JOIN d.documentFiles df where d.createdBy=:userId")
+	long countAllFiles(@Param("userId") String userId);
+	
 	@Query("SELECT distinct d.createdBy FROM Document d GROUP BY d.createdBy")
 	List<String> findGroupedCreatedBy();
 

@@ -812,7 +812,8 @@ public class DocumentServiceImpl implements DocumentService {
 	public List<DocumentGridDTO> getFilteredDocuments(
 	    Map<Integer, List<String>> columnFilters,
 	    int start,   // offset (zero-based)
-	    int length   // max number of records to return
+	    int length,
+	    User user// max number of records to return
 	) {
 	    jakarta.persistence.criteria.CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 	    jakarta.persistence.criteria.CriteriaQuery<jakarta.persistence.Tuple> cq = cb.createTupleQuery();
@@ -867,7 +868,12 @@ public class DocumentServiceImpl implements DocumentService {
 	            predicates.add(fieldPath.in(values));
 	        }
 	    }
+	    String role = user.getUserRoleNameFk();
 
+	    if (!"IT Admin".equals(role)) {
+	        // Filter by contractor’s created documents
+	        predicates.add(cb.equal(root.get("createdBy"), user.getUserId()));
+	    }
 	    cq.multiselect(root, docFileJoin)
 	      .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])))
 	      .orderBy(cb.desc(root.get("updatedAt")));
@@ -918,7 +924,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 	
 	@Override
-	public long countFilteredDocuments(Map<Integer, List<String>> columnFilters) {
+	public long countFilteredDocuments(Map<Integer, List<String>> columnFilters, User user) {
 	    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 	    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
 	    Root<Document> root = countQuery.from(Document.class);
@@ -972,7 +978,13 @@ public class DocumentServiceImpl implements DocumentService {
 	            predicates.add(fieldPath.in(values));
 	        }
 	    }
+	    
+	    String role = user.getUserRoleNameFk();
 
+	    if (!"IT Admin".equals(role)) {
+	        // Filter by contractor’s created documents
+	        predicates.add(cb.equal(root.get("createdBy"), user.getUserId()));
+	    }
 	    countQuery.select(cb.count(docFileJoin))
 	              .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
 
@@ -1005,9 +1017,15 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public long countAllFiles() {
+	public long countAllFiles(User user) {
+		String role = user.getUserRoleNameFk();
+
+	    if (!"IT Admin".equals(role)) {
 		// TODO Auto-generated method stub
-		return documentRepository.countAllFiles();
+	    	return documentRepository.countAllFiles(user.getUserId());
+	    } else {
+	    	return documentRepository.countAllFiles();
+	    }
 	}
 
 	@Override
@@ -1026,5 +1044,6 @@ public class DocumentServiceImpl implements DocumentService {
 		// TODO Auto-generated method stub
 		return documentRepository.findGroupedContractNames();
 	}
+
 
 }

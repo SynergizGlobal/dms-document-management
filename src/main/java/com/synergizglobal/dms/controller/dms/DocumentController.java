@@ -101,19 +101,19 @@ public class DocumentController {
 	}
 	
 	@PostMapping("/filter-data")
-	public ResponseEntity<DataTableResponse<DocumentGridDTO>> getFilteredDocuments(@RequestBody DataTableRequest request) {
+	public ResponseEntity<DataTableResponse<DocumentGridDTO>> getFilteredDocuments(@RequestBody DataTableRequest request, HttpSession session) {
 	    // Parse pagination
 	    int start = request.getStart();    // Offset
 	    int length = request.getLength();  // Page size
 	    int draw = request.getDraw();      // Sync token
-
+	    User user = (User) session.getAttribute("user");
 	    Map<Integer, List<String>> columnFilters = request.getColumnFilters();
-	    List<DocumentGridDTO> paginated =  documentService.getFilteredDocuments(columnFilters, start, length);
-	    long recordsFiltered = documentService.countFilteredDocuments(columnFilters);
+	    List<DocumentGridDTO> paginated =  documentService.getFilteredDocuments(columnFilters, start, length, user);
+	    long recordsFiltered = documentService.countFilteredDocuments(columnFilters, user);
 
 	    DataTableResponse<DocumentGridDTO> response = new DataTableResponse<>();
 	    response.setDraw(draw);
-	    response.setRecordsTotal(documentService.countAllFiles());       // Total in DB (optional: unfiltered)
+	    response.setRecordsTotal(documentService.countAllFiles(user));       // Total in DB (optional: unfiltered)
 	    response.setRecordsFiltered(recordsFiltered);    // After filtering
 	    response.setData(paginated);
 

@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.synergizglobal.dms.dto.DocumentDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
 import com.synergizglobal.dms.dto.SaveMetaDataDto;
+import com.synergizglobal.dms.entity.pmis.User;
 
 
 public interface DocumentService {
@@ -63,15 +64,15 @@ public interface DocumentService {
 
 		public List<String> findGroupedDepartment();
 
-		public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, int length);
+		public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, int length, User user);
 
-		public long countAllFiles();
-
-		public long countFilteredDocuments(Map<Integer, List<String>> columnFilters);
+		public long countFilteredDocuments(Map<Integer, List<String>> columnFilters, User user);
 
 		public List<String> findGroupedCreatedBy();
 
 		public List<String> findGroupedProjectNames();
 
 		public List<String> findGroupedContractNames();
+
+		public long countAllFiles(User user);
 }
