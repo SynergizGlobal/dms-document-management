@@ -75,7 +75,10 @@ public class DocumentRevision {
     
     @Column(name = "contract_name")
     private String contractName;
-   
+    
+    @Column(name = "reason_for_update")
+    private String reasonForUpdate;
+    
 	@OneToMany(mappedBy = "documentRevision", cascade = CascadeType.ALL, orphanRemoval = true) 
 	private List<DocumentFile> documentFiles = new ArrayList<>();
 	  

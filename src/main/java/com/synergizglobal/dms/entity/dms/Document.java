@@ -76,6 +76,9 @@ public class Document {
     @Column(name = "contract_name")
     private String contractName;
     
+    @Column(name = "reason_for_update")
+    private String reasonForUpdate;
+    
 	  @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval =
 	  true, fetch = FetchType.EAGER) 
 	  private List<DocumentFile> documentFiles;

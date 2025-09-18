@@ -23,4 +23,5 @@ public class DocumentDTO {
     private String subFolder;
     private String department;
     private String currentStatus;
+    private String reasonForUpdate;
 }

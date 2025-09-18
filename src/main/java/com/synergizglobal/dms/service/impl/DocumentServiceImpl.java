@@ -212,6 +212,7 @@ public class DocumentServiceImpl implements DocumentService {
 					.currentStatus(status)
 					.projectName(documentDto.getProjectName())
 					.contractName(documentDto.getContractName())
+					.reasonForUpdate(documentDto.getReasonForUpdate())
 					.createdBy(userId).build();
 
 			// Save the new Document first
@@ -239,6 +240,7 @@ public class DocumentServiceImpl implements DocumentService {
 					// .document(latestFromDB.get()) // still valid at this point
 					.projectName(documentInDB.getProjectName())
 					.contractName(documentInDB.getContractName())
+					.reasonForUpdate(documentInDB.getReasonForUpdate())
 					.build();
 
 			documentRevisionRepository.save(documentRevision);
@@ -278,6 +280,7 @@ public class DocumentServiceImpl implements DocumentService {
 				.fileDBNumber(UUID.randomUUID().toString())
 				.projectName(documentDto.getProjectName())
 				.contractName(documentDto.getContractName())
+				.reasonForUpdate(documentDto.getReasonForUpdate())
 				.createdBy(userId).build();
 		Document savedDocument = documentRepository.save(document);
 		for (DocumentFile documentFile : newDocumentFiles) {
@@ -312,6 +315,7 @@ public class DocumentServiceImpl implements DocumentService {
 				.subFolder(subFolder.getName()).department(department.getName()).currentStatus(status.getName())
 				.projectName(document.getProjectName())
 				.contractName(document.getContractName())
+				.reasonForUpdate(document.getReasonForUpdate())
 				.build();
 	}
 

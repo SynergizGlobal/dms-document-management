@@ -22,19 +22,20 @@ public class Constant {
 	    put(FILE_NAME,"validateFileName");put(FILE_NUMBER,"validateFileNumber");put(REVISION_NUMBER,"validateRevisionNumber");put(REVISION_DATE,"validateRevisionDate");put(FOLDER,"validateFolder");put(SUB_FOLDER,"validateSubFolder");put(DEPARTMENT,"validateDepartment");put(STATUS,"validateStatus");put(UPLOAD_DOCUMENT,"validateUploadDocument");}};
 
 	public static final Map<Integer, String> COLUMN_INDEX_FIELD_MAP = new HashMap<>() {{
-		    put(0, "documentFiles.fileType");
-		    put(1, "fileNumber");
-		    put(2, "fileName");
-		    put(3, "revisionNo");
-		    put(4, "currentStatus.name");
-		    put(5, "projectName");
-		    put(6, "contractName");
-		    put(7, "folder.name");
-		    put(8, "subFolder.name");
-		    put(9, "createdBy");
-		    put(10, "createdAt");
-		    put(11, "revisionDate");
-		    put(12, "department.name");
-		    put(13, "documentFiles.viewedOrDownloaded");
+			put(0, "id");
+			put(1, "documentFiles.fileType");
+		    put(2, "fileNumber");
+		    put(3, "fileName");
+		    put(4, "revisionNo");
+		    put(5, "currentStatus.name");
+		    put(6, "projectName");
+		    put(7, "contractName");
+		    put(8, "folder.name");
+		    put(9, "subFolder.name");
+		    put(10, "createdBy");
+		    put(11, "createdAt");
+		    put(12, "revisionDate");
+		    put(13, "department.name");
+		    put(14, "documentFiles.viewedOrDownloaded");
 	}};
 }

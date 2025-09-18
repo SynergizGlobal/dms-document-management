@@ -569,6 +569,7 @@ $(document).ready(function() {
 	// Update Documents Modal handlers
 	$('#cancelUpdate').on('click', function() {
 		$('#updateDocumentsModal').removeClass('show');
+		$('#updateDocumentsModal').css('display', 'none');
 		currentUpdateRow = null;
 	});
 
@@ -588,29 +589,106 @@ $(document).ready(function() {
 	$('#updateDocument').on('click', function() {
 		const activeTab = $('#updateDocumentsModal .upload-tab.active').data('tab');
 		if (activeTab === 'single') {
-			if (!currentUpdateRow) return;
+			var fileName = $('#updateFileName').val();
+			var fileNumber = $('#updateFileNumber').val();
+			var revisionNo = $('#updateRevisionNo').val();
+			var revisionDate = $('#updateRevisionDate').val();
+			var projectName = $('#updateProjectName option:selected').text();
+			var contractName = $('#updateContractName option:selected').text();
+			var folder = $('#updateFolder option:selected').text();
+			var subFolder = $('#updateSubFolder option:selected').text();
+			var department = $('#updateDepartment option:selected').text();
+			var currentStatus = $('#updateCurrentStatus option:selected').text();
+			var updateReason = $('#updateReason').val();
+			//singleFileInput = $('#currentStatus').val();
+			var files = $('#updateDocumentFile')[0].files;
+			if (!fileName) {
+				alert("Please provide a File Name.");
+				return;
+			}
+			if (!fileNumber) {
+				alert("Please provide a File Number.");
+				return;
+			}
+			if (!revisionNo) {
+				alert("Please provide a Revision Number.");
+				return;
+			}
+			if (!revisionDate) {
+				alert("Please provide a Revision Date.");
+				return;
+			}
+			if (!projectName) {
+				alert("Please select a Project Name.");
+				return;
+			}
+			if (!contractName) {
+				alert("Please select a Contract Name.");
+				return;
+			}
+			if (!folder) {
+				alert("Please select a Folder.");
+				return;
+			}
+			if (!subFolder) {
+				alert("Please select a Sub Folder.");
+				return;
+			}
+			if (!department) {
+				alert("Please select a Department.");
+				return;
+			}
+			if (!currentStatus) {
+				alert("Please select a Current Status.");
+				return;
+			}
+			// Validate file
+			if (!files || files.length <= 0) {
+				alert("Please select a file.");
+				return;
+			}
 
-			const newFileName = $('#updateFileName').val();
-			const newFileNumber = $('#updateFileNumber').val();
-			const newRevisionNo = $('#updateRevisionNo').val();
-			const newRevisionDate = $('#updateRevisionDate').val();
-			const newFolder = $('#updateFolder').val();
-			const newSubFolder = $('#updateSubFolder').val();
-			const newDepartment = $('#updateDepartment').val();
-			const newStatus = $('#updateCurrentStatus').val();
+			// Create FormData object
+			var formData = new FormData();
+			formData.append("fileName", fileName);
+			formData.append("fileNumber", fileNumber);
+			formData.append("revisionNo", revisionNo);
+			formData.append("revisionDate", revisionDate);
+			formData.append("projectName", projectName);
+			formData.append("contractName", contractName);
+			formData.append("folder", folder);
+			formData.append("subFolder", subFolder);
+			formData.append("department", department);
+			formData.append("currentStatus", currentStatus);
+			formData.append("reasonForUpdate", updateReason);
+			for (let i = 0; i < files.length; i++) {
+				formData.append("files", files[i]); // key must match backend param
+			}
 
-			// Update table row with new column positions
-			currentUpdateRow.find('td').eq(2).find('input').val(newFileName);
-			currentUpdateRow.find('td').eq(1).find('input').val(newFileNumber);
-			currentUpdateRow.find('td').eq(3).find('input').val(newRevisionNo);
-			currentUpdateRow.find('td').eq(10).find('input').val(newRevisionDate);
-			currentUpdateRow.find('td').eq(6).find('input').val(newFolder);
-			currentUpdateRow.find('td').eq(7).find('input').val(newSubFolder);
-			currentUpdateRow.find('td').eq(11).find('input').val(newDepartment);
-			currentUpdateRow.find('td').eq(4).find('input').val(newStatus);
-
-			$('#updateDocumentsModal').removeClass('show');
-			currentUpdateRow = null;
+			// Send AJAX request
+			$.ajax({
+				url: '/dms/api/documents',  // Your Spring Boot endpoint
+				type: 'POST',
+				data: formData,
+				processData: false,
+				contentType: false,
+				success: function(responseData, textStatus, jqXHR) {
+					if (responseData.errorMessage !== null) {
+						alert(responseData.errorMessage);
+					}
+					else {
+						$('#updateDocumentsModal').fadeOut();
+						$('#successMessage').text("Successfully uploaded " + files.length + " files(s)");
+						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
+						$('#updateDocumentsModal').removeClass('show');
+						$('#updateDocumentsModal').css('display', 'none');
+						initializeDataTables();
+					}
+				},
+				error: function(xhr, status, error) {
+					alert("Upload failed: " + xhr.responseText);
+				}
+			});
 		} else if (activeTab === 'bulk') {
 			alert('Bulk update saved (implement your logic here)');
 			$('#updateDocumentsModal').removeClass('show');
@@ -1302,13 +1380,13 @@ $(document).ready(function() {
 		$('#sendDocumentsModal').css('display', 'flex');
 	}
 	function getNextRevision(revisionNo) {
-	    const match = revisionNo.match(/^R(\d+)$/i);
-	    if (!match) return revisionNo; // fallback if format is wrong
+		const match = revisionNo.match(/^R(\d+)$/i);
+		if (!match) return revisionNo; // fallback if format is wrong
 
-	    const nextNumber = String(parseInt(match[1]) + 1).padStart(2, '0');
-	    return `R${nextNumber}`;
+		const nextNumber = String(parseInt(match[1]) + 1).padStart(2, '0');
+		return `R${nextNumber}`;
 	}
-	
+
 	function showUpdateDocumentsModal() {
 		resetUpdateForm();
 
