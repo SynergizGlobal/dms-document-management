@@ -1210,23 +1210,23 @@ $(document).ready(function() {
 
 		switch (action) {
 			case 'send':
-				const fileType = row.find('.file-type-label').text();
-				const fileNumber = row.find('td:nth-child(2) input').val() || row.find('td:nth-child(2)').text();
-				const revisionNo = row.find('td:nth-child(4) input').val() || row.find('td:nth-child(4)').text();
-				const documentType = row.find('td:nth-child(6) input').val() || row.find('td:nth-child(6)').text();
-				const folder = row.find('td:nth-child(7) input').val() || row.find('td:nth-child(7)').text();
-				const subFolder = row.find('td:nth-child(8) input').val() || row.find('td:nth-child(8)').text();
-
-				selectedDocument = {
-					fileName: fileName,
-					fileType: fileType,
-					fileNumber: fileNumber,
-					revisionNo: revisionNo,
-					documentType: documentType,
-					folder: folder,
-					subFolder: subFolder
+				const updateDataNew = {
+					fileType: row.find('td:nth-child(1)').text(),
+					fileNumber: row.find('td:nth-child(2)').text(),
+					fileName: row.find('td:nth-child(3)').text(),
+					revisionNo: row.find('td:nth-child(4)').text(),
+					status: row.find('td:nth-child(5)').text(),
+					projectName: row.find('td:nth-child(6)').text(),
+					contractName: row.find('td:nth-child(7)').text(),
+					folder: row.find('td:nth-child(8)').text(),
+					subFolder: row.find('td:nth-child(9)').text(),
+					createdBy: row.find('td:nth-child(10)').text(),
+					dateUploaded: row.find('td:nth-child(11)').text(),
+					revisionDate: row.find('td:nth-child(12)').text(),
+					department: row.find('td:nth-child(13)').text()
 				};
 
+				selectedDocument = updateDataNew;
 				showSendDocumentsModal();
 				break;
 			case 'update':
@@ -1323,16 +1323,16 @@ $(document).ready(function() {
 		}
 	}
 	function printDocument(url) {
-	    const printWindow = window.open(url, '_blank');
+		const printWindow = window.open(url, '_blank');
 
-	    if (printWindow) {
-	        printWindow.onload = function () {
-	            printWindow.focus();
-	            printWindow.print();
-	        };
-	    } else {
-	        alert("Pop-up blocked. Please allow pop-ups for this site.");
-	    }
+		if (printWindow) {
+			printWindow.onload = function() {
+				printWindow.focus();
+				printWindow.print();
+			};
+		} else {
+			alert("Pop-up blocked. Please allow pop-ups for this site.");
+		}
 	}
 
 	function populateVersionTable(row) {
