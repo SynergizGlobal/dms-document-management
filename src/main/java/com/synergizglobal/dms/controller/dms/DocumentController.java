@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.synergizglobal.dms.dto.DocumentGridDTO;
+import com.synergizglobal.dms.dto.SendDocumentDTO;
 import com.synergizglobal.dms.entity.pmis.User;
 
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,8 @@ import com.synergizglobal.dms.dto.DataTableResponse;
 import com.synergizglobal.dms.dto.DocumentDTO;
 //import com.synergizglobal.dms.service.dms.DepartmentService;
 import com.synergizglobal.dms.service.dms.DocumentService;
+
+import org.eclipse.angus.mail.iap.Response;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -209,5 +212,11 @@ public class DocumentController {
 	        .contentType(MediaType.APPLICATION_OCTET_STREAM)
 	        .body(resource);
 	}
-
+	
+	
+	@PostMapping("/send-document")
+	public ResponseEntity<String> saveOrSendDocument(@RequestBody SendDocumentDTO dto) throws IOException {
+		String response = documentService.saveOrSendDocument(dto);
+		return ResponseEntity.ok("");
+	}
 }

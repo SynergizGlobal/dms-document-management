@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class UserSearchDto {
     private String userName;
     private String emailId;
+    private String userId;
 }

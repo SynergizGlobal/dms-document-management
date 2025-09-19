@@ -43,12 +43,14 @@ import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
 import com.synergizglobal.dms.dto.ProjectDTO;
 import com.synergizglobal.dms.dto.SaveMetaDataDto;
+import com.synergizglobal.dms.dto.SendDocumentDTO;
 import com.synergizglobal.dms.entity.dms.Department;
 import com.synergizglobal.dms.entity.dms.Document;
 import com.synergizglobal.dms.entity.dms.DocumentFile;
 import com.synergizglobal.dms.entity.dms.DocumentRevision;
 import com.synergizglobal.dms.entity.dms.Folder;
 import com.synergizglobal.dms.entity.dms.MetaData;
+import com.synergizglobal.dms.entity.dms.SendDocument;
 import com.synergizglobal.dms.entity.dms.Status;
 import com.synergizglobal.dms.entity.dms.SubFolder;
 import com.synergizglobal.dms.entity.dms.UploadedMetaData;
@@ -59,6 +61,7 @@ import com.synergizglobal.dms.repository.dms.DocumentRepository;
 import com.synergizglobal.dms.repository.dms.DocumentRevisionRepository;
 import com.synergizglobal.dms.repository.dms.FolderRepository;
 import com.synergizglobal.dms.repository.dms.MetaDataRepository;
+import com.synergizglobal.dms.repository.dms.SendDocumentRepository;
 import com.synergizglobal.dms.repository.dms.StatusRepository;
 import com.synergizglobal.dms.repository.dms.SubFolderRepository;
 import com.synergizglobal.dms.repository.dms.UploadedMetaDataRepository;
@@ -105,7 +108,8 @@ public class DocumentServiceImpl implements DocumentService {
 	@Autowired
 	private ContractService contractService;
 	
-	
+	@Autowired
+	private SendDocumentRepository sendDocumentRepository;
 	@Value("${file.upload-dir}")
 	private String basePath;
 
@@ -1057,6 +1061,33 @@ public class DocumentServiceImpl implements DocumentService {
 	public String getFilePath(String fileName, String fileNumber, String revisionNo) {
 		// TODO Auto-generated method stub
 		return documentRepository.getFilePath(fileName, fileNumber, revisionNo);
+	}
+
+	@Override
+	public String saveOrSendDocument(SendDocumentDTO dto) {
+		SendDocument sendDocument = mapDTOToSendDocument(dto);
+		sendDocumentRepository.save(sendDocument);
+		if(dto.getStatus().equals("Send")) { // send email
+			
+		}
+		return "";
+	}
+
+	private SendDocument mapDTOToSendDocument(SendDocumentDTO dto) {
+		Document document = documentRepository.getById(dto.getDocId());
+		return SendDocument.builder()
+				.attachmentName(dto.getAttachmentName())
+				.document(document)
+				.sendTo(dto.getSendTo())
+				.sendToUserId(dto.getSendToUserId())
+				.sendCc(dto.getSendCc())
+				.sendCcUserId(dto.getSendCcUserId())
+				.sendSubject(dto.getSendSubject())
+				.sendReason(dto.getSendReason())
+				.responseExpected(dto.getResponseExpected())
+				.targetResponseDate(dto.getTargetResponseDate())
+				.status(dto.getStatus())
+				.build();
 	}
 
 

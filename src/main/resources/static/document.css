@@ -2115,3 +2115,6 @@ table.dataTable tbody td {
 .version-table tr:hover {
     background-color: #f9f9f9;
 }
+.ui-autocomplete {
+    z-index: 10000 !important; /* or higher than your modal's z-index */
+}

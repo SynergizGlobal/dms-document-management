@@ -543,29 +543,73 @@ $(document).ready(function() {
 
 	$('#sendDocument').click(function() {
 		if (validateForm('#sendDocumentsModal')) {
-			showNotification('Document sent successfully!', 'success');
-			$('#sendDocumentsModal').hide();
-			resetSendForm();
+			const payload = {
+				sendTo: $('#sendTo').val(),
+				sendToUserId: $('#sendToUserId').val(),
+				sendCc: $('#sendCc').val(),
+				sendCcUserId: $('#sendCcUserId').val(),
+				sendSubject: $('#sendSubject').val(),
+				sendReason: $('#sendReason').val(),
+				responseExpected: $('#responseExpected option:selected').text(),
+				targetResponseDate: $('#targetResponseDate').val(),
+				attachmentName: $('#attachmentsList .attachment-item span').first().text(),
+				docId: selectedDocumentId,
+				status: 'Send'
+			};
+
+			$.ajax({
+				url: '/dms/api/documents/send-document', // 🔁 Change to your backend endpoint
+				method: 'POST',
+				data: JSON.stringify(payload),
+				processData: false,  // Important for FormData
+				contentType: 'application/json',  // Important for FormData
+				success: function(response) {
+					showNotification('Document sent successfully!', 'success');
+					$('#sendDocumentsModal').hide();
+					resetSendForm();
+				},
+				error: function(xhr) {
+					alert('Error sending document: ' + xhr.responseText);
+				}
+			});
+
 		}
 	});
 
 	// Save Draft button in Send Documents modal
 	$('#saveDraft').click(function() {
-		const to = $('#sendTo').val().trim();
-		const cc = $('#sendCc').val().trim();
-		const subject = $('#sendSubject').val().trim();
-		const reason = $('#sendReason').val().trim();
-		const responseExpected = $('#responseExpected').val();
-		const targetDate = $('#targetResponseDate').val();
-		const attachments = [];
+		if (validateForm('#sendDocumentsModal')) {
+			const payload = {
+				sendTo: $('#sendTo').val(),
+				sendToUserId: $('#sendToUserId').val(),
+				sendCc: $('#sendCc').val(),
+				sendCcUserId: $('#sendCcUserId').val(),
+				sendSubject: $('#sendSubject').val(),
+				sendReason: $('#sendReason').val(),
+				responseExpected: $('#responseExpected option:selected').text(),
+				targetResponseDate: $('#targetResponseDate').val(),
+				attachmentName: $('#attachmentsList .attachment-item span').first().text(),
+				docId: selectedDocumentId,
+				status: 'Draft'
+			};
 
-		$('#attachmentsList .attachment-item span').each(function() {
-			attachments.push($(this).text());
-		});
+			$.ajax({
+				url: '/dms/api/documents/send-document', // 🔁 Change to your backend endpoint
+				method: 'POST',
+				data: JSON.stringify(payload),
+				processData: false,  // Important for FormData
+				contentType: 'application/json',  // Important for FormData
+				success: function(response) {
+					showNotification('Document sent successfully!', 'success');
+					$('#sendDocumentsModal').hide();
+					resetSendForm();
+				},
+				error: function(xhr) {
+					alert('Error sending document: ' + xhr.responseText);
+				}
+			});
 
-		const dateSaved = new Date();
-		const formattedDate = ('0' + dateSaved.getDate()).slice(-2) + '.' + ('0' + (dateSaved.getMonth() + 1)).slice(-2) + '.' + dateSaved.getFullYear();
-
+		}
 		if (draftTableInstance) {
 			draftTableInstance.row.add([
 				to,
@@ -1211,6 +1255,7 @@ $(document).ready(function() {
 		switch (action) {
 			case 'send':
 				const updateDataNew = {
+					docId: selectedDocumentId,
 					fileType: row.find('td:nth-child(1)').text(),
 					fileNumber: row.find('td:nth-child(2)').text(),
 					fileName: row.find('td:nth-child(3)').text(),
@@ -1509,6 +1554,60 @@ $(document).ready(function() {
 		$('.single-upload-options, .bulk-upload-options').removeClass('active');
 		$('#singleUploadTab').addClass('active');
 	}
+
+	$(function() {
+		$('#sendTo').autocomplete({
+			source: function(request, response) {
+				$.ajax({
+					url: '/dms/api/users/search',
+					data: { query: request.term },
+					success: function(data) {
+						response(data.map(user => ({
+							label: `${user.emailId} (${user.userName})`,
+							value: user.emailId,
+							userId: user.userId
+						})));
+					},
+					error: function() {
+						alert('Failed to load users');
+					}
+				});
+			},
+			minLength: 2,
+			select: function(event, ui) {
+				$('#sendTo').val(ui.item.value);
+				$('#sendToUserId').val(ui.item.userId); // insert selected email
+				return false;
+			}
+		});
+	});
+	$(function() {
+		$('#sendCc').autocomplete({
+			source: function(request, response) {
+				$.ajax({
+					url: '/dms/api/users/search',
+					data: { query: request.term },
+					success: function(data) {
+						response(data.map(user => ({
+							label: `${user.emailId} (${user.userName})`,
+							value: user.emailId,
+							userId: user.userId
+						})));
+					},
+					error: function() {
+						alert('Failed to load users');
+					}
+				});
+			},
+			minLength: 2,
+			select: function(event, ui) {
+				$('#sendCc').val(ui.item.value); // insert selected email
+				$('#sendCcUserId').val(ui.item.userId);
+				return false;
+			}
+		});
+	});
+
 
 	function showSendDocumentsModal() {
 		resetSendForm();

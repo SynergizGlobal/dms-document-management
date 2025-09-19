@@ -9,7 +9,8 @@
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <!-- DataTables CSS -->
 <link rel="stylesheet"
 	href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -87,7 +88,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="main-content">
 			<div class="content-area">
 				<div class="upload-section">
@@ -290,21 +291,29 @@
 		<div class="context-menu-item" data-action="download">Download</div>
 		<div class="context-menu-item" data-action="print">Print</div>
 	</div>
-
+	<!-- Dependent dropdown, shown after selection -->
+	<div id="userDetailsContainer" style="display: none;">
+		<label for="userDetailsDropdown">User Details:</label> <select
+			id="userDetailsDropdown">
+			<option value="">Choose an option</option>
+		</select>
+	</div>
 	<!-- Send Documents Modal -->
 	<div class="modal" id="sendDocumentsModal">
 		<div class="modal-content">
 			<div class="modal-header">Send Documents</div>
 			<div class="modal-body">
 				<div class="form-group">
-					<label for="sendTo">To: *</label> <input type="email" id="sendTo"
+					<label for="sendTo">To: *</label> <input type="text" id="sendTo"
 						placeholder="Enter recipient email">
+						<input type="hidden" id="sendToUserId" name="sendToUserId" />
 					<div class="error-message">This field is required</div>
 				</div>
 
 				<div class="form-group">
-					<label for="sendCc">Cc:</label> <input type="email" id="sendCc"
+					<label for="sendCc">Cc:</label> <input type="text" id="sendCc"
 						placeholder="Enter CC email (optional)">
+						<input type="hidden" id="sendCcUserId" name="sendCcUserId" />
 					<div class="error-message">Please enter a valid email address</div>
 				</div>
 
@@ -372,7 +381,8 @@
 
 					<div class="form-group">
 						<label for="updateFileNumber">File Number*:</label> <input
-							type="text" id="updateFileNumber" placeholder="Enter file number" disabled>
+							type="text" id="updateFileNumber" placeholder="Enter file number"
+							disabled>
 						<div class="error-message">This field is required</div>
 					</div>
 

@@ -18,7 +18,7 @@ public class UserService {
     public List<UserSearchDto> searchUsers(String query) {
         return userRepository.findByUserNameContainingIgnoreCase(query)
                 .stream()
-                .map(user -> new UserSearchDto(user.getUserName(), user.getEmailId()))
+                .map(user -> new UserSearchDto(user.getUserName(), user.getEmailId(), user.getUserId()))
                 .toList();
     }
 

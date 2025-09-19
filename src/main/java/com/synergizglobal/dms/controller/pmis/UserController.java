@@ -25,7 +25,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/search")
-    public ResponseEntity<List<UserSearchDto>> searchUsers(@RequestParam String query) {
+    public ResponseEntity<List<UserSearchDto>> searchUsers(@RequestParam("query") String query) {
         return ResponseEntity.ok(userService.searchUsers(query));
     }
     
