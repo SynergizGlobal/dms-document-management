@@ -1,3 +1,523 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--  <meta charset="utf-8" />-->
+<!--  <meta name="viewport" content="width=device-width,initial-scale=1" />-->
+<!--  <title>Letter Details</title>-->
+<!--  <style>-->
+<!--    :root{-->
+<!--      &#45;&#45;brand: #082a79;         /* dark blue header */-->
+<!--      &#45;&#45;bg-start: #065496;      /* background gradient start */-->
+<!--      &#45;&#45;bg-end: #065496;        /* gradient end */-->
+<!--      &#45;&#45;panel: rgb(255, 255, 255);         /* solid white panel */-->
+<!--      &#45;&#45;card-border: #769ce7;-->
+<!--      &#45;&#45;field-bg:#fdfefe;-->
+<!--      &#45;&#45;muted:#6c757d;-->
+<!--      &#45;&#45;accent:#06a84f;-->
+<!--      &#45;&#45;accent2:#0ea5c9;-->
+<!--      &#45;&#45;danger:#6c757d;-->
+<!--      &#45;&#45;panel-padding:20px;-->
+<!--    }-->
+
+<!--    html,body{-->
+<!--      height:100%;-->
+<!--      margin:0;-->
+<!--      font-family:Segoe UI,Arial,sans-serif;-->
+<!--      background:linear-gradient(135deg,var(&#45;&#45;bg-start),var(&#45;&#45;bg-end));-->
+<!--      color:#13202a;-->
+<!--    }-->
+
+<!--    /* panel container */-->
+<!--    .wrap{-->
+<!--      max-width:960px;-->
+<!--      margin:32px auto;-->
+<!--      background:var(&#45;&#45;panel);-->
+<!--      border-radius:12px;-->
+<!--      box-shadow:0 10px 35px rgba(8,42,121,0.15);-->
+<!--      border:1px solid var(&#45;&#45;card-border);-->
+<!--      overflow:hidden;-->
+<!--    }-->
+
+<!--    /* header */-->
+<!--    .header{-->
+<!--      background:var(&#45;&#45;brand);-->
+<!--      color:#fff;-->
+<!--      padding:16px 22px;-->
+<!--      text-align:center;-->
+<!--    }-->
+<!--    .header h1{-->
+<!--      margin:0;-->
+<!--      font-size:22px;-->
+<!--      font-weight:700;-->
+<!--      letter-spacing:0.5px;-->
+<!--    }-->
+
+<!--    /* content */-->
+<!--    .content{-->
+<!--      padding:var(&#45;&#45;panel-padding);-->
+<!--    }-->
+
+<!--    .form-grid{-->
+<!--      display:grid;-->
+<!--      grid-template-columns:repeat(3,1fr);-->
+<!--      gap:16px;-->
+<!--      align-items:start;-->
+<!--    }-->
+
+<!--    /* labels */-->
+<!--    label{-->
+<!--      display:block;-->
+<!--      font-weight:700;-->
+<!--      color: var(&#45;&#45;brand);-->
+<!--      margin-bottom:8px;-->
+<!--      font-size:13px;-->
+<!--    }-->
+
+<!--    /* fields */-->
+<!--    input, select, textarea{-->
+<!--      display:block;-->
+<!--      width:100%;-->
+<!--      padding:10px 12px;-->
+<!--      border-radius:8px;-->
+<!--      border:1px solid var(&#45;&#45;card-border);-->
+<!--      background:var(&#45;&#45;field-bg);-->
+<!--      color:#13202a;-->
+<!--      font-size:14px;-->
+<!--      box-sizing:border-box;-->
+<!--      transition:border-color 0.2s, box-shadow 0.2s;-->
+<!--    }-->
+<!--    input:focus, select:focus, textarea:focus{-->
+<!--      border-color: var(&#45;&#45;accent2);-->
+<!--      box-shadow:0 0 0 3px rgba(14,165,201,0.2);-->
+<!--      outline:none;-->
+<!--    }-->
+<!--    input[readonly], textarea[readonly], select.readonly{-->
+<!--      background:#f5faff;-->
+<!--      color:#495057;-->
+<!--      pointer-events:none;-->
+<!--      user-select:none;-->
+<!--    }-->
+
+<!--    textarea{min-height:90px; resize:vertical;}-->
+<!--    .full-row{grid-column:1/-1}-->
+
+<!--    /* attachments / references */-->
+<!--    .attachments-panel{-->
+<!--      padding:12px;-->
+<!--      border-radius:8px;-->
+<!--      background:#f8fbff;-->
+<!--      border:1px solid var(&#45;&#45;card-border);-->
+<!--    }-->
+
+<!--    .ref-list{list-style:none;margin:0;padding:0;}-->
+<!--    .ref-list li{-->
+<!--      display:flex;-->
+<!--      align-items:center;-->
+<!--      gap:12px;-->
+<!--      padding:12px;-->
+<!--      border-radius:6px;-->
+<!--      background:#fff;-->
+<!--      margin-bottom:10px;-->
+<!--      border:1px solid #e6f2fb;-->
+<!--      transition:background 0.2s;-->
+<!--    }-->
+<!--    .ref-list li:hover{background:#f1f8ff;}-->
+<!--    .ref-list li .num{-->
+<!--      min-width:28px;height:28px;-->
+<!--      border-radius:50%;-->
+<!--      display:inline-flex;align-items:center;justify-content:center;-->
+<!--      background:#eaf6ff;-->
+<!--      color:var(&#45;&#45;brand);-->
+<!--      font-weight:800;-->
+<!--      border:1px solid #d4efff;-->
+<!--    }-->
+<!--    .ref-list li a{color:var(&#45;&#45;brand);text-decoration:underline;font-weight:700}-->
+<!--    .muted{color:var(&#45;&#45;muted);font-style:italic;padding:12px 0}-->
+
+<!--    /* attachments */-->
+<!--    .attachment-grid{display:flex;flex-direction:column;gap:10px}-->
+<!--    .attachment-card{-->
+<!--      display:flex;-->
+<!--      align-items:center;-->
+<!--      gap:12px;-->
+<!--      padding:10px;-->
+<!--      border-radius:6px;-->
+<!--      background:#fff;-->
+<!--      border:1px solid #e6f2fb;-->
+<!--      transition:box-shadow 0.2s;-->
+<!--    }-->
+<!--    .attachment-card:hover{box-shadow:0 4px 10px rgba(8,42,121,0.08);}-->
+<!--    .attachment-card img{-->
+<!--      width:90px;height:60px;object-fit:cover;-->
+<!--      border-radius:6px;cursor:pointer;-->
+<!--    }-->
+<!--    .attachment-name{color:#13202a;font-size:14px;flex:1}-->
+
+<!--    /* buttons */-->
+<!--    .button-row{-->
+<!--      display:flex;-->
+<!--      justify-content:center;-->
+<!--      gap:14px;-->
+<!--      padding:18px;-->
+<!--      margin-top:20px;-->
+<!--    }-->
+
+<!--    .btn{-->
+<!--      padding:10px 20px;-->
+<!--      border-radius:6px;-->
+<!--      border:none;-->
+<!--      font-weight:700;-->
+<!--      cursor:pointer;-->
+<!--      transition:background 0.2s, transform 0.1s;-->
+<!--    }-->
+<!--    .btn:hover{transform:translateY(-1px);}-->
+<!--    .btn-attach{background:var(&#45;&#45;accent);color:#fff}-->
+<!--    .btn-reply{background:var(&#45;&#45;accent2);color:#fff}-->
+<!--    .btn-cancel{background:var(&#45;&#45;danger);color:#fff}-->
+
+<!--    /* modal */-->
+<!--    .img-modal{-->
+<!--      position:fixed;inset:0;-->
+<!--      display:none;-->
+<!--      align-items:center;justify-content:center;-->
+<!--      background:rgba(2,40,90,0.35);-->
+<!--      z-index:9999;-->
+<!--    }-->
+<!--    .img-modal.open{display:flex}-->
+<!--    .img-modal .box{max-width:92%;max-height:88%;text-align:center}-->
+<!--    .img-modal img{max-width:100%;max-height:80vh;border-radius:6px;margin:0 auto;display:block}-->
+<!--    .img-modal .controls{margin-top:12px;display:flex;gap:10px;justify-content:center}-->
+
+<!--    /* responsive */-->
+<!--    @media(max-width:900px){-->
+<!--      .form-grid{grid-template-columns:repeat(2,1fr);}-->
+<!--    }-->
+<!--    @media(max-width:600px){-->
+<!--      .form-grid{grid-template-columns:1fr}-->
+<!--      .button-row{flex-direction:column;}-->
+<!--      .attachment-card img{width:70px;height:50px}-->
+<!--    }-->
+
+<!--  </style>-->
+
+<!--</head>-->
+<!--<body>-->
+<!--<div class="wrap" role="dialog" aria-modal="true">-->
+<!--  <div class="header"><h1 id="pageTitle">Letter Details</h1></div>-->
+
+<!--  <div class="content">-->
+<!--    <form id="letterDetailsForm" onsubmit="return false;">-->
+<!--      <div class="form-grid">-->
+<!--        <div>-->
+<!--          <label for="detailCategory">Category</label>-->
+<!--          <select id="detailCategory" class="readonly" aria-readonly="true" style="min-height:42px;font-size:14px">-->
+<!--            <option value="">&#45;&#45;</option>-->
+<!--            <option>Contract</option><option>Technical</option><option>Commercial</option><option>Legal</option><option>Administrative</option>-->
+<!--          </select>-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailLetterNo">Letter No.</label>-->
+<!--          <input id="detailLetterNo" type="text" readonly style="min-height:42px;font-size:14px;">-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailLetterDate">Letter Date</label>-->
+<!--          <input id="detailLetterDate" type="date" readonly style="min-height:42px;font-size:14px;">-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailFromField">Sender</label>-->
+<!--          <input id="detailFromField" type="text" readonly style="min-height:42px;font-size:14px;">-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailToField">Copied To</label>-->
+<!--          <input id="detailToField" type="text" readonly style="min-height:42px;font-size:14px;">-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailCcField">Cc</label>-->
+<!--          <input id="detailCcField" type="text" readonly style="min-height:42px;font-size:14px;">-->
+<!--        </div>-->
+
+<!--        <div class="full-row">-->
+<!--          <label for="detailSubject">Subject</label>-->
+<!--          <textarea id="detailSubject" readonly style="min-height:110px;font-size:15px;padding:12px;"></textarea>-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailKeyInformation">Key Information</label>-->
+<!--          <textarea id="detailKeyInformation" readonly style="min-height:110px;font-size:15px;padding:12px;"></textarea>-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailDepartment">Department</label>-->
+<!--          <input id="detailDepartment" type="text" readonly style="min-height:42px;font-size:14px;">-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailRequiredResponse">Required Response</label>-->
+<!--          <select id="detailRequiredResponse" class="readonly" aria-readonly="true" style="min-height:42px;font-size:14px">-->
+<!--            <option value="">Select Response Type</option><option>Yes</option><option>No</option><option>For Information</option>-->
+<!--          </select>-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailDueDate">Due Date</label>-->
+<!--          <input id="detailDueDate" type="date" readonly style="min-height:42px;font-size:14px;">-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <label for="detailStatus">Current Status</label>-->
+<!--          <input id="detailStatus" type="text" readonly style="min-height:42px;font-size:14px;">-->
+<!--        </div>-->
+
+<!--        <div class="full-row">-->
+<!--          <label>Reference Letters</label>-->
+<!--          <div class="attachments-panel">-->
+<!--            <ul id="referenceBadges" class="ref-list">-->
+<!--              &lt;!&ndash; populated by JS &ndash;&gt;-->
+<!--            </ul>-->
+<!--          </div>-->
+<!--        </div>-->
+
+<!--        <div class="full-row">-->
+<!--          <label>See Attachments</label>-->
+<!--          <div class="attachments-panel">-->
+<!--            <div id="attachmentGrid" class="attachment-grid">-->
+<!--              &lt;!&ndash; populated by JS or "No attachments" &ndash;&gt;-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--      <div class="button-row">-->
+<!--        &lt;!&ndash; Attach button removed as requested &ndash;&gt;-->
+<!--        <button id="replyBtn" type="button" class="btn btn-reply">Reply</button>-->
+<!--        <button id="cancelBtn" type="button" class="btn btn-cancel">Cancel</button>-->
+<!--      </div>-->
+<!--    </form>-->
+<!--  </div>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; image preview modal &ndash;&gt;-->
+<!--<div id="imgModal" class="img-modal" aria-hidden="true">-->
+<!--  <div class="box" role="dialog" aria-modal="true">-->
+<!--    <img id="modalImg" src="" alt="preview">-->
+<!--    <div class="controls">-->
+<!--      <a id="modalOpen" class="btn btn-attach" target="_blank" rel="noopener">Open</a>-->
+<!--      <button id="modalDownload" class="btn btn-reply">Download</button>-->
+<!--      <button id="modalClose" class="btn btn-cancel">Close</button>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+
+<!--<script>-->
+<!--  const HOST = window.location.origin;-->
+<!--  const CANDIDATES = [ HOST + '/dms/api/correspondence', HOST + '/api/correspondence' ];-->
+<!--  let SELECTED_BASE = null;-->
+
+<!--  function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }-->
+<!--  function toDateInput(v){-->
+<!--    if (!v) return '';-->
+<!--    if (Array.isArray(v)) return `${v[0]}-${String(v[1]).padStart(2,'0')}-${String(v[2]).padStart(2,'0')}`;-->
+<!--    const d = new Date(v); if (!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;-->
+<!--    return v;-->
+<!--  }-->
+<!--  function isImageFile(file){ return /\.(png|jpe?g|gif|webp|svg|bmp|tiff?)$/i.test((file.fileName||'').toLowerCase()); }-->
+<!--  function setValueIfExists(id,val){ const el = document.getElementById(id); if (!el) return; el.value = val ?? ''; }-->
+
+<!--  async function tryFetchFromCandidates(suffix){-->
+<!--    for (const base of CANDIDATES){-->
+<!--      const url = base + suffix;-->
+<!--      try {-->
+<!--        const resp = await fetch(url, { headers:{ 'Accept':'application/json' }});-->
+<!--        if (resp.ok){ SELECTED_BASE = base; return resp; }-->
+<!--      } catch(e){ /* try next */ }-->
+<!--    }-->
+<!--    return null;-->
+<!--  }-->
+
+<!--  function normalizeDownloadUrl(file){-->
+<!--    if (!file || !file.downloadUrl || !SELECTED_BASE) return;-->
+<!--    try{-->
+<!--      const url = new URL(file.downloadUrl, window.location.origin);-->
+<!--      const selHasDms = SELECTED_BASE.includes('/dms/');-->
+<!--      if (selHasDms && !url.pathname.startsWith('/dms/')){-->
+<!--        const newPath = url.pathname.startsWith('/api/') ? '/dms' + url.pathname : '/dms' + url.pathname;-->
+<!--        file.downloadUrl = window.location.origin + newPath + (url.search || '');-->
+<!--      }-->
+<!--    } catch(_) {}-->
+<!--  }-->
+
+<!--  function ensureFileDownloadUrl(file){-->
+<!--    if (!file) return;-->
+<!--    if (file.downloadUrl && file.downloadUrl.trim()){ normalizeDownloadUrl(file); return; }-->
+<!--    if (!SELECTED_BASE) return;-->
+<!--    const built = SELECTED_BASE.replace(/\/$/,'') + '/files/' + encodeURIComponent(file.fileName || '');-->
+<!--    file.downloadUrl = built;-->
+<!--    normalizeDownloadUrl(file);-->
+<!--  }-->
+
+<!--  function populateReferences(dto){-->
+<!--    const container = document.getElementById('referenceBadges');-->
+<!--    container.innerHTML = '';-->
+<!--    const refs = dto.refLetters || dto.referenceLetters || [];-->
+<!--    if (!refs || refs.length === 0){-->
+<!--      const li = document.createElement('li'); li.className='muted'; li.textContent='No references'; container.appendChild(li); return;-->
+<!--    }-->
+<!--    refs.forEach((r,i)=>{-->
+<!--      const li = document.createElement('li');-->
+<!--      const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';-->
+<!--      const link = document.createElement('a'); link.href='#'; link.textContent = String(r);-->
+<!--      link.addEventListener('click', e=>{ e.preventDefault(); try{ navigator.clipboard.writeText(String(r)); link.textContent = String(r) + ' (copied)'; setTimeout(()=> link.textContent = String(r),900); }catch{ alert(r); }});-->
+<!--      li.appendChild(num); li.appendChild(link);-->
+<!--      container.appendChild(li);-->
+<!--    });-->
+<!--  }-->
+
+<!--  function createAttachmentCard(f){-->
+<!--    const grid = document.getElementById('attachmentGrid');-->
+<!--    ensureFileDownloadUrl(f);-->
+<!--    if (!f) return;-->
+<!--    const card = document.createElement('div'); card.className = 'attachment-card';-->
+<!--    if (isImageFile(f) && f.downloadUrl){-->
+<!--      const img = document.createElement('img'); img.src = f.downloadUrl; img.alt = f.fileName || 'image'; img.loading = 'lazy';-->
+<!--      img.addEventListener('click', ()=> openModal(f.downloadUrl, f.fileName));-->
+<!--      card.appendChild(img);-->
+<!--    }-->
+<!--    const name = document.createElement('div'); name.className = 'attachment-name';-->
+<!--    const title = document.createElement('div'); title.textContent = f.fileName || '(unknown)'; title.style.marginBottom = '6px';-->
+<!--    name.appendChild(title);-->
+<!--    const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';-->
+<!--    if (f.downloadUrl){-->
+<!--      const openBtn = document.createElement('button'); openBtn.type='button'; openBtn.className='btn btn-attach'; openBtn.textContent='Open';-->
+<!--      openBtn.addEventListener('click', ()=> window.open(f.downloadUrl,'_blank'));-->
+<!--      const dlBtn = document.createElement('button'); dlBtn.type='button'; dlBtn.className='btn btn-reply'; dlBtn.textContent='Download';-->
+<!--      dlBtn.addEventListener('click', ()=> downloadByUrl(f));-->
+<!--      actions.appendChild(openBtn); actions.appendChild(dlBtn);-->
+<!--    }-->
+<!--    name.appendChild(actions);-->
+<!--    card.appendChild(name);-->
+<!--    grid.appendChild(card);-->
+<!--  }-->
+
+<!--  function downloadByUrl(f){-->
+<!--    if (!f || !f.downloadUrl){ alert('No download URL'); return; }-->
+<!--    const a = document.createElement('a'); a.href = f.downloadUrl; a.download = f.fileName || 'file'; document.body.appendChild(a); a.click(); a.remove();-->
+<!--  }-->
+
+<!--  // modal controls-->
+<!--  const modal = document.getElementById('imgModal');-->
+<!--  const modalImg = document.getElementById('modalImg');-->
+<!--  const modalOpen = document.getElementById('modalOpen');-->
+<!--  const modalDownload = document.getElementById('modalDownload');-->
+<!--  const modalClose = document.getElementById('modalClose');-->
+<!--  function openModal(url, filename){-->
+<!--    modalImg.src = url; modalOpen.href = url; modalDownload.onclick = ()=> downloadByUrl({downloadUrl:url, fileName:filename});-->
+<!--    modal.classList.add('open'); modal.setAttribute('aria-hidden','false');-->
+<!--  }-->
+<!--  function closeModal(){ modalImg.src = ''; modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }-->
+<!--  (function attachModal(){ if (modalClose) modalClose.addEventListener('click', closeModal); modal.addEventListener('click', e=>{ if (e.target === modal) closeModal(); }); })();-->
+
+<!--  function fillForm(dto){-->
+<!--    document.getElementById('pageTitle').textContent = `Letter Details - ${dto.letterNumber || ''}`;-->
+<!--    setValueIfExists('detailCategory', dto.category || '');-->
+<!--    setValueIfExists('detailLetterNo', dto.letterNumber || '');-->
+<!--    setValueIfExists('detailLetterDate', toDateInput(dto.letterDate));-->
+<!--    setValueIfExists('detailFromField', dto.sender || '');-->
+<!--    setValueIfExists('detailToField', dto.copiedTo || '');-->
+<!--    setValueIfExists('detailCcField', dto.ccRecipient || '');-->
+<!--    setValueIfExists('detailDepartment', dto.department || '');-->
+<!--    setValueIfExists('detailSubject', dto.subject || '');-->
+<!--    setValueIfExists('detailKeyInformation', dto.keyInformation || '');-->
+<!--    setValueIfExists('detailRequiredResponse', dto.requiredResponse || '');-->
+<!--    setValueIfExists('detailDueDate', toDateInput(dto.dueDate));-->
+<!--    setValueIfExists('detailStatus', dto.currentStatus || '');-->
+
+<!--    populateReferences(dto);-->
+
+<!--    const grid = document.getElementById('attachmentGrid');-->
+<!--    grid.innerHTML = '';-->
+<!--    if (dto.files && dto.files.length){-->
+<!--      dto.files.forEach(f => createAttachmentCard(f));-->
+<!--    } else {-->
+<!--      const no = document.createElement('div'); no.className='muted'; no.textContent = 'No attachments';-->
+<!--      grid.appendChild(no);-->
+<!--    }-->
+<!--  }-->
+
+<!--  // set select to visually readonly (keep value visible but non-interactive)-->
+<!--  function makeSelectReadonly(selectId, desiredValue){-->
+<!--    const sel = document.getElementById(selectId);-->
+<!--    if (!sel) return;-->
+<!--    if (desiredValue){-->
+<!--      const txt = String(desiredValue).trim();-->
+<!--      let found=false;-->
+<!--      for (const opt of sel.options){-->
+<!--        if (String(opt.text).trim() === txt || String(opt.value).trim() === txt){ opt.selected = true; found=true; break; }-->
+<!--      }-->
+<!--      if (!found){-->
+<!--        const fallbackOpt = document.createElement('option'); fallbackOpt.text = txt; fallbackOpt.value = txt; fallbackOpt.selected = true;-->
+<!--        sel.insertBefore(fallbackOpt, sel.firstChild);-->
+<!--      }-->
+<!--    }-->
+<!--    sel.classList.add('readonly');-->
+<!--    sel.setAttribute('aria-readonly','true');-->
+<!--    sel.tabIndex = -1;-->
+<!--  }-->
+
+<!--  function setupButtons(){-->
+<!--    const id = getQueryParam('id') || '';-->
+<!--    const reply = document.getElementById('replyBtn');-->
+<!--    const cancel = document.getElementById('cancelBtn');-->
+<!--    const letterNo = document.getElementById('detailLetterNo').value || '';-->
+
+
+<!--    if (reply) reply.addEventListener('click', function(e){-->
+<!--      e.preventDefault();-->
+<!--     // const from = (document.getElementById('detailFromField') || {}).value || '';-->
+<!--    //  const subject = (document.getElementById('detailSubject') || {}).value || '';-->
+<!--      const params = new URLSearchParams();-->
+<!--     if (id) params.set('replyTo', id);-->
+<!--    //  if (from) params.set('from', from);-->
+<!--    //  if (subject) params.set('subject', subject);-->
+<!--      if (letterNo) params.set('refLetter', letterNo);-->
+
+<!--      // go to correspondence page (adjust filename if different)-->
+<!--      window.location.href = 'correspondance.html?' + params.toString();-->
+<!--    });-->
+<!--    if (cancel) cancel.addEventListener('click', ()=> window.history.back());-->
+<!--  }-->
+
+<!--  async function loadData(){-->
+<!--    const id = getQueryParam('id');-->
+<!--    if (!id){ alert('No id provided'); return; }-->
+<!--    const suffix = '/view/' + encodeURIComponent(id);-->
+<!--    const resp = await tryFetchFromCandidates(suffix);-->
+<!--    if (!resp){ alert('Failed to reach backend. Check console/network'); return; }-->
+<!--    try {-->
+<!--      const dto = await resp.json();-->
+<!--      if (dto && dto.files) dto.files.forEach(f=>{ if (f.filePath && f.filePath.includes('\\')) f.filePath = null; });-->
+<!--      if (dto && dto.files && SELECTED_BASE) dto.files.forEach(f => ensureFileDownloadUrl(f));-->
+<!--      fillForm(dto);-->
+<!--      makeSelectReadonly('detailCategory', dto.category || '');-->
+<!--      makeSelectReadonly('detailRequiredResponse', dto.requiredResponse || '');-->
+<!--      setupButtons();-->
+<!--    } catch (e){-->
+<!--      console.error(e); alert('Failed to parse response JSON. See console.');-->
+<!--    }-->
+<!--  }-->
+
+<!--  document.addEventListener('DOMContentLoaded', loadData);-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -131,7 +651,7 @@
       font-weight:800;
       border:1px solid #d4efff;
     }
-    .ref-list li a{color:var(--brand);text-decoration:underline;font-weight:700}
+    .ref-list li a{color:var(--brand);text-decoration:underline;font-weight:700; cursor: pointer;}
     .muted{color:var(--muted);font-style:italic;padding:12px 0}
 
     /* attachments */
@@ -188,6 +708,44 @@
     .img-modal img{max-width:100%;max-height:80vh;border-radius:6px;margin:0 auto;display:block}
     .img-modal .controls{margin-top:12px;display:flex;gap:10px;justify-content:center}
 
+    /* breadcrumb navigation */
+    .breadcrumb {
+      padding: 10px 20px;
+      background: #f0f5ff;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .breadcrumb a {
+      color: var(--brand);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+    .breadcrumb span.separator {
+      color: var(--muted);
+    }
+
+    /* loading indicator */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     /* responsive */
     @media(max-width:900px){
       .form-grid{grid-template-columns:repeat(2,1fr);}
@@ -203,6 +761,12 @@
 </head>
 <body>
 <div class="wrap" role="dialog" aria-modal="true">
+  <div id="breadcrumb" class="breadcrumb" style="display: none;">
+    <a id="backToInitial">All Letters</a>
+    <span class="separator">/</span>
+    <span id="currentLetter"></span>
+  </div>
+
   <div class="header"><h1 id="pageTitle">Letter Details</h1></div>
 
   <div class="content">
@@ -293,7 +857,6 @@
       </div>
 
       <div class="button-row">
-        <!-- Attach button removed as requested -->
         <button id="replyBtn" type="button" class="btn btn-reply">Reply</button>
         <button id="cancelBtn" type="button" class="btn btn-cancel">Cancel</button>
       </div>
@@ -317,6 +880,9 @@
   const HOST = window.location.origin;
   const CANDIDATES = [ HOST + '/dms/api/correspondence', HOST + '/api/correspondence' ];
   let SELECTED_BASE = null;
+  let initialLetterId = null;
+  let initialLetterNumber = null;
+  let navigationHistory = [];
 
   function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
   function toDateInput(v){
@@ -360,6 +926,27 @@
     normalizeDownloadUrl(file);
   }
 
+  // function populateReferences(dto){
+  //   const container = document.getElementById('referenceBadges');
+  //   container.innerHTML = '';
+  //   const refs = dto.refLetters || dto.referenceLetters || [];
+  //   if (!refs || refs.length === 0){
+  //     const li = document.createElement('li'); li.className='muted'; li.textContent='No references'; container.appendChild(li); return;
+  //   }
+  //   refs.forEach((r,i)=>{
+  //     const li = document.createElement('li');
+  //     const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';
+  //     const link = document.createElement('a'); link.href='#'; link.textContent = String(r);
+  //
+  //     link.addEventListener('click', e=>{
+  //       e.preventDefault();
+  //       loadReferencedLetter(String(r));
+  //     });
+  //     li.appendChild(num); li.appendChild(link);
+  //     container.appendChild(li);
+  //   });
+  // }
+
   function populateReferences(dto){
     const container = document.getElementById('referenceBadges');
     container.innerHTML = '';
@@ -370,11 +957,62 @@
     refs.forEach((r,i)=>{
       const li = document.createElement('li');
       const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';
-      const link = document.createElement('a'); link.href='#'; link.textContent = String(r);
-      link.addEventListener('click', e=>{ e.preventDefault(); try{ navigator.clipboard.writeText(String(r)); link.textContent = String(r) + ' (copied)'; setTimeout(()=> link.textContent = String(r),900); }catch{ alert(r); }});
+
+      // Direct link बनाएं new tab के लिए
+      const link = document.createElement('a');
+      link.href = window.location.pathname + '?letterNumber=' + encodeURIComponent(r);
+      link.textContent = String(r);
+      link.target = '_blank';  // यह line new tab में open करने के लिए
+
       li.appendChild(num); li.appendChild(link);
       container.appendChild(li);
     });
+  }
+
+  async function loadReferencedLetter(letterNumber) {
+    if (!letterNumber) return;
+
+    // Show loading indicator
+    const originalTitle = document.getElementById('pageTitle').textContent;
+    document.getElementById('pageTitle').innerHTML = '<span class="loading"></span> Loading...';
+
+    // Add to navigation history
+    navigationHistory.push({
+      id: getQueryParam('id'),
+      letterNumber: document.getElementById('detailLetterNo').value
+    });
+
+    // Update breadcrumb
+    updateBreadcrumb(letterNumber);
+
+    const suffix = '/view/letter/' + encodeURIComponent(letterNumber);
+    const resp = await tryFetchFromCandidates(suffix);
+
+    if (!resp) {
+      alert('Failed to load referenced letter: ' + letterNumber);
+      document.getElementById('pageTitle').textContent = originalTitle;
+      return;
+    }
+
+    try {
+      const dto = await resp.json();
+      if (dto && dto.files) dto.files.forEach(f=>{ if (f.filePath && f.filePath.includes('\\')) f.filePath = null; });
+      if (dto && dto.files && SELECTED_BASE) dto.files.forEach(f => ensureFileDownloadUrl(f));
+
+      fillForm(dto);
+      makeSelectReadonly('detailCategory', dto.category || '');
+      makeSelectReadonly('detailRequiredResponse', dto.requiredResponse || '');
+
+      // Update URL without reloading the page
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set('letterNumber', letterNumber);
+      newUrl.searchParams.delete('id');
+      window.history.pushState({letterNumber}, '', newUrl);
+
+    } catch (e) {
+      console.error(e);
+      alert('Failed to parse response JSON for referenced letter. See console.');
+    }
   }
 
   function createAttachmentCard(f){
@@ -470,41 +1108,114 @@
 
   function setupButtons(){
     const id = getQueryParam('id') || '';
+    const letterNumber = document.getElementById('detailLetterNo').value || '';
     const reply = document.getElementById('replyBtn');
     const cancel = document.getElementById('cancelBtn');
 
     if (reply) reply.addEventListener('click', function(e){
       e.preventDefault();
-      const from = (document.getElementById('detailFromField') || {}).value || '';
-      const subject = (document.getElementById('detailSubject') || {}).value || '';
       const params = new URLSearchParams();
+
       if (id) params.set('replyTo', id);
-      if (from) params.set('from', from);
-      if (subject) params.set('subject', subject);
-      // go to correspondence page (adjust filename if different)
+      else if (letterNumber) params.set('replyToLetter', letterNumber);
+
+      if (letterNumber) params.set('refLetter', letterNumber);
+
       window.location.href = 'correspondance.html?' + params.toString();
     });
-    if (cancel) cancel.addEventListener('click', ()=> window.history.back());
+
+    if (cancel) cancel.addEventListener('click', () => {
+      if (navigationHistory.length > 0) {
+        // Go back in navigation history
+        const prev = navigationHistory.pop();
+        if (prev.id) {
+          window.history.back();
+        } else if (prev.letterNumber) {
+          loadReferencedLetter(prev.letterNumber);
+        }
+      } else {
+        // No history, go back to initial page
+        if (initialLetterId) {
+          const newUrl = new URL(window.location);
+          newUrl.searchParams.set('id', initialLetterId);
+          newUrl.searchParams.delete('letterNumber');
+          window.location.href = newUrl.toString();
+        } else {
+          window.history.back();
+        }
+      }
+    });
+  }
+
+  function updateBreadcrumb(letterNumber) {
+    const breadcrumb = document.getElementById('breadcrumb');
+    const currentLetterSpan = document.getElementById('currentLetter');
+
+    breadcrumb.style.display = 'flex';
+    currentLetterSpan.textContent = letterNumber;
+  }
+
+  function setupBreadcrumb() {
+    const backLink = document.getElementById('backToInitial');
+    backLink.addEventListener('click', () => {
+      if (initialLetterId) {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('id', initialLetterId);
+        newUrl.searchParams.delete('letterNumber');
+        window.location.href = newUrl.toString();
+      } else {
+        window.history.back();
+      }
+    });
   }
 
   async function loadData(){
-    const id = getQueryParam('id');
-    if (!id){ alert('No id provided'); return; }
-    const suffix = '/view/' + encodeURIComponent(id);
+    let id = getQueryParam('id');
+    let letterNumber = getQueryParam('letterNumber');
+
+    // Store initial values for navigation
+    if (id) initialLetterId = id;
+    if (letterNumber) initialLetterNumber = letterNumber;
+
+    if (!id && !letterNumber){
+      alert('No id or letterNumber provided');
+      return;
+    }
+
+    let suffix;
+    if (id) {
+      suffix = '/view/' + encodeURIComponent(id);
+    } else {
+      suffix = '/view/letter/' + encodeURIComponent(letterNumber);
+      updateBreadcrumb(letterNumber);
+    }
+
     const resp = await tryFetchFromCandidates(suffix);
-    if (!resp){ alert('Failed to reach backend. Check console/network'); return; }
+    if (!resp){
+      alert('Failed to reach backend. Check console/network');
+      return;
+    }
+
     try {
       const dto = await resp.json();
       if (dto && dto.files) dto.files.forEach(f=>{ if (f.filePath && f.filePath.includes('\\')) f.filePath = null; });
       if (dto && dto.files && SELECTED_BASE) dto.files.forEach(f => ensureFileDownloadUrl(f));
+
       fillForm(dto);
       makeSelectReadonly('detailCategory', dto.category || '');
       makeSelectReadonly('detailRequiredResponse', dto.requiredResponse || '');
       setupButtons();
+      setupBreadcrumb();
     } catch (e){
-      console.error(e); alert('Failed to parse response JSON. See console.');
+      console.error(e);
+      alert('Failed to parse response JSON. See console.');
     }
   }
+
+  // Handle browser back/forward buttons
+  window.addEventListener('popstate', function(event) {
+    loadData();
+  });
 
   document.addEventListener('DOMContentLoaded', loadData);
 </script>

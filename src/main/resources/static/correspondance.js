@@ -1156,7 +1156,7 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
 (function(){
     function $id(id){ try { return document.getElementById(id); } catch(e){ return null; } }
 
-    function triggerUploadFlow({ replyTo='', from='', subject='' } = {}) {
+    function triggerUploadFlow({ replyTo='',refLetter='' } = {}) {
         try {
             // Prefer the existing globals if available
             const modal = (typeof uploadModal !== 'undefined' && uploadModal) ? uploadModal : $id('uploadModal');
@@ -1183,11 +1183,14 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
             }
 
             // Prefill fields (if present)
-            if (from && $id('toField')) $id('toField').value = decodeURIComponent(from);
-            if (subject && $id('subject')) $id('subject').value = 'RE: ' + decodeURIComponent(subject);
-            if (replyTo && $id('referenceLetters')) $id('referenceLetters').value = decodeURIComponent(replyTo);
-            if (replyTo && $id('letterNo')) $id('letterNo').value = 'RE-' + decodeURIComponent(replyTo) + '-' + String(Date.now()).slice(-4);
-            if ($id('letterDate')) $id('letterDate').value = new Date().toISOString().split('T')[0];
+         //   if (from && $id('toField')) $id('toField').value = decodeURIComponent(from);
+          //  if (subject && $id('subject')) $id('subject').value = 'RE: ' + decodeURIComponent(subject);
+          //  if (replyTo && $id('referenceLetters')) $id('referenceLetters').value = decodeURIComponent(replyTo);
+          //  if (replyTo && $id('letterNo')) $id('letterNo').value = 'RE-' + decodeURIComponent(replyTo) + '-' + String(Date.now()).slice(-4);
+            if (refLetter && $id('referenceLetters')) {
+                $id('referenceLetters').value = decodeURIComponent(refLetter);
+            }
+        //    if ($id('letterDate')) $id('letterDate').value = new Date().toISOString().split('T')[0];
 
             // Enable inputs in case they were disabled in some mode
             document.querySelectorAll('#uploadForm input, #uploadForm select, #uploadForm textarea')
@@ -1214,8 +1217,9 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
             if (qp.has('replyTo') || qp.has('openUpload')) {
                 triggerUploadFlow({
                     replyTo: qp.get('replyTo') || qp.get('id') || '',
-                    from: qp.get('from') || '',
-                    subject: qp.get('subject') || ''
+                  //  from: qp.get('from') || '',
+                  //  subject: qp.get('subject') || '',
+                    refLetter: qp.get('refLetter') || ''
                 });
             }
         } catch(e){ console.error('AutoOpen parse error', e); }

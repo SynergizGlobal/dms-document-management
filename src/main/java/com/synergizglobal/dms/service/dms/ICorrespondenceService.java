@@ -19,4 +19,6 @@ public interface ICorrespondenceService {
     public CorrespondenceLetterViewDto getCorrespondenceWithFiles(Long id);
 
     List<CorrespondenceLetter> getFiltered(CorrespondenceLetter letter);
+
+    public CorrespondenceLetterViewDto getCorrespondenceWithFilesByLetterNumber(String letterNumber);
 }

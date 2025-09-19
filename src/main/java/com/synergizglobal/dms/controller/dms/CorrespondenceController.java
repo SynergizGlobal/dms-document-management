@@ -108,4 +108,40 @@ public class CorrespondenceController {
         return ResponseEntity.ok(correspondenceService.getFiltered(letter));
     }
 
+
+
+    @GetMapping("/view/letter/{letterNumber}")
+    public ResponseEntity<CorrespondenceLetterViewDto> getCorrespondenceWithFilesByLetterNumber(
+            @PathVariable String letterNumber,
+            HttpServletRequest request) {
+
+        CorrespondenceLetterViewDto dto = correspondenceService.getCorrespondenceWithFilesByLetterNumber(letterNumber);
+        if (dto == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String origin = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+
+        if (dto.getFiles() != null) {
+            dto.getFiles().forEach(f -> {
+                if (f.getFileName() != null && !f.getFileName().isBlank()) {
+                    String url = ServletUriComponentsBuilder
+                            .fromCurrentContextPath()
+                            .path("/api/correspondence/files/")
+                            .pathSegment(f.getFileName())
+                            .toUriString();
+                    f.setDownloadUrl(url);
+                }
+            });
+        }
+        return ResponseEntity.ok(dto);
+    }
+
+
 }
+
+
+

@@ -239,4 +239,53 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
     }
 
 
+
+    @Override
+    public CorrespondenceLetterViewDto getCorrespondenceWithFilesByLetterNumber(String letterNumber) {
+        // normalize letterNumber if needed
+        if (letterNumber == null) return null;
+        String normalized = letterNumber.trim();
+
+        List<CorrespondenceLetterViewProjection> flatList =
+                correspondenceRepo.findCorrespondenceWithFilesViewByLetterNumber(normalized);
+
+        if (flatList.isEmpty()) {
+            return null;
+        }
+
+        CorrespondenceLetterViewProjection first = flatList.get(0);
+
+        List<FileViewDto> files = flatList.stream()
+                .filter(f -> f.getFileName() != null)
+                .map(f -> new FileViewDto(f.getFileName(), f.getFileType(), f.getFilePath(), null))
+                .distinct()
+                .toList();
+
+        List<String> refLetters = flatList.stream()
+                .map(CorrespondenceLetterViewProjection::getRefLetter)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        CorrespondenceLetterViewDto dto = new CorrespondenceLetterViewDto();
+        dto.setCategory(first.getCategory());
+        dto.setLetterNumber(first.getLetterNumber());
+        dto.setLetterDate(first.getLetterDate());
+        dto.setSender(first.getSender());
+        dto.setCopiedTo(first.getCopiedTo());
+        dto.setCcRecipient(first.getCcRecipient());
+        dto.setDepartment(first.getDepartment());
+        dto.setSubject(first.getSubject());
+        dto.setKeyInformation(first.getKeyInformation());
+        dto.setRequiredResponse(first.getRequiredResponse());
+        dto.setDueDate(first.getDueDate());
+        dto.setCurrentStatus(first.getCurrentStatus());
+        dto.setFiles(files);
+        dto.setRefLetters(refLetters);
+
+        return dto;
+    }
+
+
+
 }

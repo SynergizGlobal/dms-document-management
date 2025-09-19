@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -25,11 +27,12 @@ public class EmailServiceImpl {
 
     JavaMailSender javaMailSender;
     DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    public EmailServiceImpl(JavaMailSender javaMailSender) {
-
-        this.javaMailSender = javaMailSender;
-
-    }
+    private final String fromEmail; 
+    public EmailServiceImpl(JavaMailSender javaMailSender, 
+            @Value("${spring.mail.username}") String fromEmail) {
+this.javaMailSender = javaMailSender;
+this.fromEmail = fromEmail;
+}
 
     @Async
     public void sendCorrespondenceEmail(CorrespondenceLetter letter, List<MultipartFile> attachments)
@@ -50,7 +53,8 @@ public class EmailServiceImpl {
 
         // Set main recipient
         helper.setTo(letter.getTo());
-
+        
+        helper.setFrom(this.fromEmail);
         // Handle CC if available
         if (letter.getCcRecipient() != null && !letter.getCcRecipient().isEmpty()) {
             String[] ccArray = letter.getCcRecipient().split(",");
