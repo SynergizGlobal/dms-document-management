@@ -408,16 +408,87 @@ $(document).ready(function() {
 		}
 
 	});
+	//let draftTableInstance;
+	$('#draftTable tbody').on('click', 'tr', function() {
+		var data = draftTableInstance.row(this).data();
+		console.log('ID:', data.id);
+		console.log('Document ID:', data.docId);
+		showSendDocumentsModalForUpdate(data);
+	});
 
+	function showSendDocumentsModalForUpdate(data) {
+		resetSendForm();
+		if (data) {
+			$('#sendTo').val(data.sendTo);
+			$('#sendCc').val(data.sendCc);
+			$('#sendSubject').val(data.sendSubject),
+				$('#sendReason').val(data.sendReason),
+				$('#responseExpected').val(data.responseExpected);
+			$('#targetResponseDate').val(data.targetResponseDate);
+			$('#attachmentName').val(data.attachmentName);
+			//attachmentName: $('#attachmentsList .attachment-item span').first().text()
+		}
+	}
+	function initDraftTable() {
+		draftTableInstance = $('#draftTable').DataTable({
+			serverSide: true,
+			processing: true,
+			ajax: {
+				url: '/dms/api/documents/drafts', // <-- your REST endpoint
+				type: 'POST',
+				contentType: 'application/json',
+				data: function(d) {
+					return JSON.stringify({
+						draw: d.draw,
+						start: d.start,
+						length: d.length,
+						// Add filters or user context if needed
+					});
+				},
+				dataSrc: 'data'
+			},
+			columns: [
+				{ data: 'sendTo' },
+				{ data: 'sendCc' },
+				{ data: 'sendSubject' },
+				{ data: 'sendReason' },
+				{ data: 'responseExpected' },
+				{
+					data: 'targetResponseDate',
+					render: function(data) {
+						return data ? new Date(data).toLocaleDateString() : '';
+					}
+				},
+				{ data: 'attachmentName' },
+				{
+					data: 'createdAt',
+					render: function(data) {
+						return data ? new Date(data).toLocaleString() : '';
+					}
+				},
+				// Hidden columns:
+				{ data: 'id', visible: false },              // Save id hidden
+				{ data: 'docId', visible: false },
+			],
+			language: {
+				lengthMenu: 'Show _MENU_ entries',
+				info: 'Showing _START_ to _END_ of _TOTAL_ drafts'
+			},
+			pageLength: 10,
+			destroy: true
+		});
+	}
 	// Draft button click: show draft table, hide main table
 	$('#draftBtn').click(function() {
 		$('.table-container').hide();
 		$('#draftTableContainer').show();
 		$('#backToMainBtn').show();
 
-		if (draftTableInstance) {
-			draftTableInstance.draw();
-		}
+		//if (!$.fn.DataTable.isDataTable('#draftTable')) {
+		initDraftTable(); // Initialize only once
+		//} else {
+		//	draftTableInstance.ajax.reload(); // Reload data if already initialized
+		//}
 	});
 
 	// Back to Documents button handler
@@ -1610,20 +1681,9 @@ $(document).ready(function() {
 
 
 	function showSendDocumentsModal() {
-		resetSendForm();
-
 		if (selectedDocument) {
-			const attachmentItem = `
-                        <div class="attachment-item">
                             <span>${selectedDocument.fileName} (${selectedDocument.fileType})</span>
-                            <button type="button" onclick="removeAttachment(this)" style="background: #e53e3e; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;">×</button>
-                        </div>
-                    `;
-			$('#attachmentsList').html(attachmentItem);
-		}
 
-		$('#sendDocumentsModal').css('display', 'flex');
-	}
 	function getNextRevision(revisionNo) {
 		const match = revisionNo.match(/^R(\d+)$/i);
 		if (!match) return revisionNo; // fallback if format is wrong

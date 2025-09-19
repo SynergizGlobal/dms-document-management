@@ -1,16 +1,14 @@
 package com.synergizglobal.dms.controller.dms;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import com.synergizglobal.dms.dto.DocumentGridDTO;
-import com.synergizglobal.dms.dto.SendDocumentDTO;
-import com.synergizglobal.dms.entity.pmis.User;
-
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,14 +23,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.synergizglobal.dms.dto.DataTableRequest;
 import com.synergizglobal.dms.dto.DataTableResponse;
 import com.synergizglobal.dms.dto.DocumentDTO;
+import com.synergizglobal.dms.dto.DocumentGridDTO;
+import com.synergizglobal.dms.dto.DraftDataTableRequest;
+import com.synergizglobal.dms.dto.DraftDataTableResponse;
+import com.synergizglobal.dms.dto.DraftSendDocumentDTO;
+import com.synergizglobal.dms.dto.SendDocumentDTO;
+import com.synergizglobal.dms.entity.pmis.User;
 //import com.synergizglobal.dms.service.dms.DepartmentService;
 import com.synergizglobal.dms.service.dms.DocumentService;
+import com.synergizglobal.dms.service.dms.SendDocumentService;
 
-import org.eclipse.angus.mail.iap.Response;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -43,7 +43,7 @@ public class DocumentController {
 
 	private final DocumentService documentService;
 
-	
+	private final SendDocumentService sendDocumentService;
 	
 	
 	@PostMapping(consumes = { "multipart/form-data" })
@@ -215,8 +215,15 @@ public class DocumentController {
 	
 	
 	@PostMapping("/send-document")
-	public ResponseEntity<String> saveOrSendDocument(@RequestBody SendDocumentDTO dto) throws IOException {
-		String response = documentService.saveOrSendDocument(dto);
+	public ResponseEntity<String> saveOrSendDocument(@RequestBody SendDocumentDTO dto, HttpSession session) throws IOException {
+		User user = (User) session.getAttribute("user");
+		String response = documentService.saveOrSendDocument(dto, user.getUserId());
 		return ResponseEntity.ok("");
 	}
+	
+	@PostMapping("/drafts")
+    public DraftDataTableResponse<DraftSendDocumentDTO> getDrafts(@RequestBody DraftDataTableRequest request, HttpSession session) {
+		User user = (User) session.getAttribute("user");
+        return sendDocumentService.getDrafts(request, user.getUserId());
+    }
 }

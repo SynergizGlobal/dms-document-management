@@ -1064,8 +1064,8 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public String saveOrSendDocument(SendDocumentDTO dto) {
-		SendDocument sendDocument = mapDTOToSendDocument(dto);
+	public String saveOrSendDocument(SendDocumentDTO dto, String userId) {
+		SendDocument sendDocument = mapDTOToSendDocument(dto,userId);
 		sendDocumentRepository.save(sendDocument);
 		if(dto.getStatus().equals("Send")) { // send email
 			
@@ -1073,9 +1073,10 @@ public class DocumentServiceImpl implements DocumentService {
 		return "";
 	}
 
-	private SendDocument mapDTOToSendDocument(SendDocumentDTO dto) {
+	private SendDocument mapDTOToSendDocument(SendDocumentDTO dto, String userId) {
 		Document document = documentRepository.getById(dto.getDocId());
 		return SendDocument.builder()
+				.id(dto.getId())
 				.attachmentName(dto.getAttachmentName())
 				.document(document)
 				.sendTo(dto.getSendTo())
@@ -1087,6 +1088,7 @@ public class DocumentServiceImpl implements DocumentService {
 				.responseExpected(dto.getResponseExpected())
 				.targetResponseDate(dto.getTargetResponseDate())
 				.status(dto.getStatus())
+				.createdBy(userId)
 				.build();
 	}
 

@@ -22,4 +22,5 @@ public class SendDocumentDTO {
 	private String attachmentName;
 	private Long docId;
 	private String status;
+	private Long id;
 }

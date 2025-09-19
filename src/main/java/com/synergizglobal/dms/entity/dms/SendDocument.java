@@ -63,7 +63,14 @@ public class SendDocument {
 	@Column(name = "status")
 	private String status;
 	
+	@Column(name = "created_by", nullable = false)
+	private String createdBy;
+	
 	@CreationTimestamp
 	@Column(name = "created_at", updatable = false)
 	private LocalDateTime createdAt;
+	
+	@CreationTimestamp
+	@Column(name = "updated_at", updatable = true)
+	private LocalDateTime updatedAt;
 }
