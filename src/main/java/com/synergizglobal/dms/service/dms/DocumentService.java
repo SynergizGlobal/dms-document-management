@@ -38,11 +38,11 @@ public interface DocumentService {
 
 		public String validateFileName(String... args);
 
-		public Long saveMetadata(List<SaveMetaDataDto> dto);
+		public Long saveMetadata(List<SaveMetaDataDto> dto, String string);
 
 		public String saveZipFileAndCreateDocuments(Long uploadId, MultipartFile file, String userId);
 
-		public Long getMetadata();
+		public Long getMetadata(String string);
 
 		public List<String> findGroupedFileNames();
 

@@ -128,18 +128,20 @@ public class BulkUploadController {
 	}
 	
 	@PostMapping("/metadata/save")
-	public ResponseEntity<Long> saveMetadata(@RequestBody List<SaveMetaDataDto> dto)
+	public ResponseEntity<Long> saveMetadata(@RequestBody List<SaveMetaDataDto> dto, HttpSession session)
 			throws Exception {
 		//List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
-		Long metadataSavedId = documentservice.saveMetadata(dto);
+		User user = (User) session.getAttribute("user");
+		Long metadataSavedId = documentservice.saveMetadata(dto, user.getUserId());
 		return ResponseEntity.ok(metadataSavedId);
 	}
 	
 	@GetMapping("/metadata/get")
-	public ResponseEntity<Long> getMetadata()
+	public ResponseEntity<Long> getMetadata(HttpSession session)
 			throws Exception {
+		User user = (User) session.getAttribute("user");
 		//List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows);
-		Long metadataSavedId = documentservice.getMetadata();
+		Long metadataSavedId = documentservice.getMetadata(user.getUserId());
 		return ResponseEntity.ok(metadataSavedId);
 	}
 	

@@ -599,7 +599,7 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public Long saveMetadata(List<SaveMetaDataDto> dto) {
+	public Long saveMetadata(List<SaveMetaDataDto> dto, String userId) {
 		List<MetaData> metadatas = new ArrayList<>();
 		for (SaveMetaDataDto saveMetaDataDto : dto) {
 
@@ -616,7 +616,7 @@ public class DocumentServiceImpl implements DocumentService {
 					.projectName(saveMetaDataDto.getProjectname())
 					.contractName(saveMetaDataDto.getContractname()).build());
 		}
-		UploadedMetaData uploadedMetaData = UploadedMetaData.builder().metadatas(metadatas).build();
+		UploadedMetaData uploadedMetaData = UploadedMetaData.builder().metadatas(metadatas).uploadedBy(userId).build();
 		uploadedMetaData = uploadedMetaDataRepository.save(uploadedMetaData);
 
 		for (MetaData metadata : metadatas) {
@@ -717,6 +717,8 @@ public class DocumentServiceImpl implements DocumentService {
 						.contractName(metadata.getContractName()).build();
 				documentService.uploadFileWithMetaData(documentDto, files, userId);
 			}
+			uploadMetaData.setProcessed(Boolean.TRUE);
+			uploadedMetaDataRepository.save(uploadMetaData);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to save or extract ZIP file", e);
 		}
@@ -750,8 +752,8 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public Long getMetadata() {
-		List<UploadedMetaData> list = uploadedMetaDataRepository.findAll();
+	public Long getMetadata(String userId) {
+		List<UploadedMetaData> list = uploadedMetaDataRepository.findByUserIdNotProcessed(userId);
 		for (UploadedMetaData uploadMetaData : list) {
 			List<MetaData> metaData = uploadMetaData.getMetadatas();
 			if (metaData.get(0).getUploadedZipLocation() == null
