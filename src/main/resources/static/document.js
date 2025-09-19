@@ -217,7 +217,8 @@ $(document).ready(function() {
 		const $field = $(field);
 		const value = $field.val().trim();
 		const fieldType = $field.attr('type');
-		const isRequired = $field.closest('.form-group, .upload-form-section, .preview-form-section').find('label').text().includes('*');
+		const isVisible = $field.is(':visible');
+		const isRequired = isVisible && $field.closest('.form-group, .upload-form-section, .preview-form-section').find('label').text().includes('*');
 
 		$field.removeClass('error-field success-field');
 		$field.siblings('.error-message').removeClass('show');
@@ -419,15 +420,51 @@ $(document).ready(function() {
 	function showSendDocumentsModalForUpdate(data) {
 		resetSendForm();
 		if (data) {
+			$('#sendDocumentId').val(data.id);
+			$('#sendDocId').val(data.docId);
 			$('#sendTo').val(data.sendTo);
+			$('#sendToUserId').val(data.sendToUserId);
 			$('#sendCc').val(data.sendCc);
-			$('#sendSubject').val(data.sendSubject),
-				$('#sendReason').val(data.sendReason),
-				$('#responseExpected').val(data.responseExpected);
-			$('#targetResponseDate').val(data.targetResponseDate);
-			$('#attachmentName').val(data.attachmentName);
+			$('#sendCcUserId').val(data.sendCcUserId);
+			$('#sendSubject').val(data.sendSubject);
+			$('#sendReason').val(data.sendReason);
+			$("#responseExpected option").each(function() {
+				if ($(this).val().toLowerCase() === data.responseExpected?.trim().toLowerCase()) {
+					$(this).prop("selected", true);
+				}
+			});
+			let rawDate = data.targetResponseDate; // e.g. [2025, 9, 19] or object or string
+
+			let formattedDate = '';
+
+			if (Array.isArray(rawDate)) {
+			    // Convert [year, month, day] => yyyy-MM-dd
+			    const [year, month, day] = rawDate;
+			    formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+			} else if (typeof rawDate === 'string') {
+			    // If it's already a string like '2025-09-19', keep it
+			    formattedDate = rawDate;
+			} else if (rawDate instanceof Object) {
+			    // Handle JSON date format like { year: 2025, month: 9, day: 19 }
+			    const { year, month, day } = rawDate;
+			    formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+			}
+
+			// Now set it to the input
+			$('#targetResponseDate').val(formattedDate);
+			//$('#attachmentsList .attachment-item span').first().text(data.attachmentName);
 			//attachmentName: $('#attachmentsList .attachment-item span').first().text()
 		}
+		if (data.attachmentName) {
+			const attachmentItem = `
+			                    <div class="attachment-item">
+			                        <span>${data.attachmentName})</span>
+			                        <button type="button" onclick="removeAttachment(this)" style="background: #e53e3e; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;">×</button>
+			                    </div>
+			                `;
+			$('#attachmentsList').html(attachmentItem);
+		}
+		$('#sendDocumentsModal').css('display', 'flex');
 	}
 	function initDraftTable() {
 		draftTableInstance = $('#draftTable').DataTable({
@@ -454,10 +491,7 @@ $(document).ready(function() {
 				{ data: 'sendReason' },
 				{ data: 'responseExpected' },
 				{
-					data: 'targetResponseDate',
-					render: function(data) {
-						return data ? new Date(data).toLocaleDateString() : '';
-					}
+					data: 'targetResponseDate'
 				},
 				{ data: 'attachmentName' },
 				{
@@ -615,6 +649,8 @@ $(document).ready(function() {
 	$('#sendDocument').click(function() {
 		if (validateForm('#sendDocumentsModal')) {
 			const payload = {
+				id : $('#sendDocumentId').val(),
+				docId : $('#sendDocId').val(),
 				sendTo: $('#sendTo').val(),
 				sendToUserId: $('#sendToUserId').val(),
 				sendCc: $('#sendCc').val(),
@@ -624,7 +660,7 @@ $(document).ready(function() {
 				responseExpected: $('#responseExpected option:selected').text(),
 				targetResponseDate: $('#targetResponseDate').val(),
 				attachmentName: $('#attachmentsList .attachment-item span').first().text(),
-				docId: selectedDocumentId,
+				//docId: selectedDocumentId,
 				status: 'Send'
 			};
 
@@ -650,7 +686,9 @@ $(document).ready(function() {
 	// Save Draft button in Send Documents modal
 	$('#saveDraft').click(function() {
 		if (validateForm('#sendDocumentsModal')) {
-			const payload = {
+			let updatePayload = {
+				id : $('#sendDocumentId').val(),
+				docId :  $('#sendDocId').val(),
 				sendTo: $('#sendTo').val(),
 				sendToUserId: $('#sendToUserId').val(),
 				sendCc: $('#sendCc').val(),
@@ -660,14 +698,14 @@ $(document).ready(function() {
 				responseExpected: $('#responseExpected option:selected').text(),
 				targetResponseDate: $('#targetResponseDate').val(),
 				attachmentName: $('#attachmentsList .attachment-item span').first().text(),
-				docId: selectedDocumentId,
+				//docId: selectedDocumentId,
 				status: 'Draft'
 			};
 
 			$.ajax({
 				url: '/dms/api/documents/send-document', // 🔁 Change to your backend endpoint
 				method: 'POST',
-				data: JSON.stringify(payload),
+				data: JSON.stringify(updatePayload),
 				processData: false,  // Important for FormData
 				contentType: 'application/json',  // Important for FormData
 				success: function(response) {
@@ -681,7 +719,7 @@ $(document).ready(function() {
 			});
 
 		}
-		if (draftTableInstance) {
+		/*if (draftTableInstance) {
 			draftTableInstance.row.add([
 				to,
 				cc,
@@ -692,11 +730,11 @@ $(document).ready(function() {
 				attachments.join('<br>'),
 				formattedDate
 			]).draw();
-		}
+		}*/
 
-		showNotification('Draft saved successfully!', 'success');
-		$('#sendDocumentsModal').hide();
-		resetSendForm();
+		//showNotification('Draft saved successfully!', 'success');
+		//$('#sendDocumentsModal').hide();
+		//resetSendForm();
 	});
 
 	// Update Documents Modal handlers
@@ -1681,8 +1719,20 @@ $(document).ready(function() {
 
 
 	function showSendDocumentsModal() {
+		resetSendForm();
+		$('#sendDocId').val(selectedDocumentId);
 		if (selectedDocument) {
-                            <span>${selectedDocument.fileName} (${selectedDocument.fileType})</span>
+			const attachmentItem = `
+	                    <div class="attachment-item">
+	                        <span>${selectedDocument.fileName} (${selectedDocument.fileType})</span>
+	                        <button type="button" onclick="removeAttachment(this)" style="background: #e53e3e; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;">×</button>
+	                    </div>
+	                `;
+			$('#attachmentsList').html(attachmentItem);
+		}
+
+		$('#sendDocumentsModal').css('display', 'flex');
+	}
 
 	function getNextRevision(revisionNo) {
 		const match = revisionNo.match(/^R(\d+)$/i);
@@ -1911,7 +1961,8 @@ $(document).ready(function() {
 	function resetSendForm() {
 		$('#sendDocumentsModal .error-field').removeClass('error-field success-field');
 		$('#sendDocumentsModal .error-message').removeClass('show');
-
+		$('#sendDocumentId', "#sendDocId", '#sendToUserId', '#sendCcUserId').val('');
+		
 		$('#sendTo, #sendCc, #sendSubject, #sendReason').val('');
 		$('#responseExpected').val('');
 		$('#targetResponseDate').val('');
