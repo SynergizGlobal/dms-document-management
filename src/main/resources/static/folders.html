@@ -2,808 +2,858 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Management System</title>
-    <link rel="stylesheet" href="folders.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document Management System</title>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<link rel="stylesheet"
+	href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<link rel="stylesheet" href="folders.css">
 </head>
 
 <body>
-    <header class="header">
-        <div class="project-info"><img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
-            MRVC
-        </div>
-        <h1>Document Management System</h1>
-        <div class="demo-badge">DEMO</div>
-    </header>
+	<header class="header">
+		<div class="project-info">
+			<img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
+			MRVC
+		</div>
+		<h1>Document Management System</h1>
+		<div class="demo-badge">DEMO</div>
+	</header>
 
-    <nav class="navigation">
-            <div class="nav-item" onclick="location.href='correspondance.html'">Correspondence</div>
-            <div class="nav-item" onclick="location.href='document.html'">Documents</div>
-            <div class="nav-item active" onclick="location.href='folders.html'">Folders</div>
-            <div class="nav-item" onclick="location.href='filters_form.html'">Filter Form</div>
-    </nav>
+	<nav class="navigation">
+		<div class="nav-item" onclick="location.href='correspondance.html'">Correspondence</div>
+		<div class="nav-item" onclick="location.href='document.html'">Documents</div>
+		<div class="nav-item active" onclick="location.href='folders.html'">Folders</div>
+		<div class="nav-item" onclick="location.href='filters_form.html'">Filter
+			Form</div>
+	</nav>
 
-    <main class="main-content">
-        <!-- Breadcrumb and Search Button -->
-        <div class="breadcrumb-container">
-            <div class="breadcrumb">
-                <span class="breadcrumb-link" onclick="goHome()">Home</span>
-                <span id="breadcrumb-separator" style="display: none;"> > </span>
-                <span id="breadcrumb-current"></span>
-            </div>
-            <button class="goto-search-btn" onclick="toggleSearch()">Go to Search</button>
-        </div>
+	<main class="main-content">
+		<!-- Breadcrumb and Search Button -->
+		<div class="breadcrumb-container">
+			<div class="breadcrumb">
+				<span class="breadcrumb-link" onclick="goHome()">Home</span> <span
+					id="breadcrumb-separator" style="display: none;"> > </span> <span
+					id="breadcrumb-current"></span>
+			</div>
+			<!-- Filter will sit right after Home -->
+			<table class="filterTable">
+				<thead>
+				<tr>
+					<th>Project Name</th>
+					<th>Contract Name</th>
+				</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<div class="filter-container">
+								<input type="text" class="project-column-filter"
+									placeholder="Search Project" readonly> <span
+									class="projectfilter-dropdown-toggle column-filter">▼</span>
+								<div class="filter-dropdown" id="projectFilter"></div>
+							</div>
+						</td>
+						<td>
+							<div class="filter-container">
+								<input type="text" class="contract-column-filter"
+									placeholder="Search Contract" readonly> <span
+									class="contractfilter-dropdown-toggle column-filter">▼</span>
+								<div class="filter-dropdown" id="contractFilter"></div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<button class="goto-search-btn" onclick="toggleSearch()">Go
+				to Search</button>
+		</div>
 
-        <!-- Search Input (initially hidden) -->
-        <input type="text" class="search-input" id="searchInput" placeholder="Search folders..." style="display: none;">
+		<!-- Search Input (initially hidden) -->
+		<input type="text" class="search-input" id="searchInput"
+			placeholder="Search folders..." style="display: none;">
 
-        <!-- Main Folders View -->
-        <div class="folders-view" id="foldersView">
-            <div class="folders-grid">
-                <div class="folder-card" onclick="openFolder('drawings')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">1 Drawings</div>
-                </div>
+		<!-- Main Folders View -->
+		<div class="folders-view" id="foldersView">
+			<div class="folders-grid">
+				<div class="folder-card" onclick="openFolder('drawings')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">1 Drawings</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('correspondence')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">2 Correspondence</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('correspondence')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">2 Correspondence</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('moms')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">3 MOMs</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('moms')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">3 MOMs</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('reports')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">4 Reports</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('reports')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">4 Reports</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('work-programme')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">5 Work Programme</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('work-programme')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">5 Work Programme</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('manuals')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">6 Manuals</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('manuals')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">6 Manuals</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('rfi')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">7 RFI</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('rfi')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">7 RFI</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('contracts')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">8 Contracts</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('contracts')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">8 Contracts</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('she')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">9 SHE</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('she')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">9 SHE</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('quality')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">10 Quality</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('quality')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">10 Quality</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('billing')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">11 Billing</div>
-                </div>
+				<div class="folder-card" onclick="openFolder('billing')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">11 Billing</div>
+				</div>
 
-                <div class="folder-card" onclick="openFolder('legal')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">12 Legal</div>
-                </div>
-            </div>
-        </div>
+				<div class="folder-card" onclick="openFolder('legal')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">12 Legal</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Drawings View (initially hidden) -->
-        <div class="drawings-view" id="drawingsView" style="display: none;">
-            <div class="drawings-grid">
-                <div class="folder-card" onclick="openDrawingFolder('101-mj-rubs')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">101 MJ RUBs ROBs MJBs</div>
-                </div>
+		<!-- Drawings View (initially hidden) -->
+		<div class="drawings-view" id="drawingsView" style="display: none;">
+			<div class="drawings-grid">
+				<div class="folder-card" onclick="openDrawingFolder('101-mj-rubs')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">101 MJ RUBs ROBs MJBs</div>
+				</div>
 
-                <div class="folder-card" onclick="openDrawingFolder('102-mnb')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">102 MNB MNRUB</div>
-                </div>
+				<div class="folder-card" onclick="openDrawingFolder('102-mnb')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">102 MNB MNRUB</div>
+				</div>
 
-                <div class="folder-card" onclick="openDrawingFolder('103-earthwork')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">103 Earthwork</div>
-                </div>
+				<div class="folder-card"
+					onclick="openDrawingFolder('103-earthwork')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">103 Earthwork</div>
+				</div>
 
-                <div class="folder-card" onclick="openDrawingFolder('104-junction')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">104 Junction Crossing Station</div>
-                </div>
+				<div class="folder-card" onclick="openDrawingFolder('104-junction')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">104 Junction Crossing Station</div>
+				</div>
 
-                <div class="folder-card" onclick="openDrawingFolder('105-misc')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">105 Misc Civil Works</div>
-                </div>
+				<div class="folder-card" onclick="openDrawingFolder('105-misc')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">105 Misc Civil Works</div>
+				</div>
 
-                <div class="folder-card" onclick="openDrawingFolder('106-station')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">106 Stn Bldg Quarters</div>
-                </div>
+				<div class="folder-card" onclick="openDrawingFolder('106-station')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">106 Stn Bldg Quarters</div>
+				</div>
 
-                <div class="folder-card" onclick="openDrawingFolder('107-survey')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">107 Survey</div>
-                </div>
+				<div class="folder-card" onclick="openDrawingFolder('107-survey')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">107 Survey</div>
+				</div>
 
-                <div class="folder-card" onclick="openDrawingFolder('108-crz')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">108 CRZ</div>
-                </div>
-            </div>
-        </div>
+				<div class="folder-card" onclick="openDrawingFolder('108-crz')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">108 CRZ</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Correspondence View (initially hidden) -->
-        <div class="correspondence-view" id="correspondenceView" style="display: none;">
-            <div class="drawings-grid">
-                <div class="folder-card" onclick="openCorrespondenceFolder('inward')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">201 Inward</div>
-                </div>
+		<!-- Correspondence View (initially hidden) -->
+		<div class="correspondence-view" id="correspondenceView"
+			style="display: none;">
+			<div class="drawings-grid">
+				<div class="folder-card"
+					onclick="openCorrespondenceFolder('inward')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">201 Inward</div>
+				</div>
 
-                <div class="folder-card" onclick="openCorrespondenceFolder('outward')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202 Outward</div>
-                </div>
-            </div>
-        </div>
+				<div class="folder-card"
+					onclick="openCorrespondenceFolder('outward')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202 Outward</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Inward Sub-folders View (initially hidden) -->
-        <div class="inward-view" id="inwardView" style="display: none;">
-            <div class="drawings-grid">
-                <div class="folder-card" onclick="openInwardFolder('pmc-employer')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">201-01 PMC Employer Inward</div>
-                </div>
+		<!-- Inward Sub-folders View (initially hidden) -->
+		<div class="inward-view" id="inwardView" style="display: none;">
+			<div class="drawings-grid">
+				<div class="folder-card" onclick="openInwardFolder('pmc-employer')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">201-01 PMC Employer Inward</div>
+				</div>
 
-                <div class="folder-card" onclick="openInwardFolder('subcontractor')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">201-02 Subcontractor Inward</div>
-                </div>
+				<div class="folder-card" onclick="openInwardFolder('subcontractor')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">201-02 Subcontractor Inward</div>
+				</div>
 
-                <div class="folder-card" onclick="openInwardFolder('interface-agency')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">201-03 Interface agency inward</div>
-                </div>
+				<div class="folder-card"
+					onclick="openInwardFolder('interface-agency')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">201-03 Interface agency inward</div>
+				</div>
 
-                <div class="folder-card" onclick="openInwardFolder('state-govt')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">201-04 State Govt</div>
-                </div>
+				<div class="folder-card" onclick="openInwardFolder('state-govt')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">201-04 State Govt</div>
+				</div>
 
-                <div class="folder-card" onclick="openInwardFolder('ir')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">201-05 IR</div>
-                </div>
+				<div class="folder-card" onclick="openInwardFolder('ir')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">201-05 IR</div>
+				</div>
 
-                <div class="folder-card" onclick="openInwardFolder('dab')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">201-06 DAB</div>
-                </div>
-            </div>
-        </div>
+				<div class="folder-card" onclick="openInwardFolder('dab')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">201-06 DAB</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Outward Sub-folders View (initially hidden) -->
-        <div class="outward-view" id="outwardView" style="display: none;">
-            <div class="drawings-grid">
-                <div class="folder-card" onclick="openOutwardFolder('pmc-employer')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-01 PMC Employer Outward</div>
-                </div>
+		<!-- Outward Sub-folders View (initially hidden) -->
+		<div class="outward-view" id="outwardView" style="display: none;">
+			<div class="drawings-grid">
+				<div class="folder-card" onclick="openOutwardFolder('pmc-employer')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-01 PMC Employer Outward</div>
+				</div>
 
-                <div class="folder-card" onclick="openOutwardFolder('subcontractor')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-02 Subcontractor Outward</div>
-                </div>
+				<div class="folder-card"
+					onclick="openOutwardFolder('subcontractor')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-02 Subcontractor Outward</div>
+				</div>
 
-                <div class="folder-card" onclick="openOutwardFolder('interface-agency')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-03 Interface agency outward</div>
-                </div>
+				<div class="folder-card"
+					onclick="openOutwardFolder('interface-agency')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-03 Interface agency outward</div>
+				</div>
 
-                <div class="folder-card" onclick="openOutwardFolder('state-govt')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-04 State Govt</div>
-                </div>
+				<div class="folder-card" onclick="openOutwardFolder('state-govt')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-04 State Govt</div>
+				</div>
 
-                <div class="folder-card" onclick="openOutwardFolder('ir')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-05 IR</div>
-                </div>
+				<div class="folder-card" onclick="openOutwardFolder('ir')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-05 IR</div>
+				</div>
 
-                <div class="folder-card" onclick="openOutwardFolder('internal')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-06 Internal</div>
-                </div>
+				<div class="folder-card" onclick="openOutwardFolder('internal')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-06 Internal</div>
+				</div>
 
-                <div class="folder-card" onclick="openOutwardFolder('dab')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-07 DAB</div>
-                </div>
+				<div class="folder-card" onclick="openOutwardFolder('dab')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-07 DAB</div>
+				</div>
 
-                <div class="folder-card" onclick="openOutwardFolder('ircon-co')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-08 IRCON CO</div>
-                </div>
+				<div class="folder-card" onclick="openOutwardFolder('ircon-co')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-08 IRCON CO</div>
+				</div>
 
-                <div class="folder-card" onclick="openOutwardFolder('dfccil')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">202-09 DFCCIL out</div>
-                </div>
-            </div>
-        </div>
+				<div class="folder-card" onclick="openOutwardFolder('dfccil')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">202-09 DFCCIL out</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Documents View (initially hidden) -->
-        <div class="documents-view" id="documentsView" style="display: none;">
-            <div class="documents-list" id="documentsList">
-                <!-- Documents will be populated here dynamically -->
-            </div>
-        </div>
-
-
-        <!-- Moms View (initially hidden) -->
-        <div class="moms-view" id="momsView" style="display: none;">
-            <div class="drawings-grid">
-                <div class="folder-card" onclick="openMomsFolder('301-dfccil-pmc')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">301 DFCCIL PMC</div>
-                </div>
-
-                <div class="folder-card" onclick="openMomsFolder('302-interface-contractor')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">302 Interface Contractor</div>
-                </div>
-
-                <div class="folder-card" onclick="openMomsFolder('303-efc')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">303 EFC</div>
-                </div>
-
-                <div class="folder-card" onclick="openMomsFolder('304-others')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">304 Others</div>
-                </div>
-            </div>
-        </div>
+		<!-- Documents View (initially hidden) -->
+		<div class="documents-view" id="documentsView" style="display: none;">
+			<div class="documents-list" id="documentsList">
+				<!-- Documents will be populated here dynamically -->
+			</div>
+		</div>
 
 
-        <!-- Reports View (initially hidden) -->
-        <div class="reports" id="reportsView" style="display: none;">
-            <div class="drawings-grid">
-                <div class="folder-card" onclick="openReportsFolder('401-dpr')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">401 DPR</div>
-                </div>
-h 
-                <div class="folder-card" onclick="openReportsFolder('402-wpr')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">402 WPR</div>
-                </div>
+		<!-- Moms View (initially hidden) -->
+		<div class="moms-view" id="momsView" style="display: none;">
+			<div class="drawings-grid">
+				<div class="folder-card" onclick="openMomsFolder('301-dfccil-pmc')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">301 DFCCIL PMC</div>
+				</div>
 
-                <div class="folder-card" onclick="openReportsFolder('403-mpr')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">403 MPR</div>
-                </div>
+				<div class="folder-card"
+					onclick="openMomsFolder('302-interface-contractor')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">302 Interface Contractor</div>
+				</div>
 
-                <div class="folder-card" onclick="openReportsFolder('404-others')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">404 Others</div>
-                </div>
+				<div class="folder-card" onclick="openMomsFolder('303-efc')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">303 EFC</div>
+				</div>
 
-                <div class="folder-card" onclick="openReportsFolder('405-presentation')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">405 Presentations</div>
-                </div>
+				<div class="folder-card" onclick="openMomsFolder('304-others')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">304 Others</div>
+				</div>
+			</div>
+		</div>
 
-                <div class="folder-card" onclick="openReportsFolder('406-exception-report')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">406 Exception Report</div>
-                </div>
 
-                <div class="folder-card" onclick="openReportsFolder('407-mcdo')">
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">407 MCDO</div>
-                </div>
-            </div>
-        </div>
-    </main>
+		<!-- Reports View (initially hidden) -->
+		<div class="reports" id="reportsView" style="display: none;">
+			<div class="drawings-grid">
+				<div class="folder-card" onclick="openReportsFolder('401-dpr')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">401 DPR</div>
+				</div>
+				h
+				<div class="folder-card" onclick="openReportsFolder('402-wpr')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">402 WPR</div>
+				</div>
 
-    <!-- <footer class="footer">
+				<div class="folder-card" onclick="openReportsFolder('403-mpr')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">403 MPR</div>
+				</div>
+
+				<div class="folder-card" onclick="openReportsFolder('404-others')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">404 Others</div>
+				</div>
+
+				<div class="folder-card"
+					onclick="openReportsFolder('405-presentation')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">405 Presentations</div>
+				</div>
+
+				<div class="folder-card"
+					onclick="openReportsFolder('406-exception-report')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">406 Exception Report</div>
+				</div>
+
+				<div class="folder-card" onclick="openReportsFolder('407-mcdo')">
+					<div class="folder-icon">
+						<div class="folder-base">
+							<div class="folder-tab"></div>
+							<div class="folder-papers">
+								<div class="paper paper-1"></div>
+								<div class="paper paper-2"></div>
+								<div class="paper paper-3"></div>
+							</div>
+							<div class="folder-label"></div>
+						</div>
+					</div>
+					<div class="folder-title">407 MCDO</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<!-- <footer class="footer">
         <div class="footer-left">
             <div class="footer-logo">IRCON</div>
             <div class="footer-text">Copyright © IRCON International Limited</div>
@@ -817,7 +867,7 @@ h
         </div>
     </footer> -->
 
-    <script src="folders.js"></script>
+	<script src="folders.js"></script>
 </body>
 
 </html>
