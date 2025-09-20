@@ -25,9 +25,11 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -200,11 +202,28 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
         CorrespondenceLetterViewProjection first = flatList.get(0);
 
         // Map files
-        List<FileViewDto> files = flatList.stream()
-                .filter(f -> f.getFileName() != null)
-                .map(f -> new FileViewDto(f.getFileName(), f.getFilePath(), f.getFileType(),null))
-                .toList();
+//        List<FileViewDto> files = flatList.stream()
+//                .filter(f -> f.getFileName() != null)
+//                .map(f -> new FileViewDto(f.getFileName(), f.getFilePath(), f.getFileType(),null))
+//                .toList();
 
+        
+        List<FileViewDto> files = flatList.stream()
+                .filter(f -> f.getFileName() != null && !f.getFileName().isBlank())
+                .collect(Collectors.toMap(
+                        // key: filename + path (safer than just filename)
+                        f -> f.getFileName() + "|" + (f.getFilePath() == null ? "" : f.getFilePath()),
+                        // value: construct DTO with correct order: (fileName, fileType, filePath, downloadUrl)
+                        f -> new FileViewDto(f.getFileName(), f.getFileType(), f.getFilePath(), null),
+                        // merge function: keep the first occurrence
+                        (existing, replacement) -> existing,
+                        // preserve insertion order
+                        LinkedHashMap::new
+                ))
+                .values()
+                .stream()
+                .toList();
+        
         List<String> refLetters = flatList.stream()
                 .map(CorrespondenceLetterViewProjection::getRefLetter)
                 .filter(Objects::nonNull)
