@@ -1,5 +1,8 @@
 package com.synergizglobal.dms.service.impl;
 
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
+import java.util.Properties;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -104,18 +107,32 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Autowired
 	private ProjectService projectService;
-	
+
 	@Autowired
 	private ContractService contractService;
-	
+
 	@Autowired
 	private SendDocumentRepository sendDocumentRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
 	@Value("${file.upload-dir}")
 	private String basePath;
 
 	@Value("${file.zip-dir}")
 	private String zipPath;
 
+	@Value("${spring.mail.host}")
+	private String emailHost;
+	
+	@Value("${spring.mail.username}")
+	private String emailUserName;
+	
+	@Value("${spring.mail.password}")
+	private String emailPassword;
+	
+	
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -130,8 +147,8 @@ public class DocumentServiceImpl implements DocumentService {
 		SubFolder subFolder = subFolderRepository.findByName(documentDto.getSubFolder()).get();
 		Department department = departmentRepository.findByName(documentDto.getDepartment()).get();
 		Status status = statusRepository.findByName(documentDto.getCurrentStatus()).get();
-		//User user = userRepository.findById(userId).get();
-		
+		// User user = userRepository.findById(userId).get();
+
 		Optional<Document> documentInDBOptional = documentRepository.findByFileName(documentDto.getFileName());
 		// 1. If file name is same but file number is different
 		if (documentInDBOptional.isPresent()) {
@@ -140,11 +157,10 @@ public class DocumentServiceImpl implements DocumentService {
 				return DocumentDTO.builder().fileName(document.getFileName()).fileNumber(document.getFileNumber())
 						.revisionNo(document.getRevisionNo()).revisionDate(document.getRevisionDate())
 						.folder(folder.getName()).subFolder(subFolder.getName()).department(department.getName())
-						.currentStatus(status.getName()).errorMessage("File name already exists with File number: "
-								+ document.getFileNumber() + ". Change the File name or File number to accept.")
-						.projectName(document.getProjectName())
-						.contractName(document.getContractName())
-						.build();
+						.currentStatus(status.getName())
+						.errorMessage("File name already exists with File number: " + document.getFileNumber()
+								+ ". Change the File name or File number to accept.")
+						.projectName(document.getProjectName()).contractName(document.getContractName()).build();
 			}
 		}
 
@@ -156,11 +172,10 @@ public class DocumentServiceImpl implements DocumentService {
 				return DocumentDTO.builder().fileName(document.getFileName()).fileNumber(document.getFileNumber())
 						.revisionNo(document.getRevisionNo()).revisionDate(document.getRevisionDate())
 						.folder(folder.getName()).subFolder(subFolder.getName()).department(department.getName())
-						.currentStatus(status.getName()).errorMessage("File number already exists for File name: "
-								+ document.getFileName() + ". Change the File name or File number to accept.")
-						.projectName(document.getProjectName())
-						.contractName(document.getContractName())
-						.build();
+						.currentStatus(status.getName())
+						.errorMessage("File number already exists for File name: " + document.getFileName()
+								+ ". Change the File name or File number to accept.")
+						.projectName(document.getProjectName()).contractName(document.getContractName()).build();
 			}
 		}
 
@@ -182,9 +197,7 @@ public class DocumentServiceImpl implements DocumentService {
 								+ documentDto.getFileNumber()
 								+ " already has file with same Revision number. The Revision number has to be more than "
 								+ dbRevisionNo)
-						.projectName(document.getProjectName())
-						.contractName(document.getContractName())
-						.build();
+						.projectName(document.getProjectName()).contractName(document.getContractName()).build();
 
 			}
 		}
@@ -213,10 +226,8 @@ public class DocumentServiceImpl implements DocumentService {
 					.fileNumber(documentDto.getFileNumber()).revisionNo(documentDto.getRevisionNo())
 					.revisionDate(documentDto.getRevisionDate()).folder(folder).subFolder(subFolder)
 					.department(department).fileDBNumber(UUID.randomUUID().toString()).documentFiles(newDocumentFiles)
-					.currentStatus(status)
-					.projectName(documentDto.getProjectName())
-					.contractName(documentDto.getContractName())
-					.reasonForUpdate(documentDto.getReasonForUpdate())
+					.currentStatus(status).projectName(documentDto.getProjectName())
+					.contractName(documentDto.getContractName()).reasonForUpdate(documentDto.getReasonForUpdate())
 					.createdBy(userId).build();
 
 			// Save the new Document first
@@ -239,13 +250,10 @@ public class DocumentServiceImpl implements DocumentService {
 					.fileNumber(documentInDB.getFileNumber()).revisionNo(documentInDB.getRevisionNo())
 					.revisionDate(documentInDB.getRevisionDate()).folder(folder).subFolder(subFolder)
 					.department(department).currentStatus(status).documentFiles(archivedDocumentFiles)
-					.fileDBNumber(documentInDB.getFileDBNumber())
-					.createdBy(documentInDB.getCreatedBy())
+					.fileDBNumber(documentInDB.getFileDBNumber()).createdBy(documentInDB.getCreatedBy())
 					// .document(latestFromDB.get()) // still valid at this point
-					.projectName(documentInDB.getProjectName())
-					.contractName(documentInDB.getContractName())
-					.reasonForUpdate(documentInDB.getReasonForUpdate())
-					.build();
+					.projectName(documentInDB.getProjectName()).contractName(documentInDB.getContractName())
+					.reasonForUpdate(documentInDB.getReasonForUpdate()).build();
 
 			documentRevisionRepository.save(documentRevision);
 			documentRevisionRepository.flush();
@@ -281,10 +289,8 @@ public class DocumentServiceImpl implements DocumentService {
 		Document document = Document.builder().fileName(documentDto.getFileName())
 				.fileNumber(documentDto.getFileNumber()).revisionNo("R01").revisionDate(documentDto.getRevisionDate())
 				.folder(folder).subFolder(subFolder).department(department).currentStatus(status)
-				.fileDBNumber(UUID.randomUUID().toString())
-				.projectName(documentDto.getProjectName())
-				.contractName(documentDto.getContractName())
-				.reasonForUpdate(documentDto.getReasonForUpdate())
+				.fileDBNumber(UUID.randomUUID().toString()).projectName(documentDto.getProjectName())
+				.contractName(documentDto.getContractName()).reasonForUpdate(documentDto.getReasonForUpdate())
 				.createdBy(userId).build();
 		Document savedDocument = documentRepository.save(document);
 		for (DocumentFile documentFile : newDocumentFiles) {
@@ -317,10 +323,8 @@ public class DocumentServiceImpl implements DocumentService {
 		return DocumentDTO.builder().fileName(document.getFileName()).fileNumber(document.getFileNumber())
 				.revisionNo(document.getRevisionNo()).revisionDate(document.getRevisionDate()).folder(folder.getName())
 				.subFolder(subFolder.getName()).department(department.getName()).currentStatus(status.getName())
-				.projectName(document.getProjectName())
-				.contractName(document.getContractName())
-				.reasonForUpdate(document.getReasonForUpdate())
-				.build();
+				.projectName(document.getProjectName()).contractName(document.getContractName())
+				.reasonForUpdate(document.getReasonForUpdate()).build();
 	}
 
 	private List<DocumentFile> saveNewFilesToSubFolder(SubFolder subFolder, List<MultipartFile> files)
@@ -368,14 +372,16 @@ public class DocumentServiceImpl implements DocumentService {
 
 		return savedFiles;
 	}
+
 	public static String getExtension(File file) {
-	    String name = file.getName();
-	    int lastIndex = name.lastIndexOf(".");
-	    if (lastIndex != -1 && lastIndex < name.length() - 1) {
-	        return name.substring(lastIndex + 1);
-	    }
-	    return "";
+		String name = file.getName();
+		int lastIndex = name.lastIndexOf(".");
+		if (lastIndex != -1 && lastIndex < name.length() - 1) {
+			return name.substring(lastIndex + 1);
+		}
+		return "";
 	}
+
 	private List<DocumentFile> moveFilesToArchiveFolder(List<DocumentFile> files, SubFolder subFolder)
 			throws IOException {
 		List<DocumentFile> savedFiles = new ArrayList<>();
@@ -439,10 +445,12 @@ public class DocumentServiceImpl implements DocumentService {
 					row.get(headerIndexMap.get(Constant.REVISION_NUMBER))));
 			mapList.add(validate(Constant.REVISION_DATE, headerIndexMap, row,
 					row.get(headerIndexMap.get(Constant.REVISION_DATE))));
-			
-			mapList.add(validate(Constant.PROJECT_NAME, headerIndexMap, row, row.get(headerIndexMap.get(Constant.PROJECT_NAME)), userId, userRoleName));
-			mapList.add(validate(Constant.CONTRACT_NAME, headerIndexMap, row, row.get(headerIndexMap.get(Constant.CONTRACT_NAME)), userId, userRoleName));
-			
+
+			mapList.add(validate(Constant.PROJECT_NAME, headerIndexMap, row,
+					row.get(headerIndexMap.get(Constant.PROJECT_NAME)), userId, userRoleName));
+			mapList.add(validate(Constant.CONTRACT_NAME, headerIndexMap, row,
+					row.get(headerIndexMap.get(Constant.CONTRACT_NAME)), userId, userRoleName));
+
 			mapList.add(validate(Constant.FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER))));
 			mapList.add(validate(Constant.SUB_FOLDER, headerIndexMap, row, row.get(headerIndexMap.get(Constant.FOLDER)),
 					row.get(headerIndexMap.get(Constant.SUB_FOLDER))));
@@ -506,27 +514,26 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		return "\"" + args[0] + "\" Folder does not exists";
 	}
-	
+
 	public String validateProjectName(String... args) {
 		List<ProjectDTO> projectDtos = projectService.getProjects(args[1], args[2]);
 		for (ProjectDTO projectDTO : projectDtos) {
-			if(projectDTO.getName().equals(args[0])) {
+			if (projectDTO.getName().equals(args[0])) {
 				return "";
 			}
 		}
 		return "\"" + args[0] + "\" Project Name does not exists";
 	}
-	
+
 	public String validateContractName(String... args) {
 		List<ContractDTO> contractDTOs = contractService.getContracts(args[1], args[2]);
 		for (ContractDTO contractDTO : contractDTOs) {
-			if(contractDTO.getName().equals(args[0])) {
+			if (contractDTO.getName().equals(args[0])) {
 				return "";
 			}
 		}
 		return "\"" + args[0] + "\" Contract Name does not exists";
 	}
-	
 
 	public String validateRevisionDate(String... args) {
 		if (args[0] == null || args[0].trim().isEmpty()) {
@@ -616,8 +623,7 @@ public class DocumentServiceImpl implements DocumentService {
 					.fileNumber(saveMetaDataDto.getFilenumber()).revisionNo(saveMetaDataDto.getRevisionno())
 					.revisionDate(saveMetaDataDto.getRevisiondate()).folder(folder.get()).subFolder(subFolder.get())
 					.department(department.get()).currentStatus(status.get())
-					.uploadDocument(saveMetaDataDto.getUploaddocument())
-					.projectName(saveMetaDataDto.getProjectname())
+					.uploadDocument(saveMetaDataDto.getUploaddocument()).projectName(saveMetaDataDto.getProjectname())
 					.contractName(saveMetaDataDto.getContractname()).build());
 		}
 		UploadedMetaData uploadedMetaData = UploadedMetaData.builder().metadatas(metadatas).uploadedBy(userId).build();
@@ -716,8 +722,7 @@ public class DocumentServiceImpl implements DocumentService {
 						.fileNumber(metadata.getFileNumber()).revisionNo(metadata.getRevisionNo())
 						.revisionDate(metadata.getRevisionDate()).folder(metadata.getFolder().getName())
 						.subFolder(metadata.getSubFolder().getName()).department(metadata.getDepartment().getName())
-						.currentStatus(metadata.getCurrentStatus().getName())
-						.projectName(metadata.getProjectName())
+						.currentStatus(metadata.getCurrentStatus().getName()).projectName(metadata.getProjectName())
 						.contractName(metadata.getContractName()).build();
 				documentService.uploadFileWithMetaData(documentDto, files, userId);
 			}
@@ -819,225 +824,224 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentGridDTO> getFilteredDocuments(
-	    Map<Integer, List<String>> columnFilters,
-	    int start,   // offset (zero-based)
-	    int length,
-	    User user// max number of records to return
+	public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, // offset
+																											// (zero-based)
+			int length, User user// max number of records to return
 	) {
-	    jakarta.persistence.criteria.CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-	    jakarta.persistence.criteria.CriteriaQuery<jakarta.persistence.Tuple> cq = cb.createTupleQuery();
-	    jakarta.persistence.criteria.Root<Document> root = cq.from(Document.class);
+		jakarta.persistence.criteria.CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		jakarta.persistence.criteria.CriteriaQuery<jakarta.persistence.Tuple> cq = cb.createTupleQuery();
+		jakarta.persistence.criteria.Root<Document> root = cq.from(Document.class);
 
-	    // Joins
-	    jakarta.persistence.criteria.Join<Document, Folder> folderJoin = root.join("folder", jakarta.persistence.criteria.JoinType.LEFT);
-	    jakarta.persistence.criteria.Join<Document, SubFolder> subFolderJoin = root.join("subFolder", jakarta.persistence.criteria.JoinType.LEFT);
-	    jakarta.persistence.criteria.Join<Document, Department> departmentJoin = root.join("department", jakarta.persistence.criteria.JoinType.LEFT);
-	    jakarta.persistence.criteria.Join<Document, Status> statusJoin = root.join("currentStatus", jakarta.persistence.criteria.JoinType.LEFT);
-	    jakarta.persistence.criteria.Join<Document, DocumentFile> docFileJoin = root.join("documentFiles", jakarta.persistence.criteria.JoinType.LEFT);
+		// Joins
+		jakarta.persistence.criteria.Join<Document, Folder> folderJoin = root.join("folder",
+				jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, SubFolder> subFolderJoin = root.join("subFolder",
+				jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, Department> departmentJoin = root.join("department",
+				jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, Status> statusJoin = root.join("currentStatus",
+				jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, DocumentFile> docFileJoin = root.join("documentFiles",
+				jakarta.persistence.criteria.JoinType.LEFT);
 
-	    List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	    DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-	    for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
-	        Integer columnIndex = entry.getKey();
-	        List<String> values = entry.getValue();
+		List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
+			Integer columnIndex = entry.getKey();
+			List<String> values = entry.getValue();
 
-	        if (values == null || values.isEmpty()) continue;
+			if (values == null || values.isEmpty())
+				continue;
 
-	        String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
-	        if (path == null || path.isBlank()) continue;
+			String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
+			if (path == null || path.isBlank())
+				continue;
 
-	        jakarta.persistence.criteria.Path<?> fieldPath;
-	        switch (path) {
-	            case "folder.name" -> fieldPath = folderJoin.get("name");
-	            case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
-	            case "department.name" -> fieldPath = departmentJoin.get("name");
-	            case "currentStatus.name" -> fieldPath = statusJoin.get("name");
-	            case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
-	            default -> fieldPath = root.get(path);
-	        }
+			jakarta.persistence.criteria.Path<?> fieldPath;
+			switch (path) {
+			case "folder.name" -> fieldPath = folderJoin.get("name");
+			case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
+			case "department.name" -> fieldPath = departmentJoin.get("name");
+			case "currentStatus.name" -> fieldPath = statusJoin.get("name");
+			case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
+			default -> fieldPath = root.get(path);
+			}
 
-	        if ("revisionDate".equals(path) || "createdAt".equals(path)) {
-	            List<LocalDate> dates = new ArrayList<>();
-	            for (String dateStr : values) {
-	                try {
-	                    LocalDate date = LocalDate.parse(dateStr, formatter);
-	                    dates.add(date);
-	                } catch (DateTimeParseException e) {
-	                    // skip invalid dates or log
-	                }
-	            }
+			if ("revisionDate".equals(path) || "createdAt".equals(path)) {
+				List<LocalDate> dates = new ArrayList<>();
+				for (String dateStr : values) {
+					try {
+						LocalDate date = LocalDate.parse(dateStr, formatter);
+						dates.add(date);
+					} catch (DateTimeParseException e) {
+						// skip invalid dates or log
+					}
+				}
 
-	            if (!dates.isEmpty()) {
-	                predicates.add(fieldPath.in(dates));  // fieldPath must be Path<LocalDate>
-	            }
-	        } /*else if ("createdAt".equals(path)) {
-	        	predicates.add(filterExactDateTimeField(cb, (jakarta.persistence.criteria.Path<LocalDateTime>) fieldPath, values));
-	        }*/ else {
-	            predicates.add(fieldPath.in(values));
-	        }
-	    }
-	    String role = user.getUserRoleNameFk();
+				if (!dates.isEmpty()) {
+					predicates.add(fieldPath.in(dates)); // fieldPath must be Path<LocalDate>
+				}
+			} /*
+				 * else if ("createdAt".equals(path)) {
+				 * predicates.add(filterExactDateTimeField(cb,
+				 * (jakarta.persistence.criteria.Path<LocalDateTime>) fieldPath, values)); }
+				 */ else {
+				predicates.add(fieldPath.in(values));
+			}
+		}
+		String role = user.getUserRoleNameFk();
 
-	    if (!"IT Admin".equals(role)) {
-	        // Filter by contractor’s created documents
-	        predicates.add(cb.equal(root.get("createdBy"), user.getUserId()));
-	    }
-	    cq.multiselect(root, docFileJoin)
-	      .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])))
-	      .orderBy(cb.desc(root.get("updatedAt")));
+		if (!"IT Admin".equals(role)) {
+			// Filter by contractor’s created documents
+			predicates.add(cb.equal(root.get("createdBy"), user.getUserId()));
+		}
+		cq.multiselect(root, docFileJoin)
+				.where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])))
+				.orderBy(cb.desc(root.get("updatedAt")));
 
-	    var query = entityManager.createQuery(cq);
-	    query.setFirstResult(start);   // offset
-	    query.setMaxResults(length);   // limit
+		var query = entityManager.createQuery(cq);
+		query.setFirstResult(start); // offset
+		query.setMaxResults(length); // limit
 
-	    List<jakarta.persistence.Tuple> tuples = query.getResultList();
+		List<jakarta.persistence.Tuple> tuples = query.getResultList();
 
-	    return tuples.stream()
-	        .map(tuple -> {
-	            Document doc = tuple.get(root);
-	            DocumentFile file = tuple.get(docFileJoin);
-	            return convertToDTOWithSingleFile(doc, file);
-	        })
-	        .collect(Collectors.toList());
+		return tuples.stream().map(tuple -> {
+			Document doc = tuple.get(root);
+			DocumentFile file = tuple.get(docFileJoin);
+			return convertToDTOWithSingleFile(doc, file);
+		}).collect(Collectors.toList());
 	}
-	
+
 	private jakarta.persistence.criteria.Predicate filterExactDateTimeField(
-		    jakarta.persistence.criteria.CriteriaBuilder cb,
-		    jakarta.persistence.criteria.Path<LocalDateTime> path,
-		    List<String> dateTimeStrings
-		) {
-		    // Formatter with space between date and time (not 'T')
-		    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		    List<jakarta.persistence.criteria.Predicate> exactMatches = new ArrayList<>();
+			jakarta.persistence.criteria.CriteriaBuilder cb, jakarta.persistence.criteria.Path<LocalDateTime> path,
+			List<String> dateTimeStrings) {
+		// Formatter with space between date and time (not 'T')
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		List<jakarta.persistence.criteria.Predicate> exactMatches = new ArrayList<>();
 
-		    for (String dateTimeStr : dateTimeStrings) {
-		        try {
-		            // Parse string with space separator using custom formatter
-		            LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, formatter);
-		            exactMatches.add(cb.equal(path, dateTime));
-		        } catch (DateTimeParseException e) {
-		            // Log or ignore invalid date-time strings
-		            System.out.println("Invalid date-time format: " + dateTimeStr + " - " + e.getMessage());
-		        }
-		    }
-
-		    if (exactMatches.isEmpty()) {
-		        return cb.conjunction(); // Always true if no valid datetime found
-		    }
-
-		    // Combine predicates with OR (match any of the given dateTimes)
-		    return cb.or(exactMatches.toArray(new jakarta.persistence.criteria.Predicate[0]));
+		for (String dateTimeStr : dateTimeStrings) {
+			try {
+				// Parse string with space separator using custom formatter
+				LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, formatter);
+				exactMatches.add(cb.equal(path, dateTime));
+			} catch (DateTimeParseException e) {
+				// Log or ignore invalid date-time strings
+				System.out.println("Invalid date-time format: " + dateTimeStr + " - " + e.getMessage());
+			}
 		}
 
+		if (exactMatches.isEmpty()) {
+			return cb.conjunction(); // Always true if no valid datetime found
+		}
 
-	
-	@Override
-	public long countFilteredDocuments(Map<Integer, List<String>> columnFilters, User user) {
-	    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-	    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-	    Root<Document> root = countQuery.from(Document.class);
-
-	    // Join DocumentFile explicitly (you want duplicate rows per file)
-	    Join<Document, DocumentFile> docFileJoin = root.join("documentFiles", JoinType.LEFT);
-	    Join<Document, Folder> folderJoin = root.join("folder", JoinType.LEFT);
-	    Join<Document, SubFolder> subFolderJoin = root.join("subFolder", JoinType.LEFT);
-	    Join<Document, Department> departmentJoin = root.join("department", JoinType.LEFT);
-	    Join<Document, Status> statusJoin = root.join("currentStatus", JoinType.LEFT);
-
-	    List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	    DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-	    for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
-	        Integer columnIndex = entry.getKey();
-	        List<String> values = entry.getValue();
-
-	        if (values == null || values.isEmpty()) continue;
-
-	        String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
-	        if (path == null || path.isBlank()) continue;
-
-	        jakarta.persistence.criteria.Path<?> fieldPath;
-	        switch (path) {
-	            case "folder.name" -> fieldPath = folderJoin.get("name");
-	            case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
-	            case "department.name" -> fieldPath = departmentJoin.get("name");
-	            case "currentStatus.name" -> fieldPath = statusJoin.get("name");
-	            case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
-	            default -> fieldPath = root.get(path);
-	        }
-
-	        if ("revisionDate".equals(path) || "createdAt".equals(path)) {
-	            List<LocalDate> dates = new ArrayList<>();
-	            for (String dateStr : values) {
-	                try {
-	                    LocalDate date = LocalDate.parse(dateStr, formatter);
-	                    dates.add(date);
-	                } catch (DateTimeParseException e) {
-	                    // skip invalid dates or log
-	                }
-	            }
-
-	            if (!dates.isEmpty()) {
-	                predicates.add(fieldPath.in(dates));  // fieldPath must be Path<LocalDate>
-	            }
-	        }/* else if ("createdAt".equals(path)) {
-	        	predicates.add(filterExactDateTimeField(cb, (jakarta.persistence.criteria.Path<LocalDateTime>) fieldPath, values));
-	        }*/ else {
-	            predicates.add(fieldPath.in(values));
-	        }
-	    }
-	    
-	    String role = user.getUserRoleNameFk();
-
-	    if (!"IT Admin".equals(role)) {
-	        // Filter by contractor’s created documents
-	        predicates.add(cb.equal(root.get("createdBy"), user.getUserId()));
-	    }
-	    countQuery.select(cb.count(docFileJoin))
-	              .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
-
-	    return entityManager.createQuery(countQuery).getSingleResult();
+		// Combine predicates with OR (match any of the given dateTimes)
+		return cb.or(exactMatches.toArray(new jakarta.persistence.criteria.Predicate[0]));
 	}
 
+	@Override
+	public long countFilteredDocuments(Map<Integer, List<String>> columnFilters, User user) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+		Root<Document> root = countQuery.from(Document.class);
+
+		// Join DocumentFile explicitly (you want duplicate rows per file)
+		Join<Document, DocumentFile> docFileJoin = root.join("documentFiles", JoinType.LEFT);
+		Join<Document, Folder> folderJoin = root.join("folder", JoinType.LEFT);
+		Join<Document, SubFolder> subFolderJoin = root.join("subFolder", JoinType.LEFT);
+		Join<Document, Department> departmentJoin = root.join("department", JoinType.LEFT);
+		Join<Document, Status> statusJoin = root.join("currentStatus", JoinType.LEFT);
+
+		List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
+			Integer columnIndex = entry.getKey();
+			List<String> values = entry.getValue();
+
+			if (values == null || values.isEmpty())
+				continue;
+
+			String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
+			if (path == null || path.isBlank())
+				continue;
+
+			jakarta.persistence.criteria.Path<?> fieldPath;
+			switch (path) {
+			case "folder.name" -> fieldPath = folderJoin.get("name");
+			case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
+			case "department.name" -> fieldPath = departmentJoin.get("name");
+			case "currentStatus.name" -> fieldPath = statusJoin.get("name");
+			case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
+			default -> fieldPath = root.get(path);
+			}
+
+			if ("revisionDate".equals(path) || "createdAt".equals(path)) {
+				List<LocalDate> dates = new ArrayList<>();
+				for (String dateStr : values) {
+					try {
+						LocalDate date = LocalDate.parse(dateStr, formatter);
+						dates.add(date);
+					} catch (DateTimeParseException e) {
+						// skip invalid dates or log
+					}
+				}
+
+				if (!dates.isEmpty()) {
+					predicates.add(fieldPath.in(dates)); // fieldPath must be Path<LocalDate>
+				}
+			} /*
+				 * else if ("createdAt".equals(path)) {
+				 * predicates.add(filterExactDateTimeField(cb,
+				 * (jakarta.persistence.criteria.Path<LocalDateTime>) fieldPath, values)); }
+				 */ else {
+				predicates.add(fieldPath.in(values));
+			}
+		}
+
+		String role = user.getUserRoleNameFk();
+
+		if (!"IT Admin".equals(role)) {
+			// Filter by contractor’s created documents
+			predicates.add(cb.equal(root.get("createdBy"), user.getUserId()));
+		}
+		countQuery.select(cb.count(docFileJoin))
+				.where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
+
+		return entityManager.createQuery(countQuery).getSingleResult();
+	}
 
 	private DocumentGridDTO convertToDTOWithSingleFile(Document doc, DocumentFile file) {
-	    return DocumentGridDTO.builder()
-	        .fileName(doc.getFileName())
-	        .fileNumber(doc.getFileNumber())
-	        .revisionNumber(doc.getRevisionNo())
-	        .revisionDate(doc.getRevisionDate() != null ? doc.getRevisionDate().toString() : null)
-	        .folder(doc.getFolder() != null ? doc.getFolder().getName() : null)
-	        .subFolder(doc.getSubFolder() != null ? doc.getSubFolder().getName() : null)
-	        .department(doc.getDepartment() != null ? doc.getDepartment().getName() : null)
-	        .status(doc.getCurrentStatus() != null ? doc.getCurrentStatus().getName() : null)
-	       // .createdAt(doc.getCreatedAt() != null ? doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
-	        .dateUploaded(doc.getCreatedAt() != null ? doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
-	        .documentType("")
-	        .createdBy(doc.getCreatedBy())
-	        .viewedOrDownloaded("")
-	        // Add file info
-	        .fileType(file != null ? file.getFileType() : null)
-	        .projectName(doc.getProjectName())
-	        .contractName(doc.getContractName())
-	        .id(""+doc.getId())
-	        .viewedOrDownloaded(file.getFilePath())
-	        //.filePath(file != null ? file.getFilePath() : null)
-	        //.fileNameInFile(file != null ? file.getFileName() : null) // avoid name clash with doc.fileName
-	        .build();
+		return DocumentGridDTO.builder().fileName(doc.getFileName()).fileNumber(doc.getFileNumber())
+				.revisionNumber(doc.getRevisionNo())
+				.revisionDate(doc.getRevisionDate() != null ? doc.getRevisionDate().toString() : null)
+				.folder(doc.getFolder() != null ? doc.getFolder().getName() : null)
+				.subFolder(doc.getSubFolder() != null ? doc.getSubFolder().getName() : null)
+				.department(doc.getDepartment() != null ? doc.getDepartment().getName() : null)
+				.status(doc.getCurrentStatus() != null ? doc.getCurrentStatus().getName() : null)
+				// .createdAt(doc.getCreatedAt() != null ?
+				// doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
+				.dateUploaded(doc.getCreatedAt() != null ? doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
+				.documentType("").createdBy(doc.getCreatedBy()).viewedOrDownloaded("")
+				// Add file info
+				.fileType(file != null ? file.getFileType() : null).projectName(doc.getProjectName())
+				.contractName(doc.getContractName()).id("" + doc.getId()).viewedOrDownloaded(file.getFilePath())
+				// .filePath(file != null ? file.getFilePath() : null)
+				// .fileNameInFile(file != null ? file.getFileName() : null) // avoid name clash
+				// with doc.fileName
+				.build();
 	}
 
 	@Override
 	public long countAllFiles(User user) {
 		String role = user.getUserRoleNameFk();
 
-	    if (!"IT Admin".equals(role)) {
-		// TODO Auto-generated method stub
-	    	return documentRepository.countAllFiles(user.getUserId());
-	    } else {
-	    	return documentRepository.countAllFiles();
-	    }
+		if (!"IT Admin".equals(role)) {
+			// TODO Auto-generated method stub
+			return documentRepository.countAllFiles(user.getUserId());
+		} else {
+			return documentRepository.countAllFiles();
+		}
 	}
 
 	@Override
@@ -1064,33 +1068,94 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public String saveOrSendDocument(SendDocumentDTO dto, String userId) {
-		SendDocument sendDocument = mapDTOToSendDocument(dto,userId);
-		sendDocumentRepository.save(sendDocument);
-		if(dto.getStatus().equals("Send")) { // send email
-			
+	public String saveOrSendDocument(SendDocumentDTO dto, String userId, String baseUrl) {
+		SendDocument sendDocument = mapDTOToSendDocument(dto, userId);
+		sendDocument = sendDocumentRepository.save(sendDocument);
+		if (dto.getStatus().equals("Send")) { // send email
+			String host = emailHost; // e.g., smtp.gmail.com
+			final String username = emailUserName;
+			final String password = emailPassword; // or actual password (less secure)
+
+			// Email Properties
+			Properties props = new Properties();
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.starttls.enable", "true");
+			props.put("mail.smtp.host", host);
+			props.put("mail.smtp.port", "587");
+
+			// Create session
+			Session session = Session.getInstance(props, new Authenticator() {
+				protected PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(username, password);
+				}
+			});
+			try {
+				// Construct email
+				Message message = new MimeMessage(session);
+				message.setFrom(new InternetAddress(username));
+				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dto.getSendTo()));
+
+				// ✅ Set CC recipients
+				message.setRecipients(Message.RecipientType.CC,
+						InternetAddress.parse(dto.getSendCc()));
+				message.setSubject(dto.getSendSubject());
+				User userTo = userRepository.findByEmailId(sendDocument.getSendTo());
+				User sendBy = userRepository.findById(sendDocument.getCreatedBy()).get();
+				// HTML content (from your screenshot)
+				String htmlContent = String.format("""
+					    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd;">
+				        <div style="background-color: #004B87; color: white; padding: 15px; font-size: 20px; font-weight: bold;">
+				            New Document Notification
+				        </div>
+				        <div style="padding: 20px; color: #333;">
+				            <p>Dear %s,</p>
+				            <p><strong>%s</strong> has sent a document.</p>
+
+				            <table style="width: 100%%; margin-top: 15px; font-size: 14px;">
+				                <tr><td><strong>Reason</strong></td><td>: %s</td></tr>
+				                <tr><td><strong>Response Expected</strong></td><td>: %s</td></tr>
+				                <tr><td><strong>Target Date</strong></td><td>: %s</td></tr>
+				                <tr><td><strong>Attachments</strong></td><td>: %s</td></tr>
+				            </table>
+
+				            <p style="margin-top: 30px;">Regards,<br/>%s</p>
+				        </div>
+				        <div style="background-color: green; padding: 15px; text-align: center;">
+				            <a href="%s" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-right: 10px;">Document Location</a>
+				        </div>
+				    </div>
+				    """,
+				    userTo.getUserName(),      // %s → Dear <name>
+				    sendBy.getUserName(),
+				    sendDocument.getSendReason(),
+				    sendDocument.getResponseExpected(),
+				    sendDocument.getTargetResponseDate(),
+				    sendDocument.getAttachmentName(),
+				    sendBy.getUserName(),
+				    baseUrl + "/document.html"
+				    
+				    // %s → <sender> has sent a document
+				);
+				message.setContent(htmlContent, "text/html");
+
+				// Send message
+				Transport.send(message);
+				System.out.println("Email sent successfully!");
+
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
 		}
 		return "";
 	}
 
 	private SendDocument mapDTOToSendDocument(SendDocumentDTO dto, String userId) {
 		Document document = documentRepository.getById(dto.getDocId());
-		return SendDocument.builder()
-				.id(dto.getId())
-				.attachmentName(dto.getAttachmentName())
-				.document(document)
-				.sendTo(dto.getSendTo())
-				.sendToUserId(dto.getSendToUserId())
-				.sendCc(dto.getSendCc())
-				.sendCcUserId(dto.getSendCcUserId())
-				.sendSubject(dto.getSendSubject())
-				.sendReason(dto.getSendReason())
-				.responseExpected(dto.getResponseExpected())
-				.targetResponseDate(dto.getTargetResponseDate())
-				.status(dto.getStatus())
-				.createdBy(userId)
-				.build();
+		return SendDocument.builder().id(dto.getId()).attachmentName(dto.getAttachmentName()).document(document)
+				.sendTo(dto.getSendTo()).sendToUserId(dto.getSendToUserId()).sendCc(dto.getSendCc())
+				.sendCcUserId(dto.getSendCcUserId()).sendSubject(dto.getSendSubject()).sendReason(dto.getSendReason())
+				.responseExpected(dto.getResponseExpected()).targetResponseDate(dto.getTargetResponseDate())
+				.status(dto.getStatus()).createdBy(userId).build();
 	}
-
 
 }

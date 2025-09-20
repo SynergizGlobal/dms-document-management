@@ -10,4 +10,6 @@ import com.synergizglobal.dms.entity.pmis.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByUserNameContainingIgnoreCase(String userName);
+
+	User findByEmailId(String sendTo);
 }

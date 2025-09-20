@@ -1,6 +1,7 @@
 package com.synergizglobal.dms.controller.dms;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.DocumentService;
 import com.synergizglobal.dms.service.dms.SendDocumentService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -44,8 +46,7 @@ public class DocumentController {
 	private final DocumentService documentService;
 
 	private final SendDocumentService sendDocumentService;
-	
-	
+
 	@PostMapping(consumes = { "multipart/form-data" })
 	public ResponseEntity<?> uploadFileWithMetaData(@ModelAttribute DocumentDTO documentDto,
 			@RequestParam("files") List<MultipartFile> files, HttpSession session) {
@@ -65,11 +66,10 @@ public class DocumentController {
 		String msg = documentService.validateFileName(fileName, fileNumber);
 		return ResponseEntity.ok(msg);
 	}
-	
+
 	@GetMapping("/get/filePath")
-	public ResponseEntity<String> getFilePath(@RequestParam("fileName") String fileName
-			, @RequestParam("fileNumber") String fileNumber
-			, @RequestParam("revisionNo") String revisionNo) {
+	public ResponseEntity<String> getFilePath(@RequestParam("fileName") String fileName,
+			@RequestParam("fileNumber") String fileNumber, @RequestParam("revisionNo") String revisionNo) {
 		String msg = documentService.getFilePath(fileName, fileNumber, revisionNo);
 		return ResponseEntity.ok(msg);
 	}
@@ -117,25 +117,26 @@ public class DocumentController {
 		String msg = documentService.validateRevisionDate(revisionDate);
 		return ResponseEntity.ok(msg);
 	}
-	
+
 	@PostMapping("/filter-data")
-	public ResponseEntity<DataTableResponse<DocumentGridDTO>> getFilteredDocuments(@RequestBody DataTableRequest request, HttpSession session) {
-	    // Parse pagination
-	    int start = request.getStart();    // Offset
-	    int length = request.getLength();  // Page size
-	    int draw = request.getDraw();      // Sync token
-	    User user = (User) session.getAttribute("user");
-	    Map<Integer, List<String>> columnFilters = request.getColumnFilters();
-	    List<DocumentGridDTO> paginated =  documentService.getFilteredDocuments(columnFilters, start, length, user);
-	    long recordsFiltered = documentService.countFilteredDocuments(columnFilters, user);
+	public ResponseEntity<DataTableResponse<DocumentGridDTO>> getFilteredDocuments(
+			@RequestBody DataTableRequest request, HttpSession session) {
+		// Parse pagination
+		int start = request.getStart(); // Offset
+		int length = request.getLength(); // Page size
+		int draw = request.getDraw(); // Sync token
+		User user = (User) session.getAttribute("user");
+		Map<Integer, List<String>> columnFilters = request.getColumnFilters();
+		List<DocumentGridDTO> paginated = documentService.getFilteredDocuments(columnFilters, start, length, user);
+		long recordsFiltered = documentService.countFilteredDocuments(columnFilters, user);
 
-	    DataTableResponse<DocumentGridDTO> response = new DataTableResponse<>();
-	    response.setDraw(draw);
-	    response.setRecordsTotal(documentService.countAllFiles(user));       // Total in DB (optional: unfiltered)
-	    response.setRecordsFiltered(recordsFiltered);    // After filtering
-	    response.setData(paginated);
+		DataTableResponse<DocumentGridDTO> response = new DataTableResponse<>();
+		response.setDraw(draw);
+		response.setRecordsTotal(documentService.countAllFiles(user)); // Total in DB (optional: unfiltered)
+		response.setRecordsFiltered(recordsFiltered); // After filtering
+		response.setData(paginated);
 
-	    return ResponseEntity.ok(response);
+		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/filters/{columnIndex}")
@@ -171,7 +172,7 @@ public class DocumentController {
 			return ResponseEntity.ok(documentService.findGroupedCreatedBy());
 		}
 		if (columnIndex == 11) {
-			return null;//ResponseEntity.ok(documentService.findGroupedUploadedDate());
+			return null;// ResponseEntity.ok(documentService.findGroupedUploadedDate());
 		}
 		if (columnIndex == 12) {
 			return ResponseEntity.ok(documentService.findGroupedRevisionDate());
@@ -181,49 +182,50 @@ public class DocumentController {
 		}
 		return null;
 	}
-	
+
 	@GetMapping("/view")
 	public ResponseEntity<Resource> viewFile(@RequestParam("path") String path) throws IOException {
 		java.nio.file.Path filePath = java.nio.file.Paths.get(path);
-	    Resource resource = new UrlResource(filePath.toUri());
+		Resource resource = new UrlResource(filePath.toUri());
 
-	    if (!resource.exists()) {
-	        return ResponseEntity.notFound().build();
-	    }
+		if (!resource.exists()) {
+			return ResponseEntity.notFound().build();
+		}
 
-	    String mimeType = java.nio.file.Files.probeContentType(filePath);
-	    return ResponseEntity.ok()
-	        .contentType(MediaType.parseMediaType(mimeType))
-	        .body(resource);
+		String mimeType = java.nio.file.Files.probeContentType(filePath);
+		return ResponseEntity.ok().contentType(MediaType.parseMediaType(mimeType)).body(resource);
 	}
-	
+
 	@GetMapping("/download")
 	public ResponseEntity<Resource> downloadFile(@RequestParam("path") String path) throws IOException {
 		java.nio.file.Path filePath = java.nio.file.Paths.get(path);
-	    Resource resource = new UrlResource(filePath.toUri());
+		Resource resource = new UrlResource(filePath.toUri());
 
-	    if (!resource.exists()) {
-	        return ResponseEntity.notFound().build();
-	    }
+		if (!resource.exists()) {
+			return ResponseEntity.notFound().build();
+		}
 
-	    String fileName = filePath.getFileName().toString();
-	    return ResponseEntity.ok()
-	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-	        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-	        .body(resource);
+		String fileName = filePath.getFileName().toString();
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+				.contentType(MediaType.APPLICATION_OCTET_STREAM).body(resource);
 	}
-	
-	
+
 	@PostMapping("/send-document")
-	public ResponseEntity<String> saveOrSendDocument(@RequestBody SendDocumentDTO dto, HttpSession session) throws IOException {
+	public ResponseEntity<String> saveOrSendDocument(@RequestBody SendDocumentDTO dto, HttpSession session,
+			HttpServletRequest request) throws IOException {
 		User user = (User) session.getAttribute("user");
-		String response = documentService.saveOrSendDocument(dto, user.getUserId());
+		String baseUrl = request.getScheme() + "://" + // http / https
+				request.getServerName() + // domain or IP
+				":" + request.getServerPort() + // port
+				request.getContextPath(); // context path
+		String response = documentService.saveOrSendDocument(dto, user.getUserId(), baseUrl);
 		return ResponseEntity.ok("");
 	}
-	
+
 	@PostMapping("/drafts")
-    public DraftDataTableResponse<DraftSendDocumentDTO> getDrafts(@RequestBody DraftDataTableRequest request, HttpSession session) {
+	public DraftDataTableResponse<DraftSendDocumentDTO> getDrafts(@RequestBody DraftDataTableRequest request,
+			HttpSession session) {
 		User user = (User) session.getAttribute("user");
-        return sendDocumentService.getDrafts(request, user.getUserId());
-    }
+		return sendDocumentService.getDrafts(request, user.getUserId());
+	}
 }

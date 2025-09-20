@@ -79,5 +79,5 @@ public interface DocumentService {
 
 		public String getFilePath(String fileName, String fileNumber, String revisionNo);
 
-		public String saveOrSendDocument(SendDocumentDTO dto, String userId);
+		public String saveOrSendDocument(SendDocumentDTO dto, String userId, String baseUrl);
 }
