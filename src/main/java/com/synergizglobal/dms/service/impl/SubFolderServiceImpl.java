@@ -21,6 +21,12 @@ public class SubFolderServiceImpl  implements SubFolderService{
 		// TODO Auto-generated method stub
 		return subFolderRepository.findByFolderId(folderId);
 	}
+
+	@Override
+	public List<SubFolder> getsubfolderGridByFolderId(Long folderId, String userId) {
+		// TODO Auto-generated method stub
+		return subFolderRepository.getsubfolderGridByFolderId(folderId, userId);
+	}
     
 	
 }

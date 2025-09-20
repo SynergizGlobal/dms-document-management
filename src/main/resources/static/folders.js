@@ -1,7 +1,43 @@
 let currentView = 'folders';
 let searchVisible = false;
 let navigationStack = [];
+function loadSubFolders(folderid) {
+	fetch(`/dms/api/subfolders/grid/${encodeURIComponent(folderid)}`)
+	        .then(response => response.json())
+	        .then(folders => {
+	            const grid = document.querySelector(".folders-grid");
+	            grid.innerHTML = ""; // clear existing folders
 
+	            if (!folders || folders.length === 0) {
+	                grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
+	                return;
+	            }
+
+	            folders.forEach(folder => {
+	                const folderCard = document.createElement("div");
+	                folderCard.className = "folder-card";
+	                folderCard.onclick = () => openFolder(folder.id, "subfolder");
+
+	                folderCard.innerHTML = `
+	                    <div class="folder-icon">
+	                        <div class="folder-base">
+	                            <div class="folder-tab"></div>
+	                            <div class="folder-papers">
+	                                <div class="paper paper-1"></div>
+	                                <div class="paper paper-2"></div>
+	                                <div class="paper paper-3"></div>
+	                            </div>
+	                            <div class="folder-label"></div>
+	                        </div>
+	                    </div>
+	                    <div class="folder-title">${folder.name}</div>
+	                `;
+
+	                grid.appendChild(folderCard);
+	            });
+	        })
+	        .catch(err => console.error("Error loading folders:", err));
+}
 // Sample document data for correspondence
 const documentsData = {
 	inward: {
@@ -71,14 +107,15 @@ const documentsData = {
 	}
 };
 
-function openFolder(folderName) {
+function openFolder(folderid, type) {
 	// Add click animation
 	event.currentTarget.style.transform = 'scale(0.95)';
 	setTimeout(() => {
 		event.currentTarget.style.transform = 'translateY(-5px)';
 	}, 150);
-
-	if (folderName === 'drawings') {
+	if(type == "folder")
+		loadSubFolders(folderid);
+	/*if (folderName === 'drawings') {
 		showDrawingsView();
 	} else if (folderName === 'correspondence') {
 		showCorrespondenceView();
@@ -88,7 +125,7 @@ function openFolder(folderName) {
 		// For other folders, show alert
 		alert(`Opening ${folderName} folder...`);
 		console.log(`User clicked on ${folderName} folder`);
-	}
+	}*/
 }
 
 function openDrawingFolder(folderName) {
@@ -465,36 +502,101 @@ function createFilter(api, $dropdown, $toggle, $filterInput) {
 			);
 		});
 
-			// 🔹 Search inside dropdown
-			$dropdown.on("keyup", ".dropdown-search", function() {
-				const term = $(this).val().toLowerCase();
-				$dropdown.find("label").each(function() {
-					$(this).toggle($(this).text().toLowerCase().includes(term));
-				});
-			});
-
-			// 🔹 Handle selection
-			$dropdown.on("change", "input[type=checkbox]", function() {
-				let selected = [];
-				$dropdown.find("input:checked").each(function() {
-					selected.push($(this).val());
-				});
-				$filterInput.val(selected.join(", ")); // Show selected in input box
+		// 🔹 Search inside dropdown
+		$dropdown.on("keyup", ".dropdown-search", function() {
+			const term = $(this).val().toLowerCase();
+			$dropdown.find("label").each(function() {
+				$(this).toggle($(this).text().toLowerCase().includes(term));
 			});
 		});
 
-		// 🔹 Toggle dropdown open/close
-		$toggle.on("click", function() {
-			$dropdown.toggle();
+		// 🔹 Handle selection
+		$dropdown.on("change", "input[type=checkbox]", function() {
+			let selected = [];
+			$dropdown.find("input:checked").each(function() {
+				selected.push($(this).val());
+			});
+			$filterInput.val(selected.join(", ")); // Show selected in input box
 		});
+	});
 
-		// 🔹 Hide dropdown when clicking outside
-		$(document).on("click", function(e) {
-			if (!$(e.target).closest(".filter-container").length) {
-				$dropdown.hide();
-			}
-		});
+	// 🔹 Toggle dropdown open/close
+	$toggle.on("click", function() {
+		$dropdown.toggle();
+	});
+
+	// 🔹 Hide dropdown when clicking outside
+	$(document).on("click", function(e) {
+		if (!$(e.target).closest(".filter-container").length) {
+			$dropdown.hide();
+		}
+	});
 }
 createFilter(projectAPI, $projectDropdown, $projectToggle, $projectFilterInput);
 createFilter(contractAPI, $contractDropdown, $contractToggle, $contractFilterInput);
+let selectedProjects = [];
+let selectedContracts = [];
+$(document).on("change", ".filter-dropdown input[type='checkbox']", function() {
+	let container = $(this).closest(".filter-container");
+	let selected = [];
+
+	container.find("input[type='checkbox']:checked").each(function() {
+		selected.push($(this).val());
+	});
+
+	// Update input field with selected values
+	if (selected.length > 0) {
+		container.find("input[type='text']").val(selected.join(", "));
+	} else {
+		container.find("input[type='text']").val("");
+	}
+
+	// Save separately for project/contract
+	if (container.find("#projectFilter").length > 0) {
+		selectedProjects = selected;
+	}
+	if (container.find("#contractFilter").length > 0) {
+		selectedContracts = selected;
+	}
+	loadFolders(selectedProjects.join(','), selectedContracts.join(','));
+});
+function loadFolders(projectName, contractName) {
+    fetch(`/dms/api/folders/grid?project=${encodeURIComponent(projectName)}&contract=${encodeURIComponent(contractName)}`)
+        .then(response => response.json())
+        .then(folders => {
+            const grid = document.querySelector(".folders-grid");
+            grid.innerHTML = ""; // clear existing folders
+
+            if (!folders || folders.length === 0) {
+                grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
+                return;
+            }
+
+            folders.forEach(folder => {
+                const folderCard = document.createElement("div");
+                folderCard.className = "folder-card";
+                folderCard.onclick = () => openFolder(folder.id, "folder");
+
+                folderCard.innerHTML = `
+                    <div class="folder-icon">
+                        <div class="folder-base">
+                            <div class="folder-tab"></div>
+                            <div class="folder-papers">
+                                <div class="paper paper-1"></div>
+                                <div class="paper paper-2"></div>
+                                <div class="paper paper-3"></div>
+                            </div>
+                            <div class="folder-label"></div>
+                        </div>
+                    </div>
+                    <div class="folder-title">${folder.name}</div>
+                `;
+
+                grid.appendChild(folderCard);
+            });
+        })
+        .catch(err => console.error("Error loading folders:", err));
+}
+
+
 //////////////////

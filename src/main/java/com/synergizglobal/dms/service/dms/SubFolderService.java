@@ -10,4 +10,6 @@ public interface SubFolderService {
 
 	List<SubFolder> getSubFoldersByFolderId(Long folderId);
 
+	List<SubFolder> getsubfolderGridByFolderId(Long folderId, String userId);
+
 }

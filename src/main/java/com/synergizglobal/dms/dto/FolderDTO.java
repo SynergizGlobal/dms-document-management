@@ -9,6 +9,12 @@ public class FolderDTO {
 
     public FolderDTO() {}
 
+    public FolderDTO(Long id, String name) {
+        this.id = id;
+        this.name = name;
+        //this.subFolders = subFolders;
+    }
+    
     public FolderDTO(Long id, String name, List<SubFolderDTO> subFolders) {
         this.id = id;
         this.name = name;

@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synergizglobal.dms.entity.dms.SubFolder;
+import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.SubFolderService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,6 +25,12 @@ public class SubFolderController {
 	@GetMapping("/{folderId}")
     public ResponseEntity<List<SubFolder>> getSubFoldersByFolderId(@PathVariable("folderId") Long folderId) {
         return ResponseEntity.ok(subFolderService.getSubFoldersByFolderId(folderId));
+    }
+	
+	@GetMapping("/grid/{folderId}")
+    public ResponseEntity<List<SubFolder>> getsubfolderGridByFolderId(@PathVariable("folderId") Long folderId, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+		return ResponseEntity.ok(subFolderService.getsubfolderGridByFolderId(folderId, user.getUserId()));
     }
 
 }

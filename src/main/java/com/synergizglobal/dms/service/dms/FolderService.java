@@ -23,4 +23,6 @@ public interface FolderService {
     public void deleteSubFolder(Long subFolderId);
 
 	public FolderDTO getFolderByName(String name);
+
+	public List<FolderDTO> getAllFoldersByProjectsAndContracts(String project, String contract, String userId);
 }

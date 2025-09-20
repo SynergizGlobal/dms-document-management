@@ -1,5 +1,6 @@
 package com.synergizglobal.dms.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,6 +103,19 @@ public class FolderServiceImpl implements FolderService {
 					.map(sf -> new SubFolderDTO(sf.getId(), sf.getName())).collect(Collectors.toList()));
 		}
 		return null;
+	}
+
+	@Override
+	public List<FolderDTO> getAllFoldersByProjectsAndContracts(String project, String contract,String userId) {
+		// TODO Auto-generated method stub
+		List<Folder> folders = folderRepository.getAllFoldersByProjectsAndContracts(project, contract, userId);
+		List<FolderDTO> dtos = new ArrayList<>();
+		for(Folder folder : folders) {
+			FolderDTO dto = new FolderDTO(folder.getId(), folder.getName());
+			dtos.add(dto);
+		}
+		return dtos;
+		
 	}
 
 }

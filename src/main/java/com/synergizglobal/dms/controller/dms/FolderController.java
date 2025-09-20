@@ -11,10 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synergizglobal.dms.dto.FolderDTO;
+import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.FolderService;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/folders")
@@ -26,6 +30,12 @@ public class FolderController {
 		this.folderService = folderService;
 	}
 
+	@GetMapping("/grid")
+	public ResponseEntity<List<FolderDTO>> getAllFolders(@RequestParam("project") String project, @RequestParam("contract") String contract, HttpSession session) {
+		User user = (User) session.getAttribute("user");
+		return ResponseEntity.ok(folderService.getAllFoldersByProjectsAndContracts(project, contract, user.getUserId()));
+	}
+	
 	@GetMapping("/get")
 	public ResponseEntity<List<FolderDTO>> getAllFolders() {
 		return ResponseEntity.ok(folderService.getAllFolders());
