@@ -38,6 +38,43 @@ function loadSubFolders(folderid) {
 	        })
 	        .catch(err => console.error("Error loading folders:", err));
 }
+function loadFiles(folderid) {
+	fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`)
+	        .then(response => response.json())
+	        .then(folders => {
+	            const grid = document.querySelector(".folders-grid");
+	            grid.innerHTML = ""; // clear existing folders
+
+	            if (!folders || folders.length === 0) {
+	                grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
+	                return;
+	            }
+
+	            folders.forEach(folder => {
+	                const folderCard = document.createElement("div");
+	                folderCard.className = "folder-card";
+	                folderCard.onclick = () => openFolder(folder.filePath, "file");
+
+	                folderCard.innerHTML = `
+	                    <div class="folder-icon">
+	                        <div class="folder-base">
+	                            <div class="folder-tab"></div>
+	                            <div class="folder-papers">
+	                                <div class="paper paper-1"></div>
+	                                <div class="paper paper-2"></div>
+	                                <div class="paper paper-3"></div>
+	                            </div>
+	                            <div class="folder-label"></div>
+	                        </div>
+	                    </div>
+	                    <div class="folder-title">${folder.fileName}(${folder.fileType})</div>
+	                `;
+
+	                grid.appendChild(folderCard);
+	            });
+	        })
+	        .catch(err => console.error("Error loading folders:", err));
+}
 // Sample document data for correspondence
 const documentsData = {
 	inward: {
@@ -115,6 +152,10 @@ function openFolder(folderid, type) {
 	}, 150);
 	if(type == "folder")
 		loadSubFolders(folderid);
+	if(type == "subfolder")
+		loadFiles(folderid);
+	if(type == "file")
+		window.open(`/dms/api/documents/view?path=${encodeURIComponent(folderid)}`, "_blank");
 	/*if (folderName === 'drawings') {
 		showDrawingsView();
 	} else if (folderName === 'correspondence') {

@@ -8,6 +8,7 @@ import com.synergizglobal.dms.dto.DocumentGridDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.dto.DocumentDTO;
+import com.synergizglobal.dms.dto.DocumentFolderGridDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
 import com.synergizglobal.dms.dto.NotRequiredDTO;
 import com.synergizglobal.dms.dto.SaveMetaDataDto;
@@ -83,4 +84,6 @@ public interface DocumentService {
 		public String saveOrSendDocument(SendDocumentDTO dto, String userId, String baseUrl);
 
 		public void markNotRequired(NotRequiredDTO notRequiredDto, String userId);
+
+		public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId);
 }

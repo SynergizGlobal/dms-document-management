@@ -42,6 +42,7 @@ import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.constant.Constant;
 import com.synergizglobal.dms.dto.ContractDTO;
 import com.synergizglobal.dms.dto.DocumentDTO;
+import com.synergizglobal.dms.dto.DocumentFolderGridDTO;
 import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
 import com.synergizglobal.dms.dto.NotRequiredDTO;
@@ -1227,6 +1228,11 @@ public class DocumentServiceImpl implements DocumentService {
 
 		// Save (cascade will persist files too)
 		documentRepository.save(document);
+	}
+
+	@Override
+	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId) {
+		return documentRepository.getFilesForFolderGrid(subfolderId, userId);
 	}
 
 }

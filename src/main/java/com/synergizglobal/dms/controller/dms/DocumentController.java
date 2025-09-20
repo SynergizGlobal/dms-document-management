@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.synergizglobal.dms.dto.DataTableRequest;
 import com.synergizglobal.dms.dto.DataTableResponse;
 import com.synergizglobal.dms.dto.DocumentDTO;
+import com.synergizglobal.dms.dto.DocumentFolderGridDTO;
 import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.dto.DraftDataTableRequest;
 import com.synergizglobal.dms.dto.DraftDataTableResponse;
@@ -202,7 +203,14 @@ public class DocumentController {
 		String mimeType = java.nio.file.Files.probeContentType(filePath);
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(mimeType)).body(resource);
 	}
-
+	
+	
+	@GetMapping("/folder-grid/{subfolderId}")
+	public List<DocumentFolderGridDTO> getFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId, HttpSession session) throws IOException {
+		User user = (User) session.getAttribute("user");
+		return documentService.getFilesForFolderGrid(subfolderId, user.getUserId());
+	}
+	
 	@GetMapping("/download")
 	public ResponseEntity<Resource> downloadFile(@RequestParam("path") String path) throws IOException {
 		java.nio.file.Path filePath = java.nio.file.Paths.get(path);

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.synergizglobal.dms.dto.DocumentFolderGridDTO;
 import com.synergizglobal.dms.entity.dms.Document;
 
 public interface DocumentRepository extends JpaRepository<Document, Long> {
@@ -79,4 +80,22 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			+ "and d.file_number = :fileNumber\r\n"
 			+ "and d.revision_no = :revisionNo", nativeQuery = true)
 	String getFilePath(@Param("fileName")String fileName, @Param("fileNumber")String fileNumber,@Param("revisionNo") String revisionNo);
+
+	@Query(
+			value ="""
+			select
+distinct d.file_name as fileName,
+files.file_path as filePath,
+files.file_type as fileType
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id
+join dms.sub_folders sub on d.sub_folder_id = sub.id
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and sub.id = :subfolderId
+			"""
+			, nativeQuery = true)
+	List<DocumentFolderGridDTO> getFilesForFolderGrid(@Param("subfolderId") String subfolderId,@Param("userId") String userId);
 }
