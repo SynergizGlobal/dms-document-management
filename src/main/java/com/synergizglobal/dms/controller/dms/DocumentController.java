@@ -28,6 +28,7 @@ import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.dto.DraftDataTableRequest;
 import com.synergizglobal.dms.dto.DraftDataTableResponse;
 import com.synergizglobal.dms.dto.DraftSendDocumentDTO;
+import com.synergizglobal.dms.dto.NotRequiredDTO;
 import com.synergizglobal.dms.dto.SendDocumentDTO;
 import com.synergizglobal.dms.entity.pmis.User;
 //import com.synergizglobal.dms.service.dms.DepartmentService;
@@ -139,6 +140,12 @@ public class DocumentController {
 		return ResponseEntity.ok(response);
 	}
 
+	@PostMapping("/not-required")
+	public ResponseEntity<Long> markNotRequired(@RequestBody NotRequiredDTO dto, HttpSession session) {
+		User user = (User) session.getAttribute("user");
+		documentService.markNotRequired(dto, user.getUserId());
+		return ResponseEntity.ok(dto.getDocumentId());
+	}
 	@GetMapping("/filters/{columnIndex}")
 	public ResponseEntity<List<String>> filters(@PathVariable("columnIndex") Integer columnIndex) {
 		if (columnIndex == 1) {

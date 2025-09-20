@@ -1427,8 +1427,28 @@ $(document).ready(function() {
 				$('#versionModal').css('display', 'flex');
 				//showNotification('Viewing old versions: ' + fileName, 'info');
 				break;
-			case 'not-required':
-				showNotification('Marked as not required: ' + fileName, 'info');
+			case 'not-required':						
+				const dto = {
+					documentId: selectedDocumentId,  // must match your DTO field
+					folder: row.find('td:nth-child(8)').text(),
+					subFolder: row.find('td:nth-child(9)').text()
+				};
+
+				$.ajax({
+					url: "/dms/api/documents/not-required",   // matches your @PostMapping
+					type: "POST",
+					data: JSON.stringify(dto),
+					contentType: "application/json",
+					success: function(response) {
+						console.log("Marked as not required, response ID:", response);
+						alert("Document marked as not required!");
+					},
+					error: function(xhr) {
+						console.error("Error:", xhr.responseText);
+						alert("Failed to mark document as not required.");
+					}
+				});
+				//showNotification('Marked as not required: ' + fileName, 'info');
 				break;
 			case 'download':
 				//showNotification('Downloading: ' + fileName, 'info');

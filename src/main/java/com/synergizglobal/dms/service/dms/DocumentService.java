@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.dto.DocumentDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
+import com.synergizglobal.dms.dto.NotRequiredDTO;
 import com.synergizglobal.dms.dto.SaveMetaDataDto;
 import com.synergizglobal.dms.dto.SendDocumentDTO;
 import com.synergizglobal.dms.entity.pmis.User;
@@ -80,4 +81,6 @@ public interface DocumentService {
 		public String getFilePath(String fileName, String fileNumber, String revisionNo);
 
 		public String saveOrSendDocument(SendDocumentDTO dto, String userId, String baseUrl);
+
+		public void markNotRequired(NotRequiredDTO notRequiredDto, String userId);
 }

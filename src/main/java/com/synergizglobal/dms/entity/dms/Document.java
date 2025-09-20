@@ -79,7 +79,13 @@ public class Document {
 
 	@Column(name = "reason_for_update")
 	private String reasonForUpdate;
-
+	
+	@Column(name = "not_required")
+	private Boolean notRequired;
+	
+	@Column(name = "not_required_by")
+	private String notRequiredBy;
+	
 	@OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private List<DocumentFile> documentFiles;
 

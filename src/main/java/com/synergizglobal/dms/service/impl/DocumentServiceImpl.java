@@ -44,6 +44,7 @@ import com.synergizglobal.dms.dto.ContractDTO;
 import com.synergizglobal.dms.dto.DocumentDTO;
 import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.dto.MetaDataDto;
+import com.synergizglobal.dms.dto.NotRequiredDTO;
 import com.synergizglobal.dms.dto.ProjectDTO;
 import com.synergizglobal.dms.dto.SaveMetaDataDto;
 import com.synergizglobal.dms.dto.SendDocumentDTO;
@@ -1187,6 +1188,35 @@ public class DocumentServiceImpl implements DocumentService {
 				.sendCcUserId(dto.getSendCcUserId()).sendSubject(dto.getSendSubject()).sendReason(dto.getSendReason())
 				.responseExpected(dto.getResponseExpected()).targetResponseDate(dto.getTargetResponseDate())
 				.status(dto.getStatus()).createdBy(userId).build();
+	}
+
+	@Override
+	public void markNotRequired(NotRequiredDTO dto, String userId) {
+		Document document = documentRepository.findById(dto.getDocumentId()).get();
+		SubFolder subFolder = subFolderRepository.findByName(dto.getSubFolder()).get();
+		List<DocumentFile> archivedFiles = new ArrayList<>();
+		try {
+			archivedFiles = this.moveFilesToArchiveFolder(document.getDocumentFiles(), subFolder);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// ⚡ Fix: update existing collection in place
+		document.getDocumentFiles().clear();
+		for (int i = 0; i < archivedFiles.size(); i++) {
+		    DocumentFile archivedFile = archivedFiles.get(i);
+		    archivedFile.setDocument(document);
+		    documentFileRepository.save(archivedFile);
+		    //archivedFile.setId(document.getDocumentFiles().get(i).getId()); // keep same IDs
+		    document.getDocumentFiles().add(archivedFile);
+		}
+
+		// Update document flags
+		document.setNotRequired(Boolean.TRUE);
+		document.setNotRequiredBy(userId);
+
+		// Save (cascade will persist files too)
+		documentRepository.save(document);
 	}
 
 }
