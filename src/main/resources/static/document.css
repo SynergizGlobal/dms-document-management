@@ -2143,3 +2143,15 @@ table.dataTable tbody td {
   .select2-dropdown {
     z-index: 9999 !important;
   }
+  /* Selected tag styling in multi-select (Select2) */
+.select2-selection__choice {
+  background-color: #5bc0de !important; /* Light blue */
+  color: white !important;
+  border: none !important;
+}
+
+/* Optional: remove the small 'x' hover background */
+.select2-selection__choice__remove:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  color: white !important;
+}

@@ -430,10 +430,20 @@ $(document).ready(function() {
 			$('#sendDocId').val(data.docId);
 			$('#sendTo').val(data.sendTo);
 			$('#sendToUserId').val(data.sendToUserId);
-			const ccString = data.sendCc; // e.g., "a@example.com,b@example.com"
-			const ccArray = ccString ? ccString.split(',') : [];
+			// ✅ Your comma-separated email string
+			const $sendCc = $('#sendCc');
+			const emailString = data.sendCc;
 
-			$('#sendCc').val(ccArray).trigger('change');
+			// ✅ Convert to array and preload into Select2
+			const emailArray = emailString.split(',').map(email => email.trim());
+
+			emailArray.forEach(email => {
+				const option = new Option(email, email, true, true);
+				$sendCc.append(option);
+			});
+
+			// Tell Select2 to update
+			$sendCc.trigger('change');
 			$('#sendCcUserId').val(data.sendCcUserId);
 			$('#sendSubject').val(data.sendSubject);
 			$('#sendReason').val(data.sendReason);
