@@ -23,8 +23,18 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	@Query("SELECT distinct d.fileName FROM Document d GROUP BY d.fileName")
     List<String> findGroupedFileNames();
 	
-	@Query("SELECT DISTINCT df.fileType FROM Document d JOIN d.documentFiles df GROUP BY df.fileType")
-	List<String> findGroupedFileTypes();
+	@Query(value="""
+			select
+distinct files.file_type
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+			""", nativeQuery = true)
+	List<String> findGroupedFileTypes(@Param("userId") String userId);
 	
 	@Query("SELECT distinct d.fileNumber FROM Document d GROUP BY d.fileNumber")
 	List<String> findGroupedFileNumbers();

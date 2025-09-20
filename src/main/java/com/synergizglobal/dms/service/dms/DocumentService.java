@@ -49,7 +49,7 @@ public interface DocumentService {
 
 		public List<String> findGroupedFileNames();
 
-		public List<String> findGroupedFileTypes();
+		public List<String> findGroupedFileTypes(String userId);
 
 		public List<String> findGroupedFileNumbers();
 

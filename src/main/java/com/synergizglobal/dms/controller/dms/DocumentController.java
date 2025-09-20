@@ -148,9 +148,10 @@ public class DocumentController {
 		return ResponseEntity.ok(dto.getDocumentId());
 	}
 	@GetMapping("/filters/{columnIndex}")
-	public ResponseEntity<List<String>> filters(@PathVariable("columnIndex") Integer columnIndex) {
+	public ResponseEntity<List<String>> filters(@PathVariable("columnIndex") Integer columnIndex, HttpSession session) {
+		User user = (User) session.getAttribute("user");
 		if (columnIndex == 1) {
-			return ResponseEntity.ok(documentService.findGroupedFileTypes());
+			return ResponseEntity.ok(documentService.findGroupedFileTypes(user.getUserId()));
 		}
 		if (columnIndex == 2) {
 			return ResponseEntity.ok(documentService.findGroupedFileNumbers());

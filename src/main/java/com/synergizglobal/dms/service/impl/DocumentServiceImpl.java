@@ -781,8 +781,8 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<String> findGroupedFileTypes() {
-		return documentRepository.findGroupedFileTypes();
+	public List<String> findGroupedFileTypes(String userId) {
+		return documentRepository.findGroupedFileTypes(userId);
 	}
 
 	@Override
