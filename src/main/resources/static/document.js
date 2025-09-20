@@ -324,7 +324,8 @@ $(document).ready(function() {
 						$('#successMessage').text("Successfully uploaded " + files.length + " files(s)");
 						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
 
-						initializeDataTables();
+						//initializeDataTables();
+						mainTableInstance.ajax.reload(null, false); 
 					}
 				},
 				error: function(xhr, status, error) {
@@ -399,7 +400,7 @@ $(document).ready(function() {
 							'cursor': '',
 							'text-decoration': ''
 						});
-						initializeDataTables();
+						mainTableInstance.ajax.reload(null, false); 
 					},
 					error: function(xhr) {
 						console.error("Upload failed:", xhr.responseText);
@@ -486,6 +487,7 @@ $(document).ready(function() {
 		$('#sendDocumentsModal').css('display', 'flex');
 	}
 	function initDraftTable() {
+		$("#draftTableContainer").show();
 		draftTableInstance = $('#draftTable').DataTable({
 			serverSide: true,
 			processing: true,
@@ -693,6 +695,7 @@ $(document).ready(function() {
 					showNotification('Document sent successfully!', 'success');
 					$('#sendDocumentsModal').hide();
 					resetSendForm();
+					draftTableInstance.ajax.reload(null, false);
 				},
 				error: function(xhr) {
 					alert('Error sending document: ' + xhr.responseText);
@@ -728,9 +731,10 @@ $(document).ready(function() {
 				processData: false,  // Important for FormData
 				contentType: 'application/json',  // Important for FormData
 				success: function(response) {
-					showNotification('Document sent successfully!', 'success');
+					showNotification('Document saved successfully!', 'success');
 					$('#sendDocumentsModal').hide();
 					resetSendForm();
+					draftTableInstance.ajax.reload(null, false);
 				},
 				error: function(xhr) {
 					alert('Error sending document: ' + xhr.responseText);
@@ -1441,7 +1445,7 @@ $(document).ready(function() {
 					contentType: "application/json",
 					success: function(response) {
 						console.log("Marked as not required, response ID:", response);
-						alert("Document marked as not required!");
+						mainTableInstance.ajax.reload(null, false); 
 					},
 					error: function(xhr) {
 						console.error("Error:", xhr.responseText);

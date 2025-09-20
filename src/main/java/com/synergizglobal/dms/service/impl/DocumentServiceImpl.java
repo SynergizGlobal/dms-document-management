@@ -903,7 +903,12 @@ public class DocumentServiceImpl implements DocumentService {
 		        )
 		    );
 		}
-
+		predicates.add(
+			    cb.or(
+			        cb.isNull(root.get("notRequired")),
+			        cb.isFalse(root.get("notRequired"))
+			    )
+			); 
 		// 🔹 DISTINCT by fileName, fileNumber, and docFile.id using GROUP BY
 		cq.multiselect(
 		        root,                // Full Document
@@ -1027,7 +1032,12 @@ public class DocumentServiceImpl implements DocumentService {
 		        )
 		    );
 		}
-
+		predicates.add(
+			    cb.or(
+			        cb.isNull(root.get("notRequired")),
+			        cb.isFalse(root.get("notRequired"))
+			    )
+			);
 		// 🔹 Count DISTINCT by fileName, fileNumber, docFile.id
 		countQuery.select(
 		        cb.countDistinct(
