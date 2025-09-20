@@ -215,14 +215,20 @@ $(document).ready(function() {
 	// Field validation functions
 	function validateField(field) {
 		const $field = $(field);
-		const value = $field.val().trim();
+		let value = $field.val();
 		const fieldType = $field.attr('type');
 		const isVisible = $field.is(':visible');
 		const isRequired = isVisible && $field.closest('.form-group, .upload-form-section, .preview-form-section').find('label').text().includes('*');
 
 		$field.removeClass('error-field success-field');
 		$field.siblings('.error-message').removeClass('show');
-
+		if (Array.isArray(value)) {
+			value = value.filter(v => v.trim() !== '').join(','); // remove empty and join
+		} else if (typeof value === 'string') {
+			value = value.trim();
+		} else {
+			value = '';
+		}
 		if (isRequired && (!value || value === '')) {
 			$field.addClass('error-field');
 			$field.siblings('.error-message').addClass('show');
@@ -424,7 +430,10 @@ $(document).ready(function() {
 			$('#sendDocId').val(data.docId);
 			$('#sendTo').val(data.sendTo);
 			$('#sendToUserId').val(data.sendToUserId);
-			$('#sendCc').val(data.sendCc);
+			const ccString = data.sendCc; // e.g., "a@example.com,b@example.com"
+			const ccArray = ccString ? ccString.split(',') : [];
+
+			$('#sendCc').val(ccArray).trigger('change');
 			$('#sendCcUserId').val(data.sendCcUserId);
 			$('#sendSubject').val(data.sendSubject);
 			$('#sendReason').val(data.sendReason);
@@ -438,16 +447,16 @@ $(document).ready(function() {
 			let formattedDate = '';
 
 			if (Array.isArray(rawDate)) {
-			    // Convert [year, month, day] => yyyy-MM-dd
-			    const [year, month, day] = rawDate;
-			    formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+				// Convert [year, month, day] => yyyy-MM-dd
+				const [year, month, day] = rawDate;
+				formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 			} else if (typeof rawDate === 'string') {
-			    // If it's already a string like '2025-09-19', keep it
-			    formattedDate = rawDate;
+				// If it's already a string like '2025-09-19', keep it
+				formattedDate = rawDate;
 			} else if (rawDate instanceof Object) {
-			    // Handle JSON date format like { year: 2025, month: 9, day: 19 }
-			    const { year, month, day } = rawDate;
-			    formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+				// Handle JSON date format like { year: 2025, month: 9, day: 19 }
+				const { year, month, day } = rawDate;
+				formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 			}
 
 			// Now set it to the input
@@ -649,11 +658,11 @@ $(document).ready(function() {
 	$('#sendDocument').click(function() {
 		if (validateForm('#sendDocumentsModal')) {
 			const payload = {
-				id : $('#sendDocumentId').val(),
-				docId : $('#sendDocId').val(),
+				id: $('#sendDocumentId').val(),
+				docId: $('#sendDocId').val(),
 				sendTo: $('#sendTo').val(),
 				sendToUserId: $('#sendToUserId').val(),
-				sendCc: $('#sendCc').val(),
+				sendCc: $('#sendCc').val() ? $('#sendCc').val().join(',') : '',
 				sendCcUserId: $('#sendCcUserId').val(),
 				sendSubject: $('#sendSubject').val(),
 				sendReason: $('#sendReason').val(),
@@ -687,11 +696,11 @@ $(document).ready(function() {
 	$('#saveDraft').click(function() {
 		if (validateForm('#sendDocumentsModal')) {
 			let updatePayload = {
-				id : $('#sendDocumentId').val(),
-				docId :  $('#sendDocId').val(),
+				id: $('#sendDocumentId').val(),
+				docId: $('#sendDocId').val(),
 				sendTo: $('#sendTo').val(),
 				sendToUserId: $('#sendToUserId').val(),
-				sendCc: $('#sendCc').val(),
+				sendCc: $('#sendCc').val() ? $('#sendCc').val().join() : '',
 				sendCcUserId: $('#sendCcUserId').val(),
 				sendSubject: $('#sendSubject').val(),
 				sendReason: $('#sendReason').val(),
@@ -1690,7 +1699,7 @@ $(document).ready(function() {
 			}
 		});
 	});
-	$(function() {
+	/*$(function() {
 		$('#sendCc').autocomplete({
 			source: function(request, response) {
 				$.ajax({
@@ -1715,8 +1724,51 @@ $(document).ready(function() {
 				return false;
 			}
 		});
-	});
+	});*/
+	$(function() {
+		$('#sendCc').select2({
+			placeholder: 'Enter CC emails',
+			multiple: true,
+			tags: true, // Allow free-text email entry
+			minimumInputLength: 1,
 
+			ajax: {
+				url: '/dms/api/users/search',
+				dataType: 'json',
+				delay: 250,
+				data: function(params) {
+					return {
+						query: params.term // Pass 'query=term' as request param
+					};
+				},
+				processResults: function(data) {
+					return {
+						results: data.map(user => ({
+							id: user.emailId,
+							text: `${user.emailId} (${user.userName})`
+						}))
+					};
+				},
+				cache: true
+			},
+
+			// Custom tag creation (free-text email)
+			createTag: function(params) {
+				const term = $.trim(params.term);
+				const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+				if (emailRegex.test(term)) {
+					return {
+						id: term,
+						text: term,
+						newTag: true
+					};
+				}
+				return null; // Invalid email - don't allow
+			}
+		});
+	});
+	////////////
 
 	function showSendDocumentsModal() {
 		resetSendForm();
@@ -1962,7 +2014,7 @@ $(document).ready(function() {
 		$('#sendDocumentsModal .error-field').removeClass('error-field success-field');
 		$('#sendDocumentsModal .error-message').removeClass('show');
 		$('#sendDocumentId', "#sendDocId", '#sendToUserId', '#sendCcUserId').val('');
-		
+
 		$('#sendTo, #sendCc, #sendSubject, #sendReason').val('');
 		$('#responseExpected').val('');
 		$('#targetResponseDate').val('');
