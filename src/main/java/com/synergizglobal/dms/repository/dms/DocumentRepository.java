@@ -52,7 +52,14 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	@Query("SELECT COUNT(df.id) FROM Document d JOIN d.documentFiles df")
 	long countAllFiles();
 
-	@Query("SELECT COUNT(df.id) FROM Document d JOIN d.documentFiles df where d.createdBy=:userId")
+	@Query("""
+		    SELECT COUNT(DISTINCT df.id)
+		    FROM Document d
+		    JOIN d.documentFiles df
+		    LEFT JOIN d.sendDocument sd
+		    WHERE (d.createdBy = :userId
+		           OR sd.sendToUserId = :userId)
+		    """)
 	long countAllFiles(@Param("userId") String userId);
 	
 	@Query("SELECT distinct d.createdBy FROM Document d GROUP BY d.createdBy")

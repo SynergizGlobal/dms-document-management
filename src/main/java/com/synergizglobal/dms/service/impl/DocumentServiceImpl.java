@@ -833,84 +833,102 @@ public class DocumentServiceImpl implements DocumentService {
 		jakarta.persistence.criteria.Root<Document> root = cq.from(Document.class);
 
 		// Joins
-		jakarta.persistence.criteria.Join<Document, Folder> folderJoin = root.join("folder",
-				jakarta.persistence.criteria.JoinType.LEFT);
-		jakarta.persistence.criteria.Join<Document, SubFolder> subFolderJoin = root.join("subFolder",
-				jakarta.persistence.criteria.JoinType.LEFT);
-		jakarta.persistence.criteria.Join<Document, Department> departmentJoin = root.join("department",
-				jakarta.persistence.criteria.JoinType.LEFT);
-		jakarta.persistence.criteria.Join<Document, Status> statusJoin = root.join("currentStatus",
-				jakarta.persistence.criteria.JoinType.LEFT);
-		jakarta.persistence.criteria.Join<Document, DocumentFile> docFileJoin = root.join("documentFiles",
-				jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, Folder> folderJoin =
+		        root.join("folder", jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, SubFolder> subFolderJoin =
+		        root.join("subFolder", jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, Department> departmentJoin =
+		        root.join("department", jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, Status> statusJoin =
+		        root.join("currentStatus", jakarta.persistence.criteria.JoinType.LEFT);
+		jakarta.persistence.criteria.Join<Document, DocumentFile> docFileJoin =
+		        root.join("documentFiles", jakarta.persistence.criteria.JoinType.LEFT);
+
+		// 🔹 New LEFT JOIN with SendDocument
+		jakarta.persistence.criteria.Join<Document, SendDocument> sendDocJoin =
+		        root.join("sendDocument", jakarta.persistence.criteria.JoinType.LEFT);
 
 		List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
-			Integer columnIndex = entry.getKey();
-			List<String> values = entry.getValue();
+		    Integer columnIndex = entry.getKey();
+		    List<String> values = entry.getValue();
 
-			if (values == null || values.isEmpty())
-				continue;
+		    if (values == null || values.isEmpty()) continue;
 
-			String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
-			if (path == null || path.isBlank())
-				continue;
+		    String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
+		    if (path == null || path.isBlank()) continue;
 
-			jakarta.persistence.criteria.Path<?> fieldPath;
-			switch (path) {
-			case "folder.name" -> fieldPath = folderJoin.get("name");
-			case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
-			case "department.name" -> fieldPath = departmentJoin.get("name");
-			case "currentStatus.name" -> fieldPath = statusJoin.get("name");
-			case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
-			default -> fieldPath = root.get(path);
-			}
+		    jakarta.persistence.criteria.Path<?> fieldPath;
+		    switch (path) {
+		        case "folder.name" -> fieldPath = folderJoin.get("name");
+		        case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
+		        case "department.name" -> fieldPath = departmentJoin.get("name");
+		        case "currentStatus.name" -> fieldPath = statusJoin.get("name");
+		        case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
+		        case "sendDocument.sendTo" -> fieldPath = sendDocJoin.get("sendTo");
+		        case "sendDocument.sendToUserId" -> fieldPath = sendDocJoin.get("sendToUserId");
+		        default -> fieldPath = root.get(path);
+		    }
 
-			if ("revisionDate".equals(path) || "createdAt".equals(path)) {
-				List<LocalDate> dates = new ArrayList<>();
-				for (String dateStr : values) {
-					try {
-						LocalDate date = LocalDate.parse(dateStr, formatter);
-						dates.add(date);
-					} catch (DateTimeParseException e) {
-						// skip invalid dates or log
-					}
-				}
-
-				if (!dates.isEmpty()) {
-					predicates.add(fieldPath.in(dates)); // fieldPath must be Path<LocalDate>
-				}
-			} /*
-				 * else if ("createdAt".equals(path)) {
-				 * predicates.add(filterExactDateTimeField(cb,
-				 * (jakarta.persistence.criteria.Path<LocalDateTime>) fieldPath, values)); }
-				 */ else {
-				predicates.add(fieldPath.in(values));
-			}
+		    if ("revisionDate".equals(path) || "createdAt".equals(path)) {
+		        List<LocalDate> dates = new ArrayList<>();
+		        for (String dateStr : values) {
+		            try {
+		                LocalDate date = LocalDate.parse(dateStr, formatter);
+		                dates.add(date);
+		            } catch (DateTimeParseException e) {
+		                // skip invalid
+		            }
+		        }
+		        if (!dates.isEmpty()) {
+		            predicates.add(fieldPath.in(dates));
+		        }
+		    } else {
+		        predicates.add(fieldPath.in(values));
+		    }
 		}
+
 		String role = user.getUserRoleNameFk();
 
+		// 🔹 Restrict by creator or recipient if not IT Admin
 		if (!"IT Admin".equals(role)) {
-			// Filter by contractor’s created documents
-			predicates.add(cb.equal(root.get("createdBy"), user.getUserId()));
+		    predicates.add(
+		        cb.or(
+		            cb.equal(root.get("createdBy"), user.getUserId()),
+		            cb.equal(sendDocJoin.get("sendToUserId"), user.getUserId())
+		        )
+		    );
 		}
-		cq.multiselect(root, docFileJoin)
-				.where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])))
-				.orderBy(cb.desc(root.get("updatedAt")));
+
+		// 🔹 DISTINCT by fileName, fileNumber, and docFile.id using GROUP BY
+		cq.multiselect(
+		        root,                // Full Document
+		        docFileJoin          // DocumentFile
+		    )
+		    .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])))
+		    .groupBy(
+		        root.get("id"),
+		        root.get("fileName"),
+		        root.get("fileNumber")
+		    )
+		    .orderBy(cb.desc(root.get("updatedAt")));
 
 		var query = entityManager.createQuery(cq);
-		query.setFirstResult(start); // offset
-		query.setMaxResults(length); // limit
+		query.setFirstResult(start);  // pagination offset
+		query.setMaxResults(length);  // pagination limit
 
 		List<jakarta.persistence.Tuple> tuples = query.getResultList();
 
-		return tuples.stream().map(tuple -> {
-			Document doc = tuple.get(root);
-			DocumentFile file = tuple.get(docFileJoin);
-			return convertToDTOWithSingleFile(doc, file);
-		}).collect(Collectors.toList());
+		return tuples.stream()
+		    .map(tuple -> {
+		        Document doc = tuple.get(root);
+		        DocumentFile file = tuple.get(docFileJoin);
+		        return convertToDTOWithSingleFile(doc, file);
+		    })
+		    .collect(Collectors.toList());
 	}
 
 	private jakarta.persistence.criteria.Predicate filterExactDateTimeField(
@@ -945,70 +963,83 @@ public class DocumentServiceImpl implements DocumentService {
 		CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
 		Root<Document> root = countQuery.from(Document.class);
 
-		// Join DocumentFile explicitly (you want duplicate rows per file)
+		// Joins
 		Join<Document, DocumentFile> docFileJoin = root.join("documentFiles", JoinType.LEFT);
 		Join<Document, Folder> folderJoin = root.join("folder", JoinType.LEFT);
 		Join<Document, SubFolder> subFolderJoin = root.join("subFolder", JoinType.LEFT);
 		Join<Document, Department> departmentJoin = root.join("department", JoinType.LEFT);
 		Join<Document, Status> statusJoin = root.join("currentStatus", JoinType.LEFT);
 
+		// 🔹 New LEFT JOIN with SendDocument
+		Join<Document, SendDocument> sendDocJoin = root.join("sendDocument", JoinType.LEFT);
+
 		List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
-			Integer columnIndex = entry.getKey();
-			List<String> values = entry.getValue();
+		    Integer columnIndex = entry.getKey();
+		    List<String> values = entry.getValue();
 
-			if (values == null || values.isEmpty())
-				continue;
+		    if (values == null || values.isEmpty()) continue;
 
-			String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
-			if (path == null || path.isBlank())
-				continue;
+		    String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
+		    if (path == null || path.isBlank()) continue;
 
-			jakarta.persistence.criteria.Path<?> fieldPath;
-			switch (path) {
-			case "folder.name" -> fieldPath = folderJoin.get("name");
-			case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
-			case "department.name" -> fieldPath = departmentJoin.get("name");
-			case "currentStatus.name" -> fieldPath = statusJoin.get("name");
-			case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
-			default -> fieldPath = root.get(path);
-			}
+		    jakarta.persistence.criteria.Path<?> fieldPath;
+		    switch (path) {
+		        case "folder.name" -> fieldPath = folderJoin.get("name");
+		        case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
+		        case "department.name" -> fieldPath = departmentJoin.get("name");
+		        case "currentStatus.name" -> fieldPath = statusJoin.get("name");
+		        case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
+		        case "sendDocument.sendTo" -> fieldPath = sendDocJoin.get("sendTo");
+		        case "sendDocument.sendToUserId" -> fieldPath = sendDocJoin.get("sendToUserId");
+		        default -> fieldPath = root.get(path);
+		    }
 
-			if ("revisionDate".equals(path) || "createdAt".equals(path)) {
-				List<LocalDate> dates = new ArrayList<>();
-				for (String dateStr : values) {
-					try {
-						LocalDate date = LocalDate.parse(dateStr, formatter);
-						dates.add(date);
-					} catch (DateTimeParseException e) {
-						// skip invalid dates or log
-					}
-				}
-
-				if (!dates.isEmpty()) {
-					predicates.add(fieldPath.in(dates)); // fieldPath must be Path<LocalDate>
-				}
-			} /*
-				 * else if ("createdAt".equals(path)) {
-				 * predicates.add(filterExactDateTimeField(cb,
-				 * (jakarta.persistence.criteria.Path<LocalDateTime>) fieldPath, values)); }
-				 */ else {
-				predicates.add(fieldPath.in(values));
-			}
+		    if ("revisionDate".equals(path) || "createdAt".equals(path)) {
+		        List<LocalDate> dates = new ArrayList<>();
+		        for (String dateStr : values) {
+		            try {
+		                LocalDate date = LocalDate.parse(dateStr, formatter);
+		                dates.add(date);
+		            } catch (DateTimeParseException e) {
+		                // ignore invalid dates
+		            }
+		        }
+		        if (!dates.isEmpty()) {
+		            predicates.add(fieldPath.in(dates));
+		        }
+		    } else {
+		        predicates.add(fieldPath.in(values));
+		    }
 		}
 
 		String role = user.getUserRoleNameFk();
 
+		// 🔹 Apply user restrictions
 		if (!"IT Admin".equals(role)) {
-			// Filter by contractor’s created documents
-			predicates.add(cb.equal(root.get("createdBy"), user.getUserId()));
+		    predicates.add(
+		        cb.or(
+		            cb.equal(root.get("createdBy"), user.getUserId()),
+		            cb.equal(sendDocJoin.get("sendToUserId"), user.getUserId())
+		        )
+		    );
 		}
-		countQuery.select(cb.count(docFileJoin))
-				.where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
+
+		// 🔹 Count DISTINCT by fileName, fileNumber, docFile.id
+		countQuery.select(
+		        cb.countDistinct(
+		            cb.concat(
+		                cb.concat(root.get("fileName"), "-"),
+		                cb.concat(root.get("fileNumber"), "-")
+		            )
+		        )
+		    )
+		    .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
 
 		return entityManager.createQuery(countQuery).getSingleResult();
+
 	}
 
 	private DocumentGridDTO convertToDTOWithSingleFile(Document doc, DocumentFile file) {
