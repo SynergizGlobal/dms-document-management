@@ -5,6 +5,7 @@ $(document).ready(function() {
 	$.ajax({
 		url: `/dms/api/users/setsession`,
 		method: 'GET',
+		async: false,
 		data: { token: token }, // token as query param
 		success: function(response) {
 			console.log("Session set successfully:", response);
