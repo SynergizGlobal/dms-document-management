@@ -18,7 +18,7 @@ public interface SubFolderRepository extends JpaRepository<SubFolder, Long> {
 	Optional<SubFolder> findByName(String subFolder);
 	@Query(
 		value= """
-			select 
+		select 
 distinct sub.id,
 sub.name,
 f.id as folder_id
@@ -27,8 +27,8 @@ left join dms.send_documents s on s.document_id = d.id
 join dms.folders f on d.folder_id = f.id
 join dms.sub_folders sub on f.id = sub.folder_id and d.sub_folder_id = sub.id
 where 
-s.created_by = :userId
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId) 
+and d.not_required is null
 and f.id = :folderId
 			"""	
 			, nativeQuery = true)

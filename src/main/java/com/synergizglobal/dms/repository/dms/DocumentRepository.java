@@ -241,6 +241,7 @@ left join dms.send_documents s on s.document_id = d.id
 join dms.sub_folders sub on d.sub_folder_id = sub.id
 where
 (d.created_by = :userId or s.to_user_id = :userId)
+and d.not_required is null
 and sub.id = :subfolderId
 			"""
 			, nativeQuery = true)

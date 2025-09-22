@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.synergizglobal.dms.dto.ContractDTO;
 import com.synergizglobal.dms.entity.pmis.User;
+import com.synergizglobal.dms.service.dms.DocumentService;
 import com.synergizglobal.dms.service.pmis.ContractService;
 
 import jakarta.servlet.http.HttpSession;
@@ -21,9 +22,17 @@ public class ContractController {
 
     private final ContractService contractService;
 
+    private final DocumentService documentService;
+    
     @GetMapping("/get")
-    public ResponseEntity<List<ContractDTO>> getAllProjects(HttpSession session) {
+    public ResponseEntity<List<ContractDTO>> getAllContracts(HttpSession session) {
     	User user = (User) session.getAttribute("user");
     	return ResponseEntity.ok(contractService.getContracts(user.getUserId(), user.getUserRoleNameFk()));
+    }
+    
+    @GetMapping("/get/for-folder-grid")
+    public ResponseEntity<List<String>> findGroupedContractNames(HttpSession session) {
+    	User user = (User) session.getAttribute("user");
+    	return ResponseEntity.ok(documentService.findGroupedContractNames(user.getUserId()));
     }
 }

@@ -21,8 +21,8 @@ from dms.documents d
 left join dms.send_documents s on s.document_id = d.id
 join dms.folders f on d.folder_id = f.id
 where 
-s.created_by = :userId
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId) 
+and d.not_required is null
 and d.project_name in (:project)
 and d.contract_name in (:contract)
 			""", nativeQuery = true)

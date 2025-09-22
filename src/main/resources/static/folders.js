@@ -528,8 +528,8 @@ const $contractDropdown = $("#contractFilter");
 const $projectToggle = $(".projectfilter-dropdown-toggle");
 const $contractToggle = $(".contractfilter-dropdown-toggle");
 // 🔹 Fetch data from backend API
-const projectAPI = "/dms/api/projects/get"
-const contractAPI = "/dms/api/contracts/get"
+const projectAPI = "/dms/api/projects/get/for-folder-grid"
+const contractAPI = "/dms/api/contracts/get/for-folder-grid"
 
 function createFilter(api, $dropdown, $toggle, $filterInput) {
 	$.get(api, function(data) {
@@ -539,7 +539,7 @@ function createFilter(api, $dropdown, $toggle, $filterInput) {
 		// Populate checkbox list
 		data.forEach(item => {
 			$dropdown.append(
-				`<label><input type="checkbox" value="${item.id}"> ${item.name}</label>`
+				`<label><input type="checkbox" value="${item}"> ${item}</label>`
 			);
 		});
 
