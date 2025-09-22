@@ -776,8 +776,8 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<String> findGroupedFileNames() {
-		return documentRepository.findGroupedFileNames();
+	public List<String> findGroupedFileNames(String userId) {
+		return documentRepository.findGroupedFileNames(userId);
 	}
 
 	@Override
@@ -786,43 +786,43 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<String> findGroupedFileNumbers() {
-		return documentRepository.findGroupedFileNumbers();
+	public List<String> findGroupedFileNumbers(String userId) {
+		return documentRepository.findGroupedFileNumbers(userId);
 	}
 
 	@Override
-	public List<String> findGroupedRevisionNos() {
-		return documentRepository.findGroupedRevisionNos();
+	public List<String> findGroupedRevisionNos(String userId) {
+		return documentRepository.findGroupedRevisionNos(userId);
 	}
 
 	@Override
-	public List<String> findGroupedStatus() {
-		return documentRepository.findGroupedStatus();
+	public List<String> findGroupedStatus(String userId) {
+		return documentRepository.findGroupedStatus(userId);
 	}
 
 	@Override
-	public List<String> findGroupedFolders() {
-		return documentRepository.findGroupedFolders();
+	public List<String> findGroupedFolders(String userId) {
+		return documentRepository.findGroupedFolders(userId);
 	}
 
 	@Override
-	public List<String> findGroupedSubFolders() {
-		return documentRepository.findGroupedSubFolders();
+	public List<String> findGroupedSubFolders(String userId) {
+		return documentRepository.findGroupedSubFolders(userId);
 	}
 
 	@Override
-	public List<String> findGroupedUploadedDate() {
-		return documentRepository.findGroupedUploadedDate();
+	public List<String> findGroupedUploadedDate(String userId) {
+		return documentRepository.findGroupedUploadedDate(userId);
 	}
 
 	@Override
-	public List<String> findGroupedRevisionDate() {
-		return documentRepository.findGroupedRevisionDate();
+	public List<String> findGroupedRevisionDate(String userId) {
+		return documentRepository.findGroupedRevisionDate(userId);
 	}
 
 	@Override
-	public List<String> findGroupedDepartment() {
-		return documentRepository.findGroupedDepartment();
+	public List<String> findGroupedDepartment(String userId) {
+		return documentRepository.findGroupedDepartment(userId);
 	}
 
 	@Override
@@ -845,11 +845,14 @@ public class DocumentServiceImpl implements DocumentService {
 		        root.join("currentStatus", jakarta.persistence.criteria.JoinType.LEFT);
 		jakarta.persistence.criteria.Join<Document, DocumentFile> docFileJoin =
 		        root.join("documentFiles", jakarta.persistence.criteria.JoinType.LEFT);
-
+		
 		// 🔹 New LEFT JOIN with SendDocument
 		jakarta.persistence.criteria.Join<Document, SendDocument> sendDocJoin =
 		        root.join("sendDocument", jakarta.persistence.criteria.JoinType.LEFT);
-
+		
+		// Restrict the join to only rows where status = 'Send'
+		sendDocJoin.on(cb.equal(sendDocJoin.get("status"), "Send"));
+		
 		List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -979,7 +982,8 @@ public class DocumentServiceImpl implements DocumentService {
 
 		// 🔹 New LEFT JOIN with SendDocument
 		Join<Document, SendDocument> sendDocJoin = root.join("sendDocument", JoinType.LEFT);
-
+		// Restrict the join to only rows where status = 'Send'
+		sendDocJoin.on(cb.equal(sendDocJoin.get("status"), "Send"));
 		List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -1088,20 +1092,20 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<String> findGroupedCreatedBy() {
-		return documentRepository.findGroupedCreatedBy();
+	public List<String> findGroupedCreatedBy(String userId) {
+		return documentRepository.findGroupedCreatedBy(userId);
 	}
 
 	@Override
-	public List<String> findGroupedProjectNames() {
+	public List<String> findGroupedProjectNames(String userId) {
 		// TODO Auto-generated method stub
-		return documentRepository.findGroupedProjectNames();
+		return documentRepository.findGroupedProjectNames(userId);
 	}
 
 	@Override
-	public List<String> findGroupedContractNames() {
+	public List<String> findGroupedContractNames(String userId) {
 		// TODO Auto-generated method stub
-		return documentRepository.findGroupedContractNames();
+		return documentRepository.findGroupedContractNames(userId);
 	}
 
 	@Override

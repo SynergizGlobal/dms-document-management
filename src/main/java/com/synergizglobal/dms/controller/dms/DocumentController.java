@@ -154,40 +154,40 @@ public class DocumentController {
 			return ResponseEntity.ok(documentService.findGroupedFileTypes(user.getUserId()));
 		}
 		if (columnIndex == 2) {
-			return ResponseEntity.ok(documentService.findGroupedFileNumbers());
+			return ResponseEntity.ok(documentService.findGroupedFileNumbers(user.getUserId()));
 		}
 		if (columnIndex == 3) {
-			return ResponseEntity.ok(documentService.findGroupedFileNames());
+			return ResponseEntity.ok(documentService.findGroupedFileNames(user.getUserId()));
 		}
 		if (columnIndex == 4) {
-			return ResponseEntity.ok(documentService.findGroupedRevisionNos());
+			return ResponseEntity.ok(documentService.findGroupedRevisionNos(user.getUserId()));
 		}
 		if (columnIndex == 5) {
-			return ResponseEntity.ok(documentService.findGroupedStatus());
+			return ResponseEntity.ok(documentService.findGroupedStatus(user.getUserId()));
 		}
 		if (columnIndex == 6) {
-			return ResponseEntity.ok(documentService.findGroupedProjectNames());
+			return ResponseEntity.ok(documentService.findGroupedProjectNames(user.getUserId()));
 		}
 		if (columnIndex == 7) {
-			return ResponseEntity.ok(documentService.findGroupedContractNames());
+			return ResponseEntity.ok(documentService.findGroupedContractNames(user.getUserId()));
 		}
 		if (columnIndex == 8) {
-			return ResponseEntity.ok(documentService.findGroupedFolders());
+			return ResponseEntity.ok(documentService.findGroupedFolders(user.getUserId()));
 		}
 		if (columnIndex == 9) {
-			return ResponseEntity.ok(documentService.findGroupedSubFolders());
+			return ResponseEntity.ok(documentService.findGroupedSubFolders(user.getUserId()));
 		}
 		if (columnIndex == 10) {
-			return ResponseEntity.ok(documentService.findGroupedCreatedBy());
+			return ResponseEntity.ok(documentService.findGroupedCreatedBy(user.getUserId()));
 		}
 		if (columnIndex == 11) {
 			return null;// ResponseEntity.ok(documentService.findGroupedUploadedDate());
 		}
 		if (columnIndex == 12) {
-			return ResponseEntity.ok(documentService.findGroupedRevisionDate());
+			return ResponseEntity.ok(documentService.findGroupedRevisionDate(user.getUserId()));
 		}
 		if (columnIndex == 13) {
-			return ResponseEntity.ok(documentService.findGroupedDepartment());
+			return ResponseEntity.ok(documentService.findGroupedDepartment(user.getUserId()));
 		}
 		return null;
 	}

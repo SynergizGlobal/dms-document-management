@@ -20,67 +20,218 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	@EntityGraph(attributePaths = "documentFiles")
 	Optional<Document> findByFileName(String fileName);
 	
-	@Query("SELECT distinct d.fileName FROM Document d GROUP BY d.fileName")
-    List<String> findGroupedFileNames();
+	
+	@Query(value="""
+			select
+distinct d.file_name
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+    List<String> findGroupedFileNames(@Param("userId") String userId);
 	
 	@Query(value="""
 			select
 distinct files.file_type
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
-left join dms.send_documents s on s.document_id = d.id
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
 (s.to_user_id = :userId or s.to_user_id is null)
 and d.created_by = :userId
 and files.file_type is not null
+and d.not_required is null
 			""", nativeQuery = true)
 	List<String> findGroupedFileTypes(@Param("userId") String userId);
 	
-	@Query("SELECT distinct d.fileNumber FROM Document d GROUP BY d.fileNumber")
-	List<String> findGroupedFileNumbers();
+	@Query(value="""
+			select
+distinct d.file_number
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedFileNumbers(@Param("userId") String userId);
 	
-	@Query("SELECT distinct d.revisionNo FROM Document d GROUP BY d.revisionNo")
-	List<String> findGroupedRevisionNos();
+	@Query(value="""
+			select
+distinct d.revision_no
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedRevisionNos(@Param("userId") String userId);
 	
-	@Query("SELECT DISTINCT ds.name FROM Document d JOIN d.currentStatus ds GROUP BY d.currentStatus")
-	List<String> findGroupedStatus();
+	@Query(value="""
+			select
+distinct st.name
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.statuses st on st.id = d.status_id
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedStatus(@Param("userId") String userId);
 	
-	@Query("SELECT DISTINCT ds.name FROM Document d JOIN d.folder ds GROUP BY d.folder")
-	List<String> findGroupedFolders();
+	@Query(value="""
+			select
+distinct f.name
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.folders f on f.id = d.folder_id
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedFolders(@Param("userId") String userId);
 	
-	@Query("SELECT DISTINCT ds.name FROM Document d JOIN d.subFolder ds GROUP BY d.subFolder")
-	List<String> findGroupedSubFolders();
+	@Query(value="""
+			select
+distinct sub.name
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.sub_folders sub on sub.id = d.sub_folder_id
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedSubFolders(@Param("userId") String userId);
 
-	@Query("SELECT distinct DATE_FORMAT(d.createdAt, '%Y-%m-%d') FROM Document d GROUP BY DATE_FORMAT(d.createdAt, '%Y-%m-%d')")
-	List<String> findGroupedUploadedDate();
+	@Query(value="""
+			select
+distinct DATE_FORMAT(d.created_at, '%Y-%m-%d')
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedUploadedDate(@Param("userId") String userId);
 	
-	@Query("SELECT distinct DATE_FORMAT(d.revisionDate, '%Y-%m-%d') FROM Document d GROUP BY d.revisionDate")
-	List<String> findGroupedRevisionDate();
+	@Query(value="""
+			select
+distinct DATE_FORMAT(d.revision_date, '%Y-%m-%d')
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedRevisionDate(@Param("userId") String userId);
 
-	@Query("SELECT DISTINCT ds.name FROM Document d JOIN d.department ds GROUP BY d.department")
-	List<String> findGroupedDepartment();
+	@Query(value="""
+			select
+distinct dpt.name
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.departments dpt on dpt.id = d.department_id
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedDepartment(@Param("userId") String userId);
 	
-	@Query("SELECT COUNT(df.id) FROM Document d JOIN d.documentFiles df")
+	@Query(value ="""
+			   select
+	count(distinct d.id)
+	from dms.documents d
+	left join dms.document_file files on files.document_id = d.id 
+	left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+	where
+	 d.not_required is null
+			    """, nativeQuery = true)
 	long countAllFiles();
 
-	@Query("""
-		    SELECT COUNT(DISTINCT df.id)
-		    FROM Document d
-		    JOIN d.documentFiles df
-		    LEFT JOIN d.sendDocument sd
-		    WHERE (d.createdBy = :userId
-		           OR sd.sendToUserId = :userId)
-		    """)
+	@Query(value ="""
+		   select
+count(distinct d.id)
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.departments dpt on dpt.id = d.department_id
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+		    """, nativeQuery = true)
 	long countAllFiles(@Param("userId") String userId);
 	
-	@Query("SELECT distinct d.createdBy FROM Document d GROUP BY d.createdBy")
-	List<String> findGroupedCreatedBy();
+	@Query(value="""
+			select
+distinct d.created_by
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedCreatedBy(@Param("userId") String userId);
 
-	@Query("SELECT distinct d.projectName FROM Document d GROUP BY d.projectName")
-	List<String> findGroupedProjectNames();
+	@Query(value="""
+			select
+distinct d.project_name
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedProjectNames(@Param("userId") String userId);
 
-	@Query("SELECT distinct d.contractName FROM Document d GROUP BY d.contractName")
-	List<String> findGroupedContractNames();
+	@Query(value="""
+			select
+distinct d.contract_name
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+where
+(s.to_user_id = :userId or s.to_user_id is null)
+and d.created_by = :userId
+and files.file_type is not null
+and d.not_required is null
+			""", nativeQuery = true)
+	List<String> findGroupedContractNames(@Param("userId") String userId);
 	
 	@Query(value = "select \r\n"
 			+ "f.file_path\r\n"

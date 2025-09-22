@@ -47,35 +47,35 @@ public interface DocumentService {
 
 		public Long getMetadata(String string);
 
-		public List<String> findGroupedFileNames();
+		public List<String> findGroupedFileNames(String userId);
 
 		public List<String> findGroupedFileTypes(String userId);
 
-		public List<String> findGroupedFileNumbers();
+		public List<String> findGroupedFileNumbers(String string);
 
-		public List<String> findGroupedRevisionNos();
+		public List<String> findGroupedRevisionNos(String userId);
 		
-		public List<String> findGroupedStatus();
+		public List<String> findGroupedStatus(String userId);
 		
-		public List<String> findGroupedFolders();
+		public List<String> findGroupedFolders(String userId);
 		
-		public List<String> findGroupedSubFolders();
+		public List<String> findGroupedSubFolders(String userId);
 
-		public List<String> findGroupedUploadedDate();
+		public List<String> findGroupedUploadedDate(String userId);
 		
-		public List<String> findGroupedRevisionDate();
+		public List<String> findGroupedRevisionDate(String userId);
 
-		public List<String> findGroupedDepartment();
+		public List<String> findGroupedDepartment(String userId);
 
 		public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, int length, User user);
 
 		public long countFilteredDocuments(Map<Integer, List<String>> columnFilters, User user);
 
-		public List<String> findGroupedCreatedBy();
+		public List<String> findGroupedCreatedBy(String userId);
 
-		public List<String> findGroupedProjectNames();
+		public List<String> findGroupedProjectNames(String userId);
 
-		public List<String> findGroupedContractNames();
+		public List<String> findGroupedContractNames(String userId);
 
 		public long countAllFiles(User user);
 
