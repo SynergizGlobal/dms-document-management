@@ -744,8 +744,8 @@ $(document).on("change", ".filter-dropdown input[type='checkbox']", function() {
 	// Usage
 	//const projectStr = toSqlInClause(selectedProjects);
 	//const contractStr = toSqlInClause(selectedContracts);
-
 	loadFolders(selectedProjects, selectedContracts);
+	
 });
 
 // Convert array into string with quotes
@@ -775,7 +775,8 @@ function loadFolders(projects, contracts) {
 			grid.innerHTML = ""; // clear existing folders
 
 			if (!folders || folders.length === 0) {
-				grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
+				//grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
+				loadCorrespondence();
 				return;
 			}
 
@@ -805,6 +806,7 @@ function loadFolders(projects, contracts) {
 		})
 		.catch(err => console.error("Error loading folders:", err));
 }
+//loadCorrespondence();
 function loadCorrespondence() {
 	const grid = document.querySelector(".folders-grid");
 	//grid.innerHTML = ""; // clear existing folders
