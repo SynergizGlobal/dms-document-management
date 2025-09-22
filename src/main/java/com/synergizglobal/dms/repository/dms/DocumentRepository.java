@@ -28,8 +28,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -42,8 +41,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -56,8 +54,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -70,8 +67,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -85,8 +81,7 @@ left join dms.document_file files on files.document_id = d.id
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.statuses st on st.id = d.status_id
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -100,8 +95,7 @@ left join dms.document_file files on files.document_id = d.id
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.folders f on f.id = d.folder_id
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -129,8 +123,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -143,8 +136,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -158,8 +150,7 @@ left join dms.document_file files on files.document_id = d.id
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.departments dpt on dpt.id = d.department_id
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -184,8 +175,7 @@ left join dms.document_file files on files.document_id = d.id
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.departments dpt on dpt.id = d.department_id
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId) 
 and files.file_type is not null
 and d.not_required is null
 		    """, nativeQuery = true)
@@ -198,8 +188,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -212,8 +201,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -226,8 +214,7 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -253,8 +240,7 @@ left join dms.document_file files on files.document_id = d.id
 left join dms.send_documents s on s.document_id = d.id
 join dms.sub_folders sub on d.sub_folder_id = sub.id
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or s.to_user_id = :userId)
 and sub.id = :subfolderId
 			"""
 			, nativeQuery = true)

@@ -900,12 +900,15 @@ public class DocumentServiceImpl implements DocumentService {
 
 		// 🔹 Restrict by creator or recipient if not IT Admin
 		if (!"IT Admin".equals(role)) {
-		    predicates.add(
-		        cb.or(
-		            cb.equal(root.get("createdBy"), user.getUserId()),
-		            cb.equal(sendDocJoin.get("sendToUserId"), user.getUserId())
-		        )
+			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("createdBy"), user.getUserId());
+
+			jakarta.persistence.criteria.Predicate sentToUser = cb.and(
+		        cb.equal(sendDocJoin.get("sendToUserId"), user.getUserId()),
+		        cb.equal(sendDocJoin.get("status"), "Send")
 		    );
+
+		    // Wrap OR in parentheses
+		    predicates.add(cb.or(createdByUser, sentToUser));
 		}
 		predicates.add(
 			    cb.or(
@@ -1030,12 +1033,15 @@ public class DocumentServiceImpl implements DocumentService {
 
 		// 🔹 Apply user restrictions
 		if (!"IT Admin".equals(role)) {
-		    predicates.add(
-		        cb.or(
-		            cb.equal(root.get("createdBy"), user.getUserId()),
-		            cb.equal(sendDocJoin.get("sendToUserId"), user.getUserId())
-		        )
+			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("createdBy"), user.getUserId());
+
+			jakarta.persistence.criteria.Predicate sentToUser = cb.and(
+		        cb.equal(sendDocJoin.get("sendToUserId"), user.getUserId()),
+		        cb.equal(sendDocJoin.get("status"), "Send")
 		    );
+
+		    // Wrap OR in parentheses
+		    predicates.add(cb.or(createdByUser, sentToUser));
 		}
 		predicates.add(
 			    cb.or(
