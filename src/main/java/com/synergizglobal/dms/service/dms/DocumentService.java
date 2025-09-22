@@ -86,4 +86,6 @@ public interface DocumentService {
 		public void markNotRequired(NotRequiredDTO notRequiredDto, String userId);
 
 		public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId);
+
+		public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, String userId);
 }

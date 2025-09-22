@@ -212,6 +212,12 @@ public class DocumentController {
 		return documentService.getFilesForFolderGrid(subfolderId, user.getUserId());
 	}
 	
+	@GetMapping("/archived/folder-grid/{subfolderId}")
+	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId, HttpSession session) throws IOException {
+		User user = (User) session.getAttribute("user");
+		return documentService.getArvhivedFilesForFolderGrid(subfolderId, user.getUserId());
+	}
+	
 	@GetMapping("/download")
 	public ResponseEntity<Resource> downloadFile(@RequestParam("path") String path) throws IOException {
 		java.nio.file.Path filePath = java.nio.file.Paths.get(path);

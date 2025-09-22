@@ -234,7 +234,8 @@ and d.not_required is null
 			select
 distinct d.file_name as fileName,
 files.file_path as filePath,
-files.file_type as fileType
+files.file_type as fileType,
+d.revision_no as revisionNo
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id
@@ -246,4 +247,33 @@ and sub.id = :subfolderId
 			"""
 			, nativeQuery = true)
 	List<DocumentFolderGridDTO> getFilesForFolderGrid(@Param("subfolderId") String subfolderId,@Param("userId") String userId);
+
+	@Query(
+			value ="""
+			select 
+distinct d.file_name as fileName,
+f.file_path as filePath,
+f.file_type as fileType,
+d.revision_no as revisionNo
+from dms.documents d
+left join dms.send_documents s on s.document_id = d.id
+join dms.document_file f on f.document_id = d.id
+join dms.sub_folders sub on sub.id = d.sub_folder_id
+where d.not_required = 1
+and (d.created_by = :userId or s.to_user_id = :userId)
+and sub.id = :subfolderId
+union
+select 
+distinct d.file_name as fileName,
+f.file_path as filePath,
+f.file_type as fileType,
+d.revision_no as revisionNo
+from dms.documents_revision d
+join dms.document_file f on f.document_revision_id = d.id
+join dms.sub_folders sub on sub.id = d.sub_folder_id
+and (d.created_by = :userId)
+and sub.id = :subfolderId
+			"""
+			, nativeQuery = true)
+	List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(@Param("subfolderId") String subfolderId,@Param("userId") String userId);
 }
