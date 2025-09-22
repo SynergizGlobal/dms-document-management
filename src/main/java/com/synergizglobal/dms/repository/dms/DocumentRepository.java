@@ -276,4 +276,133 @@ and sub.id = :subfolderId
 			"""
 			, nativeQuery = true)
 	List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(@Param("subfolderId") String subfolderId,@Param("userId") String userId);
+	
+	@Query(
+			value ="""
+			select 
+distinct 
+f.file_type as fileType
+from dms.documents d
+left join dms.document_file f on f.document_id = d.id
+where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllFileTypes();
+	@Query(
+			value ="""
+			select 
+distinct 
+d.file_number
+from dms.documents d
+where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllFileNumbers();
+
+	@Query(
+			value ="""
+			select 
+distinct 
+d.file_name
+from dms.documents d
+where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllFileNames();
+	@Query(
+			value ="""
+				select 
+distinct 
+d.revision_no
+from dms.documents d
+where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllRevisionNos();
+	@Query(
+			value ="""
+			select 
+distinct 
+st.name
+from dms.documents d
+join dms.statuses st on st.id = d.status_id
+where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllStatus();
+	
+	@Query(
+			value ="""
+select 
+	distinct 
+	d.project_name
+	from dms.documents d
+	where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllProjectNamesByDocument();
+	@Query(
+			value ="""
+select 
+	distinct 
+	d.contract_name
+	from dms.documents d
+	where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllContractNamesByDocument();
+	@Query(
+			value ="""
+    select 
+	distinct 
+	f.name
+	from dms.documents d
+    join dms.folders f on f.id = d.folder_id
+	where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllFoldersByDocument();
+	@Query(
+			value ="""
+    select 
+	distinct 
+	f.name
+	from dms.documents d
+    join dms.sub_folders f on f.id = d.sub_folder_id
+	where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllSubFoldersByDocument();
+    
+	@Query(
+			value ="""
+   select 
+	distinct 
+	d.created_by
+	from dms.documents d
+	where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllCreatedByDocument();
+	@Query(
+			value ="""
+   select 
+	distinct 
+	d.revision_date
+	from dms.documents d
+	where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllRevisionDateByDocument();
+	@Query(
+			value ="""
+    select 
+	distinct 
+	dpt.name
+	from dms.documents d
+    join dms.departments dpt on dpt.id = d.department_id
+	where d.not_required is null
+			"""
+			, nativeQuery = true)
+	List<String> findAllDepartmentByDocument();
 }

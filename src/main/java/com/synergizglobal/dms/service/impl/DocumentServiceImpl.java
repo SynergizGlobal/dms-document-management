@@ -1251,4 +1251,76 @@ public class DocumentServiceImpl implements DocumentService {
 		return documentRepository.getArvhivedFilesForFolderGrid(subfolderId, userId);
 	}
 
+	@Override
+	public List<String> findAllFileTypes() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllFileTypes();
+	}
+
+	@Override
+	public List<String> findAllFileNumbers() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllFileNumbers();
+	}
+
+	@Override
+	public List<String> findAllFileNames() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllFileNames();
+	}
+
+	@Override
+	public List<String> findAllRevisionNos() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllRevisionNos();
+	}
+
+	@Override
+	public List<String> findAllStatus() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllStatus();
+	}
+
+	@Override
+	public List<String> findAllProjectNamesByDocument() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllProjectNamesByDocument();
+	}
+
+	@Override
+	public List<String> findAllContractNamesByDocument() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllContractNamesByDocument();
+	}
+
+	@Override
+	public List<String> findAllFoldersByDocument() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllFoldersByDocument();
+	}
+
+	@Override
+	public List<String> findAllSubFoldersByDocument() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllSubFoldersByDocument();
+	}
+
+	@Override
+	public List<String> findAllCreatedByDocument() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllCreatedByDocument();
+	}
+
+	@Override
+	public List<String> findAllRevisionDateByDocument() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllRevisionDateByDocument();
+	}
+
+	@Override
+	public List<String> findAllDepartmentByDocument() {
+		// TODO Auto-generated method stub
+		return documentRepository.findAllDepartmentByDocument();
+	}
+
 }

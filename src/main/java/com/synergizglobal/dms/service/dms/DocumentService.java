@@ -88,4 +88,28 @@ public interface DocumentService {
 		public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId);
 
 		public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, String userId);
+
+		public List<String> findAllFileTypes();
+
+		public List<String> findAllFileNumbers();
+
+		public List<String> findAllFileNames();
+
+		public List<String> findAllRevisionNos();
+
+		public List<String> findAllStatus();
+
+		public List<String> findAllProjectNamesByDocument();
+
+		public List<String> findAllContractNamesByDocument();
+
+		public List<String> findAllFoldersByDocument();
+
+		public List<String> findAllSubFoldersByDocument();
+
+		public List<String> findAllCreatedByDocument();
+
+		public List<String> findAllRevisionDateByDocument();
+
+		public List<String> findAllDepartmentByDocument();
 }
