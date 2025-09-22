@@ -118,4 +118,16 @@ public class FolderServiceImpl implements FolderService {
 		
 	}
 
+	@Override
+	public List<FolderDTO> getAllFoldersByProjectsAndContracts(List<String> projects, List<String> contracts) {
+		List<Folder> folders = folderRepository.getAllFoldersByProjectsAndContracts(projects, contracts);
+		List<FolderDTO> dtos = new ArrayList<>();
+		for(Folder folder : folders) {
+			FolderDTO dto = new FolderDTO(folder.getId(), folder.getName());
+			dtos.add(dto);
+		}
+		return dtos;
+		
+	}
+
 }

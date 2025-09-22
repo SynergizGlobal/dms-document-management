@@ -147,94 +147,95 @@ public class DocumentController {
 		documentService.markNotRequired(dto, user.getUserId());
 		return ResponseEntity.ok(dto.getDocumentId());
 	}
+
 	@GetMapping("/filters/{columnIndex}")
 	public ResponseEntity<List<String>> filters(@PathVariable("columnIndex") Integer columnIndex, HttpSession session) {
 		User user = (User) session.getAttribute("user");
 		if (columnIndex == 1) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllFileTypes());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllFileTypes());
+			}
 			return ResponseEntity.ok(documentService.findGroupedFileTypes(user.getUserId()));
 		}
 		if (columnIndex == 2) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllFileNumbers());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllFileNumbers());
+			}
 			return ResponseEntity.ok(documentService.findGroupedFileNumbers(user.getUserId()));
 		}
 		if (columnIndex == 3) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllFileNames());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllFileNames());
+			}
 			return ResponseEntity.ok(documentService.findGroupedFileNames(user.getUserId()));
 		}
 		if (columnIndex == 4) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllRevisionNos());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllRevisionNos());
+			}
 			return ResponseEntity.ok(documentService.findGroupedRevisionNos(user.getUserId()));
 		}
 		if (columnIndex == 5) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllStatus());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllStatus());
+			}
 			return ResponseEntity.ok(documentService.findGroupedStatus(user.getUserId()));
 		}
 		if (columnIndex == 6) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllProjectNamesByDocument());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllProjectNamesByDocument());
+			}
 			return ResponseEntity.ok(documentService.findGroupedProjectNames(user.getUserId()));
 		}
 		if (columnIndex == 7) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllContractNamesByDocument());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllContractNamesByDocument());
+			}
 			return ResponseEntity.ok(documentService.findGroupedContractNames(user.getUserId()));
 		}
 		if (columnIndex == 8) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllFoldersByDocument());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllFoldersByDocument());
+			}
 			return ResponseEntity.ok(documentService.findGroupedFolders(user.getUserId()));
 		}
 		if (columnIndex == 9) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllSubFoldersByDocument());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllSubFoldersByDocument());
+			}
 			return ResponseEntity.ok(documentService.findGroupedSubFolders(user.getUserId()));
 		}
 		if (columnIndex == 10) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllCreatedByDocument());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllCreatedByDocument());
+			}
 			return ResponseEntity.ok(documentService.findGroupedCreatedBy(user.getUserId()));
 		}
 		if (columnIndex == 11) {
 			return null;// ResponseEntity.ok(documentService.findGroupedUploadedDate());
 		}
 		if (columnIndex == 12) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllRevisionDateByDocument());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllRevisionDateByDocument());
+			}
 			return ResponseEntity.ok(documentService.findGroupedRevisionDate(user.getUserId()));
 		}
 		if (columnIndex == 13) {
-			if(user.getUserRoleNameFk().equals("IT Admin")) {
-	    		//IT Admin
-	    		return ResponseEntity.ok(documentService.findAllDepartmentByDocument());
-	    	}
+			if (user.getUserRoleNameFk().equals("IT Admin")) {
+				// IT Admin
+				return ResponseEntity.ok(documentService.findAllDepartmentByDocument());
+			}
 			return ResponseEntity.ok(documentService.findGroupedDepartment(user.getUserId()));
 		}
 		return null;
@@ -252,20 +253,25 @@ public class DocumentController {
 		String mimeType = java.nio.file.Files.probeContentType(filePath);
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(mimeType)).body(resource);
 	}
-	
-	
+
 	@GetMapping("/folder-grid/{subfolderId}")
-	public List<DocumentFolderGridDTO> getFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId, HttpSession session) throws IOException {
+	public List<DocumentFolderGridDTO> getFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId,
+			HttpSession session) throws IOException {
 		User user = (User) session.getAttribute("user");
+		if (user.getUserRoleNameFk().equals("IT Admin")) {
+			// IT Admin
+			return documentService.getFilesForFolderGrid(subfolderId);
+		}
 		return documentService.getFilesForFolderGrid(subfolderId, user.getUserId());
 	}
-	
+
 	@GetMapping("/archived/folder-grid/{subfolderId}")
-	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId, HttpSession session) throws IOException {
+	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId,
+			HttpSession session) throws IOException {
 		User user = (User) session.getAttribute("user");
 		return documentService.getArvhivedFilesForFolderGrid(subfolderId, user.getUserId());
 	}
-	
+
 	@GetMapping("/download")
 	public ResponseEntity<Resource> downloadFile(@RequestParam("path") String path) throws IOException {
 		java.nio.file.Path filePath = java.nio.file.Paths.get(path);

@@ -405,4 +405,21 @@ select
 			"""
 			, nativeQuery = true)
 	List<String> findAllDepartmentByDocument();
+
+	@Query(
+			value ="""
+			select
+distinct d.file_name as fileName,
+files.file_path as filePath,
+files.file_type as fileType,
+d.revision_no as revisionNo
+from dms.documents d
+left join dms.document_file files on files.document_id = d.id 
+join dms.sub_folders sub on d.sub_folder_id = sub.id
+where
+d.not_required is null
+and sub.id = :subfolderId
+			"""
+			, nativeQuery = true)
+	List<DocumentFolderGridDTO> getFilesForFolderGrid(@Param("subfolderId") String subfolderId);
 }

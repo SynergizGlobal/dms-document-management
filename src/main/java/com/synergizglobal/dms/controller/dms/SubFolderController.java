@@ -30,6 +30,10 @@ public class SubFolderController {
 	@GetMapping("/grid/{folderId}")
     public ResponseEntity<List<SubFolder>> getsubfolderGridByFolderId(@PathVariable("folderId") Long folderId, HttpSession session) {
         User user = (User) session.getAttribute("user");
+        if(user.getUserRoleNameFk().equals("IT Admin")) {
+    		//IT Admin
+    		return ResponseEntity.ok(subFolderService.getAllSubfolderGridByFolderId(folderId));
+    	}
 		return ResponseEntity.ok(subFolderService.getsubfolderGridByFolderId(folderId, user.getUserId()));
     }
 

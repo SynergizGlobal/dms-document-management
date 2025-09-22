@@ -25,4 +25,6 @@ public interface FolderService {
 	public FolderDTO getFolderByName(String name);
 
 	public List<FolderDTO> getAllFoldersByProjectsAndContracts(List<String> project, List<String> contract, String userId);
+
+	public List<FolderDTO> getAllFoldersByProjectsAndContracts(List<String> projects, List<String> contracts);
 }

@@ -25,6 +25,14 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 		      and d.contractName in :contracts
 		""")
 	List<Folder> getAllFoldersByProjectsAndContracts(@Param("projects") List<String> projects,@Param("contracts") List<String> contracts,@Param("userId") String userId);
-	
-
+	@Query("""
+		    select distinct f
+		    from Document d
+		    join d.folder f
+		    where 
+		      (d.notRequired is null or d.notRequired = false)
+		      and d.projectName in :projects
+		      and d.contractName in :contracts
+		""")
+	List<Folder> getAllFoldersByProjectsAndContracts(@Param("projects")List<String> projects,@Param("contracts") List<String> contracts);
 }

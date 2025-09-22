@@ -1323,4 +1323,10 @@ public class DocumentServiceImpl implements DocumentService {
 		return documentRepository.findAllDepartmentByDocument();
 	}
 
+	@Override
+	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId) {
+		// TODO Auto-generated method stub
+		return documentRepository.getFilesForFolderGrid(subfolderId);
+	}
+
 }

@@ -33,4 +33,19 @@ and f.id = :folderId
 			"""	
 			, nativeQuery = true)
 	List<SubFolder> getsubfolderGridByFolderId(@Param("folderId") Long folderId,@Param("userId") String userId);
+	@Query(
+			value= """
+			select 
+	distinct sub.id,
+	sub.name,
+	f.id as folder_id
+	from dms.documents d 
+	join dms.folders f on d.folder_id = f.id
+	join dms.sub_folders sub on f.id = sub.folder_id and d.sub_folder_id = sub.id
+	where 
+	d.not_required is null
+	and f.id = :folderId
+				"""	
+				, nativeQuery = true)
+	List<SubFolder> getAllSubfolderGridByFolderId(@Param("folderId") Long folderId);
 }

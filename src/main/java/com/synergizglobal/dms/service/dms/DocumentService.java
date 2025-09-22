@@ -112,4 +112,6 @@ public interface DocumentService {
 		public List<String> findAllRevisionDateByDocument();
 
 		public List<String> findAllDepartmentByDocument();
+
+		public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId);
 }

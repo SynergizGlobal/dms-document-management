@@ -33,6 +33,10 @@ public class ContractController {
     @GetMapping("/get/for-folder-grid")
     public ResponseEntity<List<String>> findGroupedContractNames(HttpSession session) {
     	User user = (User) session.getAttribute("user");
+    	if(user.getUserRoleNameFk().equals("IT Admin")) {
+    		//IT Admin
+    		return ResponseEntity.ok(documentService.findAllContractNamesByDocument());
+    	}
     	return ResponseEntity.ok(documentService.findGroupedContractNames(user.getUserId()));
     }
 }

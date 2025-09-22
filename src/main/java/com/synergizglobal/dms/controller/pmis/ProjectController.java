@@ -34,7 +34,11 @@ public class ProjectController {
     
     @GetMapping("/get/for-folder-grid")
     public ResponseEntity<List<String>> findGroupedProjectNames(HttpSession session) {
-    	User user = (User) session.getAttribute("user"); 
+    	User user = (User) session.getAttribute("user");
+    	if(user.getUserRoleNameFk().equals("IT Admin")) {
+    		//IT Admin
+    		return ResponseEntity.ok(documentService.findAllProjectNamesByDocument());
+    	}
     	return ResponseEntity.ok(documentService.findGroupedProjectNames(user.getUserId()));
     }
 }
