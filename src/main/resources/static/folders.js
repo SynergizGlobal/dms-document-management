@@ -39,42 +39,53 @@ function loadSubFolders(folderid) {
 	        .catch(err => console.error("Error loading folders:", err));
 }
 function loadFiles(folderid) {
-	fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`)
-	        .then(response => response.json())
-	        .then(folders => {
-	            const grid = document.querySelector(".folders-grid");
-	            grid.innerHTML = ""; // clear existing folders
+    fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`)
+        .then(response => response.json())
+        .then(folders => {
+            const grid = document.querySelector(".folders-grid");
+            grid.innerHTML = ""; // clear existing folders
 
-	            if (!folders || folders.length === 0) {
-	                grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
-	                return;
-	            }
+            if (!folders || folders.length === 0) {
+                grid.innerHTML = `<p style="text-align:center; color:gray;">No files available</p>`;
+                return;
+            }
 
-	            folders.forEach(folder => {
-	                const folderCard = document.createElement("div");
-	                folderCard.className = "folder-card";
-	                folderCard.onclick = () => openFolder(folder.filePath, "file");
+            folders.forEach(folder => {
+                const fileType = folder.fileType ? folder.fileType.toLowerCase() : "";
 
-	                folderCard.innerHTML = `
-	                    <div class="folder-icon">
-	                        <div class="folder-base">
-	                            <div class="folder-tab"></div>
-	                            <div class="folder-papers">
-	                                <div class="paper paper-1"></div>
-	                                <div class="paper paper-2"></div>
-	                                <div class="paper paper-3"></div>
-	                            </div>
-	                            <div class="folder-label"></div>
-	                        </div>
-	                    </div>
-	                    <div class="folder-title">${folder.fileName}(${folder.fileType})</div>
-	                `;
+                // Pick icon based on file type
+                let icon = `<i class="fa-solid fa-file" style="font-size:40px; color:#555;"></i>`;
+                if (fileType === "pdf") 
+                    icon = `<i class="fa-solid fa-file-pdf" style="font-size:40px; color:red;"></i>`;
+                else if (["doc", "docx"].includes(fileType)) 
+                    icon = `<i class="fa-solid fa-file-word" style="font-size:40px; color:#2a5699;"></i>`;
+                else if (["xls", "xlsx"].includes(fileType)) 
+                    icon = `<i class="fa-solid fa-file-excel" style="font-size:40px; color:#217346;"></i>`;
+                else if (["png", "jpg", "jpeg", "gif"].includes(fileType)) 
+                    icon = `<i class="fa-solid fa-file-image" style="font-size:40px; color:#e3b341;"></i>`;
+                else if (["ppt", "pptx"].includes(fileType)) 
+                    icon = `<i class="fa-solid fa-file-powerpoint" style="font-size:40px; color:#d24726;"></i>`;
+                else if (["zip", "rar"].includes(fileType)) 
+                    icon = `<i class="fa-solid fa-file-zipper" style="font-size:40px; color:#f0a500;"></i>`;
+                else if (["txt"].includes(fileType)) 
+                    icon = `<i class="fa-solid fa-file-lines" style="font-size:40px; color:#444;"></i>`;
 
-	                grid.appendChild(folderCard);
-	            });
-	        })
-	        .catch(err => console.error("Error loading folders:", err));
+                const folderCard = document.createElement("div");
+                folderCard.className = "folder-card";
+                folderCard.onclick = () => openFolder(folder.filePath, "file");
+
+                folderCard.innerHTML = `
+                    <div class="file-icon">${icon}</div>
+                    <div class="folder-title">${folder.fileName} (${folder.fileType})</div>
+                `;
+
+                grid.appendChild(folderCard);
+            });
+        })
+        .catch(err => console.error("Error loading folders:", err));
 }
+
+
 // Sample document data for correspondence
 const documentsData = {
 	inward: {
