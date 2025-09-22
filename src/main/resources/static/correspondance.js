@@ -138,7 +138,7 @@ function addLetterToTable(letterData, isDraft = false) {
     const viewPage = 'view.html';
     const corrId = letterData.correspondenceId || '';
     // File display logic
-    let fileDisplay = 'No files';
+  //  let fileDisplay = 'No files';
     if (letterData.fileCount && letterData.fileCount > 0) {
         fileDisplay = letterData.fileCount === 1 ? (letterData.fileType || 'File')
             : `${letterData.fileCount} Files`;
@@ -147,7 +147,7 @@ function addLetterToTable(letterData, isDraft = false) {
     // For draft table (different structure)
     if (isDraft) {
         row.innerHTML = `
-		<td>${fileDisplay}</td>
+		
 		       <td>${letterData.category || ''}</td>
 			   <td>
               <a href="${viewPage}?id=${encodeURIComponent(corrId)}" class="letter-link" data-id="${corrId}">
@@ -166,7 +166,7 @@ function addLetterToTable(letterData, isDraft = false) {
     } else {
         // For main table
         row.innerHTML = `
-            <td>${fileDisplay}</td>
+      
             <td>${letterData.category || ''}</td>
 		<td>
               <a href="${viewPage}?id=${encodeURIComponent(corrId)}" class="letter-link" data-id="${corrId}">
@@ -255,6 +255,8 @@ function getFormData() {
         currentStatus: document.getElementById('currentStatus').value,
         department: document.getElementById('department').value,
         dueDate: document.getElementById('dueDate').value,
+        projectName: document.getElementById('projectName').value,
+        contractName: document.getElementById('contractName').value,
         action: 'upload'
     };
 }
@@ -294,6 +296,8 @@ async function uploadLetterToServer(formData, files) {
             department : formData.department,
             dueDate: formData.dueDate,
             letterDate: formData.letterDate,
+            projectName: formData.projectName,
+            contractName: formData.contractName,
             action: formData.action
         };
 
@@ -309,7 +313,8 @@ async function uploadLetterToServer(formData, files) {
         // Make the API call
         const response = await fetch(`${API_BASE_URL}/uploadLetter`, {
             method: 'POST',
-            body: requestFormData
+            body: requestFormData,
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -687,7 +692,7 @@ document.querySelectorAll('.sidebar-header[data-target]').forEach(item => {
 
 // Search and Filter functionality
 $(document).ready(function () {
-	$.ajax({
+    	$.ajax({
 			url: `/dms/api/users/get/username`,
 			method: 'GET',
 			async: false, // token as query param
@@ -1089,12 +1094,8 @@ function populateStatusDropdown(statuses) {
     });
 }
 
-// Call this function when your modal opens or page loads
 
-uploadBtn.addEventListener('click', function() {
-    // Your existing code
-    fetchStatuses(); // Add this to load statuses when modal opens
-});
+
 // Fetch department list from API and populate dropdown
 async function fetchDepartments() {
     try {
@@ -1149,11 +1150,7 @@ function populateDepartmentDropdown(departments) {
 fetchDepartments();
 
 
-// Call this function when your modal opens
-uploadBtn.addEventListener('click', function() {
-    // Your existing code
-    fetchDepartments(); // Add this to load departments when modal opens
-});
+
 
 // Also call when opening letter details
 function openLetterDetails(letterNo) {
@@ -1343,3 +1340,107 @@ function formatApiDateTime(value) {
     return String(value);
 }
 
+// Function to fetch projects from API
+async function fetchProjects() {
+    try {
+        const projectSelect = document.getElementById('projectName');
+        projectSelect.innerHTML = '<option value="">Loading projects...</option>';
+
+        const response = await fetch('http://localhost:8000/dms/api/projects/get', {
+            credentials: 'include' // Important for session cookies
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+
+        const projects = await response.json();
+
+        if (!Array.isArray(projects)) {
+            throw new Error('Invalid response format: expected array');
+        }
+
+        populateProjectDropdown(projects);
+
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        document.getElementById('projectName').innerHTML =
+            '<option value="">Error loading projects</option>';
+    }
+}
+
+// Function to populate project dropdown
+function populateProjectDropdown(projects) {
+    const projectSelect = document.getElementById('projectName');
+    projectSelect.innerHTML = '';
+
+    // Default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Select Project';
+    projectSelect.appendChild(defaultOption);
+
+    // Add each project as an option
+    projects.forEach(project => {
+        const option = document.createElement('option');
+        option.value = project.name;  // Use ID as value
+        option.textContent = project.name; // Use name as display text
+        projectSelect.appendChild(option);
+    });
+}
+
+// Function to fetch contracts from API
+async function fetchContracts() {
+    try {
+        const contractSelect = document.getElementById('contractName');
+        contractSelect.innerHTML = '<option value="">Loading contracts...</option>';
+
+        const response = await fetch('http://localhost:8000/dms/api/contracts/get', {
+            credentials: 'include' // Important for session cookies
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+
+        const contracts = await response.json();
+
+        if (!Array.isArray(contracts)) {
+            throw new Error('Invalid response format: expected array');
+        }
+
+        populateContractDropdown(contracts);
+
+    } catch (error) {
+        console.error('Error fetching contracts:', error);
+        document.getElementById('contractName').innerHTML =
+            '<option value="">Error loading contracts</option>';
+    }
+}
+// Function to populate contract dropdown
+function populateContractDropdown(contracts) {
+    const contractSelect = document.getElementById('contractName');
+    contractSelect.innerHTML = '';
+
+    // Default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Select Contract';
+    contractSelect.appendChild(defaultOption);
+
+    // Add each contract as an option
+    contracts.forEach(contract => {
+        const option = document.createElement('option');
+        option.value = contract.name;
+        option.textContent = contract.name; // Use name as display text
+        contractSelect.appendChild(option);
+    });
+}
+
+uploadBtn.addEventListener('click', function() {
+
+    fetchProjects();
+    fetchContracts();
+    fetchDepartments();
+    fetchStatuses();
+});

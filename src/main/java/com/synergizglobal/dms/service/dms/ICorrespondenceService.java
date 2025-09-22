@@ -11,7 +11,7 @@ import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 public interface ICorrespondenceService {
 
 
-    CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto) throws Exception;
+    CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl, String loggedUserId, String loggedUserName) throws Exception;
 
     List<CorrespondenceLetterProjection> getLettersByAction(String action);
 

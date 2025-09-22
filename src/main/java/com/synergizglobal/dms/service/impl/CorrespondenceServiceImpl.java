@@ -11,13 +11,15 @@ import com.synergizglobal.dms.entity.dms.CorrespondenceFile;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.entity.dms.CorrespondenceReference;
 import com.synergizglobal.dms.entity.dms.ReferenceLetter;
+import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.repository.dms.CorrespondenceLetterRepository;
 import com.synergizglobal.dms.repository.dms.CorrespondenceReferenceRepository;
 import com.synergizglobal.dms.repository.dms.ReferenceLetterRepository;
+import com.synergizglobal.dms.repository.pmis.UserRepository;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +27,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
+import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class CorrespondenceServiceImpl implements ICorrespondenceService {
@@ -42,57 +50,13 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
     private final ReferenceLetterRepository referenceRepo;
 
     private final EmailServiceImpl emailService;
-    private final EntityManager entityManager;
-    private static final Set<String> ALLOWED = Set.of(
-            "type", "category", "letter_number", "from_email", "to_email",
-            "subject", "required_response", "due_date", "status",
-            "department", "attachment"
-    );
 
-
-    public List<Map<String, Object>> fetchDynamic(List<String> fields, boolean distinct) {
-        // ✅ Validate input fields
-        for (String f : fields) {
-            if (!ALLOWED.contains(f.toLowerCase())) {
-                throw new IllegalArgumentException("Invalid field: " + f);
-            }
-        }
-
-        String selectClause = (distinct ? "SELECT DISTINCT " : "SELECT ")
-                + String.join(", ", fields);
-
-        String sql = selectClause + " FROM correspondence_letter";
-
-        Query query = entityManager.createNativeQuery(sql);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        // Convert to List<Map<col,value>>
-        List<Map<String, Object>> mapped = new ArrayList<>();
-        for (Object row : results) {
-            Object[] arr = (row instanceof Object[]) ? (Object[]) row : new Object[]{row};
-            Map<String, Object> map = new LinkedHashMap<>();
-            for (int i = 0; i < fields.size(); i++) {
-                map.put(fields.get(i), arr[i]);
-            }
-            mapped.add(map);
-        }
-
-        return mapped;
-    }
-
-    @Override
-    @Transactional
-    public List<CorrespondenceLetter> search(CorrespondenceLetter letter) {
-
-        return correspondenceRepo.findAll(Example.of(letter));
-    }
+    private final UserRepository userRepository;
 
 
     @Override
     @Transactional
-    public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto) throws Exception {
+    public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl ,String loggedUserId, String loggedUserName) throws Exception {
 
 
         Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
@@ -117,6 +81,31 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
         entity.setAction(dto.getAction());
         entity.setCurrentStatus(dto.getCurrentStatus());
         entity.setDepartment(dto.getDepartment());
+        entity.setProjectName(dto.getProjectName());
+        entity.setContractName(dto.getContractName());
+        entity.setUserId(loggedUserId);
+        entity.setUserName(loggedUserName);
+
+
+        if (dto.getTo() != null && !dto.getTo().isBlank()) {
+            // try by email first, then by username
+            Optional<User> recipient = userRepository.findByEmailId(dto.getTo());
+            if (recipient.isEmpty()) {
+                recipient = userRepository.findByUserName(dto.getTo());
+            }
+
+            if (recipient.isPresent()) {
+                User rec = recipient.get();
+                entity.setToUserId(rec.getUserId());
+                entity.setToUserName(rec.getUserName());
+            } else {
+                // optional: log and keep toUserId null, but store 'to' as given
+              //  log.info("Recipient not found for '{}', storing only the provided `to` string", dto.getTo());
+                System.out.print("Recipient not found for '{}', storing only the provided `to` string"+ dto.getTo());
+            }
+        }
+
+
 
 
         CorrespondenceLetter savedEntity = correspondenceRepo.save(entity);
@@ -153,7 +142,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 
         if (Constant.SEND.equalsIgnoreCase(dto.getAction())) {
-            emailService.sendCorrespondenceEmail(savedEntity, dto.getDocuments());
+            emailService.sendCorrespondenceEmail(savedEntity, dto.getDocuments(), baseUrl);
         } else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
 
 
@@ -219,7 +208,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
         List<ReferenceLetter> entities;
 
         if (query != null && !query.isBlank()) {
-            entities = referenceRepo.findDistinctByRefLettersContainingIgnoreCase(query);
+            entities = referenceRepo. findDistinctByRefLettersContainingIgnoreCase(query);
         } else {
             entities = referenceRepo.findAll();
         }
@@ -274,6 +263,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
                 .toList();
 
 
+
         CorrespondenceLetterViewDto dto = new CorrespondenceLetterViewDto();
         dto.setCategory(first.getCategory());
         dto.setLetterNumber(first.getLetterNumber());
@@ -298,6 +288,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
         return correspondenceRepo.findAll(Example.of(letter));
     }
+
 
 
     @Override
@@ -345,6 +336,19 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
         return dto;
     }
+
+	@Override
+	public List<Map<String, Object>> fetchDynamic(List<String> fields, boolean distinct) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<CorrespondenceLetter> search(CorrespondenceLetter letter) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 
 }

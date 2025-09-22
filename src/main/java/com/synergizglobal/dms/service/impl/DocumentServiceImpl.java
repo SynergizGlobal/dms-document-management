@@ -1152,7 +1152,7 @@ public class DocumentServiceImpl implements DocumentService {
 				message.setRecipients(Message.RecipientType.CC,
 						InternetAddress.parse(dto.getSendCc()));
 				message.setSubject(dto.getSendSubject());
-				User userTo = userRepository.findByEmailId(sendDocument.getSendTo());
+				User userTo = userRepository.findByEmailId(sendDocument.getSendTo()).get();
 				User sendBy = userRepository.findById(sendDocument.getCreatedBy()).get();
 				// HTML content (from your screenshot)
 				String htmlContent = String.format("""

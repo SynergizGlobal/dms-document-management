@@ -4,9 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.synergizglobal.dms.entity.pmis.User;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,16 +37,35 @@ public class CorrespondenceController {
     @PostMapping(value = "/uploadLetter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadLetter(
             @RequestPart("dto") String dtoJson,
-            @RequestParam("document") MultipartFile[] documentsArray) {
+            @RequestParam("document") MultipartFile[] documentsArray, HttpServletRequest request) {
 
         try {
             CorrespondenceUploadLetter dto =
                     objectMapper.readValue(dtoJson, CorrespondenceUploadLetter.class);
 
             dto.setDocuments(Arrays.asList(documentsArray));
+            String baseUrl = request.getScheme() + "://" + // http / https
+                    request.getServerName() + // domain or IP
+                    ":" + request.getServerPort() + // port
+                    request.getContextPath(); // context path
 
 
-            CorrespondenceLetter savedLetter = correspondenceService.saveLetter(dto);
+            HttpSession session = request.getSession(false);
+          String loggedUserId = null;
+            String loggedUserName = null;
+            if (session != null) {
+                User user = (User) session.getAttribute("user");
+                if (user != null) {
+                    loggedUserId = user.getUserId();       // String as per your User entity
+                    loggedUserName = user.getUserName();
+                }
+            }
+
+            // optional: require login
+            if (loggedUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            }
+            CorrespondenceLetter savedLetter = correspondenceService.saveLetter(dto, baseUrl, loggedUserId, loggedUserName);
 
             return ResponseEntity.ok("Letter uploaded successfully: " + savedLetter.getLetterNumber());
         } catch (Exception e) {

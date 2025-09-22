@@ -84,6 +84,26 @@ public class CorrespondenceLetter {
     @Column(name = "current_status")
     private String currentStatus;
 
+    @Column(name="project_name")
+    private String projectName;
+
+    @Column(name="contract_name")
+    private String contractName;
+
+    @Column(name="mail_status")
+    private String mailStatus;
+
+    @Column(name="user_name")
+    private String UserName;
+
+    @Column(name="user_id")
+    private String  userId;
+
+    @Column(name="to_user_id")
+    private String toUserId;
+
+    @Column(name = "to_user_name", length = 200)
+    private String toUserName;
 
     @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL)
     @JsonIgnore
