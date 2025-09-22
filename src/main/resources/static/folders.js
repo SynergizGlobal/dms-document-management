@@ -44,7 +44,7 @@ function loadArchivedFiles(folderid) {
                 `;
 
 				grid.appendChild(folderCard);
-				
+
 			});
 			//loadArchiveFolder(folderid);
 		})
@@ -157,7 +157,7 @@ function loadFiles(folderid) {
                 `;
 
 				grid.appendChild(folderCard);
-				
+
 			});
 			loadArchiveFolder(folderid);
 		})
@@ -240,6 +240,8 @@ function openFolder(folderid, type) {
 	setTimeout(() => {
 		event.currentTarget.style.transform = 'translateY(-5px)';
 	}, 150);
+	if (type == "correspondence")
+		loadCorrespondenceInboundAndOutbound();
 	if (type == "folder")
 		loadSubFolders(folderid);
 	if (type == "subfolder") {
@@ -755,10 +757,74 @@ function loadFolders(projects, contracts) {
 
 				grid.appendChild(folderCard);
 			});
+			loadCorrespondence();
 		})
 		.catch(err => console.error("Error loading folders:", err));
 }
+function loadCorrespondence() {
+	const grid = document.querySelector(".folders-grid");
+	//grid.innerHTML = ""; // clear existing folders
+	const folders = ["Correspondence"]
+	if (!folders || folders.length === 0) {
+		grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
+		return;
+	}
 
+	folders.forEach(folder => {
+		const folderCard = document.createElement("div");
+		folderCard.className = "folder-card";
+		folderCard.onclick = () => openFolder(folder, "correspondence");
+
+		folderCard.innerHTML = `
+	                <div class="folder-icon">
+	                    <div class="folder-base">
+	                        <div class="folder-tab"></div>
+	                        <div class="folder-papers">
+	                            <div class="paper paper-1"></div>
+	                            <div class="paper paper-2"></div>
+	                            <div class="paper paper-3"></div>
+	                        </div>
+	                        <div class="folder-label"></div>
+	                    </div>
+	                </div>
+	                <div class="folder-title">${folder}</div>
+	            `;
+
+		grid.appendChild(folderCard);
+	});
+}
+function loadCorrespondenceInboundAndOutbound() {
+	const grid = document.querySelector(".folders-grid");
+	grid.innerHTML = ""; // clear existing folders
+	const folders = ["Inbound", "Outbound"]
+	if (!folders || folders.length === 0) {
+		grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
+		return;
+	}
+
+	folders.forEach(folder => {
+		const folderCard = document.createElement("div");
+		folderCard.className = "folder-card";
+		folderCard.onclick = () => openFolder(folder, folder);
+
+		folderCard.innerHTML = `
+		                <div class="folder-icon">
+		                    <div class="folder-base">
+		                        <div class="folder-tab"></div>
+		                        <div class="folder-papers">
+		                            <div class="paper paper-1"></div>
+		                            <div class="paper paper-2"></div>
+		                            <div class="paper paper-3"></div>
+		                        </div>
+		                        <div class="folder-label"></div>
+		                    </div>
+		                </div>
+		                <div class="folder-title">${folder}</div>
+		            `;
+
+		grid.appendChild(folderCard);
+	});
+}
 
 
 //////////////////
