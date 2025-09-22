@@ -19,7 +19,16 @@ let searchVisible = false;
 let navigationStack = [];
 
 function loadArchivedFiles(folderid) {
-	fetch(`/dms/api/documents/archived/folder-grid/${encodeURIComponent(folderid)}`)
+	fetch(`/dms/api/documents/archived/folder-grid/${encodeURIComponent(folderid)}`	, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						projects: selectedProjects,   // send array
+						contracts: selectedContracts  // send array
+					})
+				})
 		.then(response => response.json())
 		.then(folders => {
 			const grid = document.querySelector(".folders-grid");

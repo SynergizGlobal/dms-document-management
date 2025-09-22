@@ -266,15 +266,15 @@ public class DocumentController {
 		return documentService.getFilesForFolderGrid(subfolderId, user.getUserId(), folderGridDto.getProjects(), folderGridDto.getContracts());
 	}
 
-	@GetMapping("/archived/folder-grid/{subfolderId}")
+	@PostMapping("/archived/folder-grid/{subfolderId}")
 	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId,
-			HttpSession session) throws IOException {
+			@RequestBody FolderGridDTO folderGridDto, HttpSession session) throws IOException {
 		User user = (User) session.getAttribute("user");
 		if (user.getUserRoleNameFk().equals("IT Admin")) {
 			// IT Admin
-			return documentService.getArvhivedFilesForFolderGrid(subfolderId);
+			return documentService.getArvhivedFilesForFolderGrid(subfolderId, folderGridDto.getProjects(), folderGridDto.getContracts());
 		}
-		return documentService.getArvhivedFilesForFolderGrid(subfolderId, user.getUserId());
+		return documentService.getArvhivedFilesForFolderGrid(subfolderId, user.getUserId(), folderGridDto.getProjects(), folderGridDto.getContracts());
 	}
 
 	@GetMapping("/download")

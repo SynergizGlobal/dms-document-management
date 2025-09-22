@@ -1246,9 +1246,9 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, String userId) {
+	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, String userId, List<String> projects, List<String> contracts) {
 		// TODO Auto-generated method stub
-		return documentRepository.getArvhivedFilesForFolderGrid(subfolderId, userId);
+		return documentRepository.getArvhivedFilesForFolderGrid(subfolderId, userId, projects, contracts);
 	}
 
 	@Override
@@ -1330,9 +1330,9 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId) {
+	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, List<String> projects, List<String> contracts) {
 		// TODO Auto-generated method stub
-		return documentRepository.getArvhivedFilesForFolderGrid(subfolderId);
+		return documentRepository.getArvhivedFilesForFolderGrid(subfolderId, projects, contracts);
 	}
 
 }
