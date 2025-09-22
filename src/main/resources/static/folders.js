@@ -412,6 +412,8 @@ function goHome() {
 	document.querySelectorAll('.folder-card').forEach(folder => {
 		folder.style.display = 'flex';
 	});
+	
+	loadFolders(selectedProjects, selectedContracts);
 }
 
 function toggleSearch() {
