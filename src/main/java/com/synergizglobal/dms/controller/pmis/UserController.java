@@ -35,4 +35,11 @@ public class UserController {
     	User user = userService.findById(userId).get();
     	session.setAttribute("user", user);
     }
+    
+    @GetMapping("/get/username")
+    public String getUserName(HttpSession session) {
+    	//String userId = JwtUtil.validateToken(token);
+    	User user = (User) session.getAttribute("user");
+    	return user.getUserName();
+    }
 }

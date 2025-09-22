@@ -8,6 +8,7 @@ $(document).ready(function() {
 		async: false,
 		data: { token: token }, // token as query param
 		success: function(response) {
+			
 			console.log("Session set successfully:", response);
 			// You can proceed with further logic here
 		},
@@ -16,6 +17,20 @@ $(document).ready(function() {
 		}
 	});
 
+	$.ajax({
+			url: `/dms/api/users/get/username`,
+			method: 'GET',
+			async: false,
+			data: { token: token }, // token as query param
+			success: function(response) {
+				$("#userName").text(response);
+				console.log("Session set successfully:", response);
+				// You can proceed with further logic here
+			},
+			error: function(xhr, status, error) {
+				console.error("Failed to set session:", error);
+			}
+		});
 	// Global variables
 	let selectedDocumentId = null;
 	let selectedDocument = null;

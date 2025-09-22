@@ -687,6 +687,19 @@ document.querySelectorAll('.sidebar-header[data-target]').forEach(item => {
 
 // Search and Filter functionality
 $(document).ready(function () {
+	$.ajax({
+			url: `/dms/api/users/get/username`,
+			method: 'GET',
+			async: false, // token as query param
+			success: function(response) {
+				$("#userName").text(response);
+				console.log("Session set successfully:", response);
+				// You can proceed with further logic here
+			},
+			error: function(xhr, status, error) {
+				console.error("Failed to set session:", error);
+			}
+		});
     // Function to highlight search matches in plain text cells
     function highlightText(text, term) {
         if(!term) return text;

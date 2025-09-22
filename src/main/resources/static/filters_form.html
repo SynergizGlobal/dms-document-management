@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contractor Management Form</title>
+    <script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<link rel="stylesheet"
+	href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <link rel="stylesheet" href="filters_form.css">
 </head>
 
@@ -16,13 +21,11 @@
                 MRVC
             </div>
             <h1>Document Management System</h1>
-            <div class="demo-badge">DEMO</div>
+            <div class="demo-badge" id="userName">DEMO</div>
         </header>
 
         <nav class="navigation">
-            <div class="nav-item">Home</div>
             <div class="nav-item" onclick="location.href='correspondance.html'">Correspondence</div>
-            <div class="nav-item">Drawings</div>
             <div class="nav-item" onclick="location.href='document.html'">Documents</div>
             <div class="nav-item" onclick="location.href='folders.html'">Folders</div>
             <div class="nav-item active" onclick="location.href='filters_form.html'">Filter Form</div>
