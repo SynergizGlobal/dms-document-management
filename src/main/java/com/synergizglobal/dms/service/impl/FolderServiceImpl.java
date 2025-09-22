@@ -106,7 +106,7 @@ public class FolderServiceImpl implements FolderService {
 	}
 
 	@Override
-	public List<FolderDTO> getAllFoldersByProjectsAndContracts(String project, String contract,String userId) {
+	public List<FolderDTO> getAllFoldersByProjectsAndContracts(List<String> project, List<String> contract,String userId) {
 		// TODO Auto-generated method stub
 		List<Folder> folders = folderRepository.getAllFoldersByProjectsAndContracts(project, contract, userId);
 		List<FolderDTO> dtos = new ArrayList<>();

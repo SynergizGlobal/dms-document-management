@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synergizglobal.dms.dto.FolderDTO;
+import com.synergizglobal.dms.dto.FolderGridDTO;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.FolderService;
 
@@ -30,10 +31,10 @@ public class FolderController {
 		this.folderService = folderService;
 	}
 
-	@GetMapping("/grid")
-	public ResponseEntity<List<FolderDTO>> getAllFolders(@RequestParam("project") String project, @RequestParam("contract") String contract, HttpSession session) {
+	@PostMapping("/grid")
+	public ResponseEntity<List<FolderDTO>> getAllFolders(@RequestBody FolderGridDTO folderGridDto, HttpSession session) {
 		User user = (User) session.getAttribute("user");
-		return ResponseEntity.ok(folderService.getAllFoldersByProjectsAndContracts(project, contract, user.getUserId()));
+		return ResponseEntity.ok(folderService.getAllFoldersByProjectsAndContracts(folderGridDto.getProjects(), folderGridDto.getContracts(), user.getUserId()));
 	}
 	
 	@GetMapping("/get")

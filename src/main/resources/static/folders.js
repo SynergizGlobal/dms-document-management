@@ -610,45 +610,70 @@ $(document).on("change", ".filter-dropdown input[type='checkbox']", function() {
 	if (container.find("#contractFilter").length > 0) {
 		selectedContracts = selected;
 	}
-	loadFolders(selectedProjects.join(','), selectedContracts.join(','));
+	// Usage
+	//const projectStr = toSqlInClause(selectedProjects);
+	//const contractStr = toSqlInClause(selectedContracts);
+
+	loadFolders(selectedProjects, selectedContracts);
 });
-function loadFolders(projectName, contractName) {
-    fetch(`/dms/api/folders/grid?project=${encodeURIComponent(projectName)}&contract=${encodeURIComponent(contractName)}`)
-        .then(response => response.json())
-        .then(folders => {
-            const grid = document.querySelector(".folders-grid");
-            grid.innerHTML = ""; // clear existing folders
 
-            if (!folders || folders.length === 0) {
-                grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
-                return;
-            }
-
-            folders.forEach(folder => {
-                const folderCard = document.createElement("div");
-                folderCard.className = "folder-card";
-                folderCard.onclick = () => openFolder(folder.id, "folder");
-
-                folderCard.innerHTML = `
-                    <div class="folder-icon">
-                        <div class="folder-base">
-                            <div class="folder-tab"></div>
-                            <div class="folder-papers">
-                                <div class="paper paper-1"></div>
-                                <div class="paper paper-2"></div>
-                                <div class="paper paper-3"></div>
-                            </div>
-                            <div class="folder-label"></div>
-                        </div>
-                    </div>
-                    <div class="folder-title">${folder.name}</div>
-                `;
-
-                grid.appendChild(folderCard);
-            });
-        })
-        .catch(err => console.error("Error loading folders:", err));
+// Convert array into string with quotes
+function toSqlInClause(array) {
+    return array.map(item => `'${item}'`).join(",");
 }
+
+function loadFolders(projects, contracts) {
+    fetch(`/dms/api/folders/grid`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            projects: projects,   // send array
+            contracts: contracts  // send array
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to load folders");
+        }
+        return response.json();
+    })
+    .then(folders => {
+        const grid = document.querySelector(".folders-grid");
+        grid.innerHTML = ""; // clear existing folders
+
+        if (!folders || folders.length === 0) {
+            grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
+            return;
+        }
+
+        folders.forEach(folder => {
+            const folderCard = document.createElement("div");
+            folderCard.className = "folder-card";
+            folderCard.onclick = () => openFolder(folder.id, "folder");
+
+            folderCard.innerHTML = `
+                <div class="folder-icon">
+                    <div class="folder-base">
+                        <div class="folder-tab"></div>
+                        <div class="folder-papers">
+                            <div class="paper paper-1"></div>
+                            <div class="paper paper-2"></div>
+                            <div class="paper paper-3"></div>
+                        </div>
+                        <div class="folder-label"></div>
+                    </div>
+                </div>
+                <div class="folder-title">${folder.name}</div>
+            `;
+
+            grid.appendChild(folderCard);
+        });
+    })
+    .catch(err => console.error("Error loading folders:", err));
+}
+
 
 
 //////////////////

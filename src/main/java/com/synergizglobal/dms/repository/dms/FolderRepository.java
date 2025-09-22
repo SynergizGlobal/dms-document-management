@@ -13,20 +13,18 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
 	Optional<Folder> findByName(String folder);
 	
-	@Query(value="""
-			select
-distinct f.id,
-f.name
-from dms.documents d 
-left join dms.send_documents s on s.document_id = d.id
-join dms.folders f on d.folder_id = f.id
-where 
-(d.created_by = :userId or s.to_user_id = :userId) 
-and d.not_required is null
-and d.project_name in (:project)
-and d.contract_name in (:contract)
-			""", nativeQuery = true)
-	List<Folder> getAllFoldersByProjectsAndContracts(@Param("project") String project,@Param("contract") String contract,@Param("userId") String userId);
+	@Query("""
+		    select distinct f
+		    from Document d
+		    left join d.sendDocument s
+		    join d.folder f
+		    where 
+		      (d.createdBy = :userId or s.sendToUserId = :userId) 
+		      and (d.notRequired is null or d.notRequired = false)
+		      and d.projectName in :projects
+		      and d.contractName in :contracts
+		""")
+	List<Folder> getAllFoldersByProjectsAndContracts(@Param("projects") List<String> projects,@Param("contracts") List<String> contracts,@Param("userId") String userId);
 	
 
 }
