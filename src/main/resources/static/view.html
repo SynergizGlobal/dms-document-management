@@ -578,7 +578,22 @@
             if (id) params.set('replyTo', id);
             else if (letterNumber) params.set('replyToLetter', letterNumber);
 
-            if (letterNumber) params.set('refLetter', letterNumber);
+            // Get all reference letters from the current view
+            const referenceLetters = [];
+            const refListItems = document.querySelectorAll('#referenceBadges li a');
+            refListItems.forEach(item => {
+                referenceLetters.push(item.textContent.trim());
+            });
+
+            // Add the current letter number as a reference (most important)
+            if (letterNumber) {
+                referenceLetters.push(letterNumber);
+            }
+
+            // Add reference letters to the parameters
+            if (referenceLetters.length > 0) {
+                params.set('refLetters', referenceLetters.join(';'));
+            }
 
             window.location.href = 'correspondance.html?' + params.toString();
         });
@@ -598,7 +613,6 @@
             });
         }
     }
-
     function updateBreadcrumb(letterNumber) {
         const breadcrumb = document.getElementById('breadcrumb');
         const currentLetterSpan = document.getElementById('currentLetter');

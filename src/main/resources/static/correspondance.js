@@ -135,15 +135,15 @@ function addLetterToTable(letterData, isDraft = false) {
     }
 
     const row = tableBody.insertRow();
-	const viewPage = 'view.html';
+    const viewPage = 'view.html';
     const corrId = letterData.correspondenceId || '';
     // File display logic
     let fileDisplay = 'No files';
     if (letterData.fileCount && letterData.fileCount > 0) {
         fileDisplay = letterData.fileCount === 1 ? (letterData.fileType || 'File')
-                                                 : `${letterData.fileCount} Files`;
+            : `${letterData.fileCount} Files`;
     }
-	const formattedDue = formatApiDate(letterData.dueDate);
+    const formattedDue = formatApiDate(letterData.dueDate);
     // For draft table (different structure)
     if (isDraft) {
         row.innerHTML = `
@@ -195,7 +195,7 @@ async function loadCorrespondenceList(action) {
             letters.forEach(letter => {
                 addLetterToTable(letter, true);
             });
-            
+
             // Reinitialize DataTable for draft table
             $('#draftTable').DataTable().destroy();
             $('#draftTable').DataTable({
@@ -210,7 +210,7 @@ async function loadCorrespondenceList(action) {
             letters.forEach(letter => {
                 addLetterToTable(letter, false);
             });
-            
+
             // Reinitialize DataTable for main table
             $('#mainTable').DataTable().destroy();
             $('#mainTable').DataTable({
@@ -254,7 +254,7 @@ function getFormData() {
         requiredResponse: document.getElementById('requiredResponse').value,
         currentStatus: document.getElementById('currentStatus').value,
         department: document.getElementById('department').value,
-        dueDate: document.getElementById('dueDate').value, 
+        dueDate: document.getElementById('dueDate').value,
         action: 'upload'
     };
 }
@@ -292,12 +292,12 @@ async function uploadLetterToServer(formData, files) {
             requiredResponse: formData.requiredResponse,
             currentStatus: formData.currentStatus,
             department : formData.department,
-			dueDate: formData.dueDate,
-			letterDate: formData.letterDate,  
+            dueDate: formData.dueDate,
+            letterDate: formData.letterDate,
             action: formData.action
         };
-		
-		console.log('Sending DTO:', dto);
+
+        console.log('Sending DTO:', dto);
 
         requestFormData.append('dto', JSON.stringify(dto));
 
@@ -355,7 +355,7 @@ sendBtn.addEventListener('click', async function () {
 
         alert('Attach functionality would require additional backend implementation');
         closeUploadModal();
-		loadCorrespondenceList('send');
+        loadCorrespondenceList('send');
     } else {
         // Handle normal send mode
         const formData = getFormData();
@@ -376,9 +376,9 @@ sendBtn.addEventListener('click', async function () {
                 closeUploadModal();
 
                 // Refresh the table - fetch fresh data from server
-				await loadCorrespondenceList('Send');
+                await loadCorrespondenceList('Send');
 
-				console.log('✅ All letters loaded');
+                console.log('✅ All letters loaded');
             } catch (error) {
                 alert('Failed to upload letter: ' + error.message);
             } finally {
@@ -467,7 +467,7 @@ document.getElementById('draftBtn').addEventListener('click', function () {
     document.getElementById('mainTableContainer').style.display = 'none';
     document.getElementById('draftTableContainer').style.display = 'block';
     document.getElementById('backToMainBtn').style.display = 'inline-block';
-    
+
     // Load draft correspondence list
     loadCorrespondenceList('Save as Draft'); // Changed from 'all' to 'Save as Draft'
 });
@@ -1067,13 +1067,13 @@ function populateStatusDropdown(statuses) {
     // Check if the API returns strings or objects
     const isObjectArray = typeof statuses[0] === 'object';
 
-	statuses.forEach(status => {
-	    const statusName = status.name; // 👈 Use name
-	    const option = document.createElement('option');
-	    option.value = statusName;      // 👈 send name to backend
-	    option.textContent = statusName;
-	    dropdown.appendChild(option);
-	});
+    statuses.forEach(status => {
+        const statusName = status.name; // 👈 Use name
+        const option = document.createElement('option');
+        option.value = statusName;      // 👈 send name to backend
+        option.textContent = statusName;
+        dropdown.appendChild(option);
+    });
 }
 
 // Call this function when your modal opens or page loads
@@ -1153,17 +1153,34 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
     $("#letterDetailsModal").hide();
 });
 // ---------- Auto-trigger uploadBtn flow when arriving with ?replyTo=... ----------
+
+// function checkAndOpen() {
+//     try {
+//         const qp = new URLSearchParams(window.location.search);
+//         if (qp.has('replyTo') || qp.has('openUpload')) {
+//             triggerUploadFlow({
+//                 replyTo: qp.get('replyTo') || qp.get('id') || '',
+//               //  from: qp.get('from') || '',
+//               //  subject: qp.get('subject') || '',
+//                 refLetter: qp.get('refLetter') || ''
+//             });
+//         }
+//     } catch(e){ console.error('AutoOpen parse error', e); }
+// }
 (function(){
     function $id(id){ try { return document.getElementById(id); } catch(e){ return null; } }
 
-    function triggerUploadFlow({ replyTo='',refLetter='' } = {}) {
+    function triggerUploadFlow({ replyTo='', refLetter='', refLetters='' } = {}) {
         try {
             // Prefer the existing globals if available
             const modal = (typeof uploadModal !== 'undefined' && uploadModal) ? uploadModal : $id('uploadModal');
             const btn   = (typeof uploadBtn !== 'undefined' && uploadBtn) ? uploadBtn : $id('uploadBtn');
 
             // If neither modal nor button found, bail with message for debugging
-            if (!modal && !btn) { console.error('AutoOpen: uploadModal and uploadBtn not found'); return; }
+            if (!modal && !btn) {
+                console.error('AutoOpen: uploadModal and uploadBtn not found');
+                return;
+            }
 
             // Ensure upload mode (same as your uploadBtn handler)
             try { currentAttachMode = false; } catch(_) {}
@@ -1182,28 +1199,48 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
                 try { btn.click(); } catch(e){ console.error('Failed to click uploadBtn', e); }
             }
 
-            // Prefill fields (if present)
-         //   if (from && $id('toField')) $id('toField').value = decodeURIComponent(from);
-          //  if (subject && $id('subject')) $id('subject').value = 'RE: ' + decodeURIComponent(subject);
-          //  if (replyTo && $id('referenceLetters')) $id('referenceLetters').value = decodeURIComponent(replyTo);
-          //  if (replyTo && $id('letterNo')) $id('letterNo').value = 'RE-' + decodeURIComponent(replyTo) + '-' + String(Date.now()).slice(-4);
-            if (refLetter && $id('referenceLetters')) {
-                $id('referenceLetters').value = decodeURIComponent(refLetter);
-            }
-        //    if ($id('letterDate')) $id('letterDate').value = new Date().toISOString().split('T')[0];
+            // Wait a bit for the modal to fully render before trying to set values
+            setTimeout(() => {
+                // Prefill reference letters field with all referenced letters
+                if (refLetters && $id('referenceLetters')) {
+                    // Decode the reference letters value
+                    const decodedRefLetters = decodeURIComponent(refLetters);
 
-            // Enable inputs in case they were disabled in some mode
-            document.querySelectorAll('#uploadForm input, #uploadForm select, #uploadForm textarea')
-                .forEach(el => { try { el.disabled = false; } catch(_){} });
+                    // Set the reference letters field value (comma-separated)
+                    $id('referenceLetters').value = decodedRefLetters;
 
-            // Refresh dropdowns if functions exist
-            if (typeof fetchDepartments === 'function') try { fetchDepartments(); } catch(_) {}
-            if (typeof fetchStatuses === 'function') try { fetchStatuses(); } catch(_) {}
+                    console.log('Reference letters set to:', decodedRefLetters);
+                }
+                // Also add the single reference letter if provided
+                else if (refLetter && $id('referenceLetters')) {
+                    // Decode the reference letter value
+                    const decodedRefLetter = decodeURIComponent(refLetter);
+
+                    // Set the reference letters field value
+                    $id('referenceLetters').value = decodedRefLetter;
+
+                    console.log('Reference letter set to:', decodedRefLetter);
+                }
+
+                // Enable inputs in case they were disabled in some mode
+                document.querySelectorAll('#uploadForm input, #uploadForm select, #uploadForm textarea')
+                    .forEach(el => { try { el.disabled = false; } catch(_){} });
+
+                // Refresh dropdowns if functions exist
+                if (typeof fetchDepartments === 'function') try { fetchDepartments(); } catch(_) {}
+                if (typeof fetchStatuses === 'function') try { fetchStatuses(); } catch(_) {}
+            }, 300);
 
             // Clean URL to avoid re-open on reload
             try {
                 const u = new URL(window.location.href);
-                u.searchParams.delete('replyTo'); u.searchParams.delete('from'); u.searchParams.delete('subject'); u.searchParams.delete('openUpload');
+                u.searchParams.delete('replyTo');
+                u.searchParams.delete('from');
+                u.searchParams.delete('subject');
+                u.searchParams.delete('openUpload');
+                u.searchParams.delete('refLetter');
+                u.searchParams.delete('refLetters');
+                u.searchParams.delete('replyToLetter');
                 history.replaceState(null, '', u.pathname + u.search);
             } catch(_) {}
         } catch(err){
@@ -1214,21 +1251,30 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
     function checkAndOpen() {
         try {
             const qp = new URLSearchParams(window.location.search);
-            if (qp.has('replyTo') || qp.has('openUpload')) {
+            if (qp.has('replyTo') || qp.has('openUpload') || qp.has('refLetter') || qp.has('refLetters') || qp.has('replyToLetter')) {
+                console.log('Auto-opening upload modal with params:', {
+                    replyTo: qp.get('replyTo'),
+                    refLetter: qp.get('refLetter'),
+                    refLetters: qp.get('refLetters'),
+                    replyToLetter: qp.get('replyToLetter')
+                });
+
                 triggerUploadFlow({
                     replyTo: qp.get('replyTo') || qp.get('id') || '',
-                  //  from: qp.get('from') || '',
-                  //  subject: qp.get('subject') || '',
-                    refLetter: qp.get('refLetter') || ''
+                    refLetter: qp.get('refLetter') || qp.get('replyToLetter') || '',
+                    refLetters: qp.get('refLetters') || ''
                 });
             }
         } catch(e){ console.error('AutoOpen parse error', e); }
     }
-
+    // Wait for DOM to be fully loaded before checking URL parameters
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkAndOpen);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add a small delay to ensure all elements are fully loaded
+            setTimeout(checkAndOpen, 100);
+        });
     } else {
-        checkAndOpen();
+        setTimeout(checkAndOpen, 100);
     }
 })();
 
@@ -1237,50 +1283,50 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
 function pad(n){ return String(n).padStart(2, '0'); }
 
 function formatApiDate(value) {
-  if (!value) return '';
-  // backend sometimes returns arrays like [2025,9,18,...]
-  if (Array.isArray(value)) {
-    const year = value[0], month = value[1], day = value[2];
-    return `${pad(day)}-${pad(month)}-${year}`;
-  }
-  // ISO string "2025-09-18" or "2025-09-18T11:44:46..."
-  if (typeof value === 'string') {
-    const iso = value.split('T')[0];                // "yyyy-mm-dd"
-    const parts = iso.split('-');
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    if (!value) return '';
+    // backend sometimes returns arrays like [2025,9,18,...]
+    if (Array.isArray(value)) {
+        const year = value[0], month = value[1], day = value[2];
+        return `${pad(day)}-${pad(month)}-${year}`;
     }
-    // fallback: try parsing Date
-    const dt = new Date(value);
-    if (!isNaN(dt)) return dt.toLocaleDateString('en-GB').replace(/\//g, '-');
-    return value;
-  }
-  // fallback to string
-  return String(value);
+    // ISO string "2025-09-18" or "2025-09-18T11:44:46..."
+    if (typeof value === 'string') {
+        const iso = value.split('T')[0];                // "yyyy-mm-dd"
+        const parts = iso.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        // fallback: try parsing Date
+        const dt = new Date(value);
+        if (!isNaN(dt)) return dt.toLocaleDateString('en-GB').replace(/\//g, '-');
+        return value;
+    }
+    // fallback to string
+    return String(value);
 }
 
 function formatApiDateTime(value) {
-  if (!value) return '';
-  if (Array.isArray(value)) {
-    const y = value[0], m = value[1], d = value[2], hh = value[3] || 0, mm = value[4] || 0, ss = value[5] || 0;
-    return `${pad(d)}-${pad(m)}-${y} ${pad(hh)}:${pad(mm)}:${pad(ss)}`;
-  }
-  if (typeof value === 'string') {
-    // try "YYYY-MM-DDTHH:MM:SS" or "YYYY-MM-DD"
-    const [datePart, timePart] = value.split('T');
-    const dateParts = (datePart || '').split('-');
-    if (dateParts.length === 3) {
-      const dateStr = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-      if (timePart) {
-        const time = timePart.split('.')[0]; // remove ms
-        return `${dateStr} ${time}`;
-      }
-      return dateStr;
+    if (!value) return '';
+    if (Array.isArray(value)) {
+        const y = value[0], m = value[1], d = value[2], hh = value[3] || 0, mm = value[4] || 0, ss = value[5] || 0;
+        return `${pad(d)}-${pad(m)}-${y} ${pad(hh)}:${pad(mm)}:${pad(ss)}`;
     }
-    const dt = new Date(value);
-    if (!isNaN(dt)) return dt.toLocaleString('en-GB').replace(',', '');
-    return value;
-  }
-  return String(value);
+    if (typeof value === 'string') {
+        // try "YYYY-MM-DDTHH:MM:SS" or "YYYY-MM-DD"
+        const [datePart, timePart] = value.split('T');
+        const dateParts = (datePart || '').split('-');
+        if (dateParts.length === 3) {
+            const dateStr = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+            if (timePart) {
+                const time = timePart.split('.')[0]; // remove ms
+                return `${dateStr} ${time}`;
+            }
+            return dateStr;
+        }
+        const dt = new Date(value);
+        if (!isNaN(dt)) return dt.toLocaleString('en-GB').replace(',', '');
+        return value;
+    }
+    return String(value);
 }
 

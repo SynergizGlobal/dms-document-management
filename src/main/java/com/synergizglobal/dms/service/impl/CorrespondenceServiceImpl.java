@@ -15,6 +15,8 @@ import com.synergizglobal.dms.repository.dms.CorrespondenceLetterRepository;
 import com.synergizglobal.dms.repository.dms.CorrespondenceReferenceRepository;
 import com.synergizglobal.dms.repository.dms.ReferenceLetterRepository;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -23,12 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,20 +42,66 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
     private final ReferenceLetterRepository referenceRepo;
 
     private final EmailServiceImpl emailService;
+    private final EntityManager entityManager;
+    private static final Set<String> ALLOWED = Set.of(
+            "type", "category", "letter_number", "from_email", "to_email",
+            "subject", "required_response", "due_date", "status",
+            "department", "attachment"
+    );
+
+
+    public List<Map<String, Object>> fetchDynamic(List<String> fields, boolean distinct) {
+        // ✅ Validate input fields
+        for (String f : fields) {
+            if (!ALLOWED.contains(f.toLowerCase())) {
+                throw new IllegalArgumentException("Invalid field: " + f);
+            }
+        }
+
+        String selectClause = (distinct ? "SELECT DISTINCT " : "SELECT ")
+                + String.join(", ", fields);
+
+        String sql = selectClause + " FROM correspondence_letter";
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        // Convert to List<Map<col,value>>
+        List<Map<String, Object>> mapped = new ArrayList<>();
+        for (Object row : results) {
+            Object[] arr = (row instanceof Object[]) ? (Object[]) row : new Object[]{row};
+            Map<String, Object> map = new LinkedHashMap<>();
+            for (int i = 0; i < fields.size(); i++) {
+                map.put(fields.get(i), arr[i]);
+            }
+            mapped.add(map);
+        }
+
+        return mapped;
+    }
+
+    @Override
+    @Transactional
+    public List<CorrespondenceLetter> search(CorrespondenceLetter letter) {
+
+        return correspondenceRepo.findAll(Example.of(letter));
+    }
 
 
     @Override
     @Transactional
     public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto) throws Exception {
 
-    	
+
         Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
 
         if (existingLetter.isPresent()) {
             throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
         }
-        
-        
+
+
         CorrespondenceLetter entity = new CorrespondenceLetter();
         entity.setCategory(dto.getCategory());
         entity.setLetterNumber(dto.getLetterNumber());
@@ -176,7 +219,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
         List<ReferenceLetter> entities;
 
         if (query != null && !query.isBlank()) {
-            entities = referenceRepo. findDistinctByRefLettersContainingIgnoreCase(query);
+            entities = referenceRepo.findDistinctByRefLettersContainingIgnoreCase(query);
         } else {
             entities = referenceRepo.findAll();
         }
@@ -207,7 +250,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 //                .map(f -> new FileViewDto(f.getFileName(), f.getFilePath(), f.getFileType(),null))
 //                .toList();
 
-        
+
         List<FileViewDto> files = flatList.stream()
                 .filter(f -> f.getFileName() != null && !f.getFileName().isBlank())
                 .collect(Collectors.toMap(
@@ -223,13 +266,12 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
                 .values()
                 .stream()
                 .toList();
-        
+
         List<String> refLetters = flatList.stream()
                 .map(CorrespondenceLetterViewProjection::getRefLetter)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
-
 
 
         CorrespondenceLetterViewDto dto = new CorrespondenceLetterViewDto();
@@ -256,7 +298,6 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
         return correspondenceRepo.findAll(Example.of(letter));
     }
-
 
 
     @Override
@@ -304,7 +345,6 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
         return dto;
     }
-
 
 
 }

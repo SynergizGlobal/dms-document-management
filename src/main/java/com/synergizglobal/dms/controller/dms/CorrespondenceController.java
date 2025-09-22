@@ -2,6 +2,8 @@ package com.synergizglobal.dms.controller.dms;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,15 +26,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequiredArgsConstructor
 public class CorrespondenceController {
 
-	
-	
-    private final ContractController contractController;
-
 
     private final ICorrespondenceService correspondenceService;
     private final ObjectMapper objectMapper;
 
-	
 
     @PostMapping(value = "/uploadLetter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadLetter(
@@ -45,14 +42,15 @@ public class CorrespondenceController {
 
             dto.setDocuments(Arrays.asList(documentsArray));
 
-          
+
             CorrespondenceLetter savedLetter = correspondenceService.saveLetter(dto);
 
             return ResponseEntity.ok("Letter uploaded successfully: " + savedLetter.getLetterNumber());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Failed to upload letter: " + e.getMessage());
-        }}
+        }
+    }
 
     @GetMapping("/getCorrespondeneceList")
     public ResponseEntity<List<CorrespondenceLetterProjection>> getCorrespondeneceList(
@@ -108,9 +106,32 @@ public class CorrespondenceController {
         return ResponseEntity.ok(correspondenceService.getFiltered(letter));
     }
 
+    @GetMapping("/filter/column")
+    public ResponseEntity<?> getDynamic(@RequestParam String fields, @RequestParam(defaultValue = "true") boolean distinct) {
 
+        List<String> selectedFields = Arrays.stream(fields.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .toList();
+
+        List<Map<String, Object>> rows = correspondenceService.fetchDynamic(selectedFields, distinct);
+
+        // If only one column requested → return flat list
+        if (selectedFields.size() == 1) {
+            return ResponseEntity.ok(rows.stream()
+                    .map(m -> m.get(selectedFields.get(0)))
+                    .toList());
+        }
+
+        return ResponseEntity.ok(rows);
+    }
+
+    public ResponseEntity<List<Object>> searchColumn(@RequestParam String fieldName) {
+        return null;
+    }
 
     @GetMapping("/view/letter/{letterNumber}")
+
     public ResponseEntity<CorrespondenceLetterViewDto> getCorrespondenceWithFilesByLetterNumber(
             @PathVariable String letterNumber,
             HttpServletRequest request) {
@@ -140,7 +161,11 @@ public class CorrespondenceController {
         return ResponseEntity.ok(dto);
     }
 
+    @PostMapping("/search/letter")
+    public ResponseEntity<List<CorrespondenceLetter>> searchLetter(@RequestBody CorrespondenceLetter letter) {
 
+        return ResponseEntity.ok(correspondenceService.search(letter));
+    }
 }
 
 
