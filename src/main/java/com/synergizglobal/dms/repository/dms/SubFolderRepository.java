@@ -30,9 +30,11 @@ where
 (d.created_by = :userId or s.to_user_id = :userId) 
 and d.not_required is null
 and f.id = :folderId
+and d.project_name in (:projects)
+and d.contract_name in (:contracts)
 			"""	
 			, nativeQuery = true)
-	List<SubFolder> getsubfolderGridByFolderId(@Param("folderId") Long folderId,@Param("userId") String userId);
+	List<SubFolder> getsubfolderGridByFolderId(@Param("folderId") Long folderId,@Param("userId") String userId,@Param("projects") List<String> projects,@Param("contracts") List<String>  contracts);
 	@Query(
 			value= """
 			select 
@@ -47,5 +49,5 @@ and f.id = :folderId
 	and f.id = :folderId
 				"""	
 				, nativeQuery = true)
-	List<SubFolder> getAllSubfolderGridByFolderId(@Param("folderId") Long folderId);
+	List<SubFolder> getAllSubfolderGridByFolderId(@Param("folderId") Long folderId,@Param("projects") List<String> projects,@Param("contracts") List<String>  contracts);
 }

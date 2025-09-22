@@ -85,7 +85,7 @@ public interface DocumentService {
 
 		public void markNotRequired(NotRequiredDTO notRequiredDto, String userId);
 
-		public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId);
+		public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId, List<String> projects, List<String> contracts);
 
 		public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, String userId);
 
@@ -113,7 +113,7 @@ public interface DocumentService {
 
 		public List<String> findAllDepartmentByDocument();
 
-		public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId);
+		public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, List<String> projects, List<String> contracts);
 
 		public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId);
 }

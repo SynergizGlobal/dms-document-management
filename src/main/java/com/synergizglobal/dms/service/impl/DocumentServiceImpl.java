@@ -1241,8 +1241,8 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId) {
-		return documentRepository.getFilesForFolderGrid(subfolderId, userId);
+	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId, List<String> projects, List<String> contracts) {
+		return documentRepository.getFilesForFolderGrid(subfolderId, userId, projects, contracts);
 	}
 
 	@Override
@@ -1324,9 +1324,9 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId) {
+	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, List<String> projects, List<String> contracts) {
 		// TODO Auto-generated method stub
-		return documentRepository.getFilesForFolderGrid(subfolderId);
+		return documentRepository.getFilesForFolderGrid(subfolderId, projects, contracts);
 	}
 
 	@Override

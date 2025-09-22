@@ -23,15 +23,15 @@ public class SubFolderServiceImpl  implements SubFolderService{
 	}
 
 	@Override
-	public List<SubFolder> getsubfolderGridByFolderId(Long folderId, String userId) {
+	public List<SubFolder> getsubfolderGridByFolderId(Long folderId, String userId, List<String> projects, List<String> contracts) {
 		// TODO Auto-generated method stub
-		return subFolderRepository.getsubfolderGridByFolderId(folderId, userId);
+		return subFolderRepository.getsubfolderGridByFolderId(folderId, userId, projects, contracts);
 	}
 
 	@Override
-	public List<SubFolder> getAllSubfolderGridByFolderId(Long folderId) {
+	public List<SubFolder> getAllSubfolderGridByFolderId(Long folderId, List<String> projects, List<String> contracts) {
 		// TODO Auto-generated method stub
-		return subFolderRepository.getAllSubfolderGridByFolderId(folderId);
+		return subFolderRepository.getAllSubfolderGridByFolderId(folderId, projects, contracts);
 	}
     
 	

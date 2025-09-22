@@ -29,6 +29,7 @@ import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.dto.DraftDataTableRequest;
 import com.synergizglobal.dms.dto.DraftDataTableResponse;
 import com.synergizglobal.dms.dto.DraftSendDocumentDTO;
+import com.synergizglobal.dms.dto.FolderGridDTO;
 import com.synergizglobal.dms.dto.NotRequiredDTO;
 import com.synergizglobal.dms.dto.SendDocumentDTO;
 import com.synergizglobal.dms.entity.pmis.User;
@@ -254,15 +255,15 @@ public class DocumentController {
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(mimeType)).body(resource);
 	}
 
-	@GetMapping("/folder-grid/{subfolderId}")
+	@PostMapping("/folder-grid/{subfolderId}")
 	public List<DocumentFolderGridDTO> getFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId,
-			HttpSession session) throws IOException {
+			@RequestBody FolderGridDTO folderGridDto, HttpSession session) throws IOException {
 		User user = (User) session.getAttribute("user");
 		if (user.getUserRoleNameFk().equals("IT Admin")) {
 			// IT Admin
-			return documentService.getFilesForFolderGrid(subfolderId);
+			return documentService.getFilesForFolderGrid(subfolderId, folderGridDto.getProjects(), folderGridDto.getContracts());
 		}
-		return documentService.getFilesForFolderGrid(subfolderId, user.getUserId());
+		return documentService.getFilesForFolderGrid(subfolderId, user.getUserId(), folderGridDto.getProjects(), folderGridDto.getContracts());
 	}
 
 	@GetMapping("/archived/folder-grid/{subfolderId}")

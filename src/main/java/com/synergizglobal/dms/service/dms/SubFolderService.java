@@ -9,8 +9,8 @@ public interface SubFolderService {
 
 	List<SubFolder> getSubFoldersByFolderId(Long folderId);
 
-	List<SubFolder> getsubfolderGridByFolderId(Long folderId, String userId);
+	List<SubFolder> getsubfolderGridByFolderId(Long folderId, String userId, List<String> projects, List<String> contracts);
 
-	List<SubFolder> getAllSubfolderGridByFolderId(Long folderId);
+	List<SubFolder> getAllSubfolderGridByFolderId(Long folderId, List<String> projects, List<String> contracts);
 
 }

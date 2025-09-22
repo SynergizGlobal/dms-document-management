@@ -1,5 +1,5 @@
 $(document).ready(function() {
-$.ajax({
+	$.ajax({
 		url: `/dms/api/users/get/username`,
 		method: 'GET',
 		async: false, // token as query param
@@ -95,7 +95,17 @@ function loadArchiveFolder(folderId) {
 	});
 }
 function loadSubFolders(folderid) {
-	fetch(`/dms/api/subfolders/grid/${encodeURIComponent(folderid)}`)
+	fetch(`/dms/api/subfolders/grid/${encodeURIComponent(folderid)}`
+		, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				projects: selectedProjects,   // send array
+				contracts: selectedContracts  // send array
+			})
+		})
 		.then(response => response.json())
 		.then(folders => {
 			const grid = document.querySelector(".folders-grid");
@@ -132,7 +142,16 @@ function loadSubFolders(folderid) {
 		.catch(err => console.error("Error loading folders:", err));
 }
 function loadFiles(folderid) {
-	fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`)
+	fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`	, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					projects: selectedProjects,   // send array
+					contracts: selectedContracts  // send array
+				})
+			})
 		.then(response => response.json())
 		.then(folders => {
 			const grid = document.querySelector(".folders-grid");

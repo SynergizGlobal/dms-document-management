@@ -244,9 +244,12 @@ where
 (d.created_by = :userId or s.to_user_id = :userId)
 and d.not_required is null
 and sub.id = :subfolderId
+and d.project_name in (:projects)
+and d.contract_name in (:contracts)
+
 			"""
 			, nativeQuery = true)
-	List<DocumentFolderGridDTO> getFilesForFolderGrid(@Param("subfolderId") String subfolderId,@Param("userId") String userId);
+	List<DocumentFolderGridDTO> getFilesForFolderGrid(@Param("subfolderId") String subfolderId,@Param("userId") String userId,@Param("projects") List<String> projects, @Param("contracts") List<String> contracts);
 
 	@Query(
 			value ="""
@@ -419,9 +422,11 @@ join dms.sub_folders sub on d.sub_folder_id = sub.id
 where
 d.not_required is null
 and sub.id = :subfolderId
+and d.project_name in (:projects)
+and d.contract_name in (:contracts)
 			"""
 			, nativeQuery = true)
-	List<DocumentFolderGridDTO> getFilesForFolderGrid(@Param("subfolderId") String subfolderId);
+	List<DocumentFolderGridDTO> getFilesForFolderGrid(@Param("subfolderId") String subfolderId,@Param("projects") List<String> projects, @Param("contracts") List<String> contracts);
 
 	@Query(
 			value ="""
