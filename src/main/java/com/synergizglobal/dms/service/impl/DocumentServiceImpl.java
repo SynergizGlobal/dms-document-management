@@ -1329,4 +1329,10 @@ public class DocumentServiceImpl implements DocumentService {
 		return documentRepository.getFilesForFolderGrid(subfolderId);
 	}
 
+	@Override
+	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId) {
+		// TODO Auto-generated method stub
+		return documentRepository.getArvhivedFilesForFolderGrid(subfolderId);
+	}
+
 }
