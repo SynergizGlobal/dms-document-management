@@ -1451,6 +1451,7 @@ table.dataTable tbody td {
     .filter-option:hover {
         background-color: #555555;
     }
+    
 }
 
 /* High contrast mode */
@@ -1673,4 +1674,58 @@ table.dataTable tbody td {
   min-height: 38px;
   border: 1px solid #ced4da;
   border-radius: 4px;
+}
+.dataTables_length label {
+    color: #000 !important;   /* black text */
+    font-size: 14px;          /* adjust size */
+}
+
+/* Dropdown select */
+.dataTables_length select {
+    color: #000 !important;   /* dropdown text color */
+    background-color: #fff;   /* white background */
+    border: 1px solid #ccc;   /* subtle border */
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Pagination container */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+}
+
+/* Default buttons */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #000 !important;        /* text color */
+    border: 1px solid #ccc;        /* border */
+    background-color: #fff;        /* background */
+    padding: 4px 10px;
+    margin: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Hover effect */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #007bff;     /* blue background */
+    color: #fff !important;        /* white text */
+    border-color: #007bff;
+}
+
+/* Active page */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #007bff !important;
+    color: #fff !important;
+    border: 1px solid #007bff;
+}
+
+/* Disabled buttons */
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    color: #aaa !important;
+    background-color: #f9f9f9 !important;
+    border: 1px solid #ddd;
+    cursor: not-allowed;
+}
+.table-container {
+	color: black !important;
 }
