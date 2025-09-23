@@ -43,6 +43,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
     private final CorrespondenceLetterRepository correspondenceRepo;
 
+//    private final correspondencef
+
     private final CorrespondenceReferenceRepository correspondenceReferenceRepository;
 
     private final FileStorageService fileStorageService;
@@ -56,7 +58,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
     @Override
     @Transactional
-    public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl ,String loggedUserId, String loggedUserName) throws Exception {
+    public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl ,String loggedUserId, String loggedUserName,String userRole) throws Exception {
 
 
         Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
@@ -103,6 +105,15 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
               //  log.info("Recipient not found for '{}', storing only the provided `to` string", dto.getTo());
                 System.out.print("Recipient not found for '{}', storing only the provided `to` string"+ dto.getTo());
             }
+        }
+
+// Determine direction based on who is sending
+        if ("Contractor".equalsIgnoreCase(userRole)) {
+            // Contractor user is creating this letter → Outgoing
+            entity.setMailDirection("OUTGOING");
+        } else {
+            // Employer/Engineer sending → Incoming for contractor
+            entity.setMailDirection("INCOMING");
         }
 
 
@@ -152,20 +163,34 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
         return savedEntity;
     }
-
     private CorrespondenceLetter saveFileDetails(CorrespondenceUploadLetter dto, CorrespondenceLetter entity) throws Exception {
         List<MultipartFile> documents = dto.getDocuments();
 
         if (documents != null && !documents.isEmpty()) {
             entity.setFileCount(documents.size());
 
-            List<String> filePaths = fileStorageService.saveFiles(documents);
+            // Determine target user id for storing files:
+            // OUTGOING -> store under sender (entity.getUserId())
+            // INCOMING -> store under recipient if known, otherwise under sender
+            String direction = entity.getMailDirection() != null ? entity.getMailDirection().toUpperCase() : "UNKNOWN";
+
+            String targetUserId;
+            if ("OUTGOING".equals(direction)) {
+                targetUserId = entity.getUserId();
+            } else if ("INCOMING".equals(direction)) {
+                targetUserId = entity.getToUserId() != null && !entity.getToUserId().isBlank() ? entity.getToUserId() : entity.getUserId();
+            } else {
+                targetUserId = entity.getUserId() != null ? entity.getUserId() : "anonymous";
+            }
+
+            // call new file storage method (returns relative paths)
+            List<String> fileRelativePaths = fileStorageService.saveFiles(documents, direction, targetUserId);
 
             List<CorrespondenceFile> fileEntities = new ArrayList<>();
 
             for (int i = 0; i < documents.size(); i++) {
                 MultipartFile file = documents.get(i);
-                String filePath = filePaths.get(i);
+                String relativePath = (i < fileRelativePaths.size()) ? fileRelativePaths.get(i) : null;
 
                 String fileName = file.getOriginalFilename();
                 String fileExtension = "unknown";
@@ -175,9 +200,15 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
                 }
 
                 CorrespondenceFile cf = new CorrespondenceFile();
-                cf.setFileName(Paths.get(filePath).getFileName().toString());
+                // store only the filename portion in DB OR store the relative path depending on your needs
+                if (relativePath != null) {
+                    cf.setFilePath(relativePath); // relative path (OUTGOING/123/xxx.pdf)
+                    cf.setFileName(Paths.get(relativePath).getFileName().toString());
+                } else {
+                    cf.setFileName(fileName);
+                    cf.setFilePath(null);
+                }
                 cf.setFileType(fileExtension.toLowerCase());
-                cf.setFilePath(filePath);
                 cf.setCorrespondenceLetter(entity);
 
                 fileEntities.add(cf);
@@ -367,7 +398,5 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-
-
+    
 }

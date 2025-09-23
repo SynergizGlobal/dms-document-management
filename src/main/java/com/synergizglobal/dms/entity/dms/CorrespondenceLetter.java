@@ -90,8 +90,8 @@ public class CorrespondenceLetter {
     @Column(name="contract_name")
     private String contractName;
 
-    @Column(name="mail_status")
-    private String mailStatus;
+    @Column(name="mail_direction")
+    private String mailDirection;
 
     @Column(name="user_name")
     private String UserName;

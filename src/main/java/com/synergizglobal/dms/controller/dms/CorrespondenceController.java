@@ -22,7 +22,6 @@ import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
 import com.synergizglobal.dms.dto.DataTableRequest;
 import com.synergizglobal.dms.dto.DataTableResponse;
-import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -57,11 +56,13 @@ public class CorrespondenceController {
             HttpSession session = request.getSession(false);
           String loggedUserId = null;
             String loggedUserName = null;
+            String userRole= null;
             if (session != null) {
                 User user = (User) session.getAttribute("user");
                 if (user != null) {
                     loggedUserId = user.getUserId();       // String as per your User entity
                     loggedUserName = user.getUserName();
+                    userRole= user.getUserRoleNameFk();
                 }
             }
 
@@ -69,7 +70,7 @@ public class CorrespondenceController {
             if (loggedUserId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
             }
-            CorrespondenceLetter savedLetter = correspondenceService.saveLetter(dto, baseUrl, loggedUserId, loggedUserName);
+            CorrespondenceLetter savedLetter = correspondenceService.saveLetter(dto, baseUrl, loggedUserId, loggedUserName,userRole);
 
             return ResponseEntity.ok("Letter uploaded successfully: " + savedLetter.getLetterNumber());
         } catch (Exception e) {
@@ -80,14 +81,14 @@ public class CorrespondenceController {
 
     @GetMapping("/getCorrespondeneceList")
     public ResponseEntity<List<CorrespondenceLetterProjection>> getCorrespondeneceList(
-            @RequestParam("action") String action) {
+           @RequestParam("action") String action) {
         return ResponseEntity.ok(correspondenceService.getLettersByAction(action));
     }
 
 
     @GetMapping("/getReferenceLetters")
     public ResponseEntity<List<String>> getReferenceLetters(
-            @RequestParam(required = false, name="query") String query) {
+        @RequestParam(required = false, name="query") String query) {
 
         List<String> letters = correspondenceService.findReferenceLetters(query);
 
@@ -131,28 +132,7 @@ public class CorrespondenceController {
 
         return ResponseEntity.ok(correspondenceService.getFiltered(letter));
     }
-    
-	@PostMapping("/filter-data")
-	public ResponseEntity<DataTableResponse<CorrespondenceGridDTO>> getFilteredDocuments(
-			@RequestBody DataTableRequest request, HttpSession session) {
-		// Parse pagination
-		int start = request.getStart(); // Offset
-		int length = request.getLength(); // Page size
-		int draw = request.getDraw(); // Sync token
-		User user = (User) session.getAttribute("user");
-		Map<Integer, List<String>> columnFilters = request.getColumnFilters();
-		List<CorrespondenceGridDTO> paginated = correspondenceService.getFilteredCorrespondence(columnFilters, start, length, user);
-		long recordsFiltered = correspondenceService.countFilteredCorrespondence(columnFilters, user);
 
-		DataTableResponse<CorrespondenceGridDTO> response = new DataTableResponse<>();
-		response.setDraw(draw);
-		response.setRecordsTotal(correspondenceService.countAllCorrespondence(user)); // Total in DB (optional: unfiltered)
-		response.setRecordsFiltered(recordsFiltered); // After filtering
-		response.setData(paginated);
-
-		return ResponseEntity.ok(response);
-	}
-	
     @GetMapping("/filter/column")
     public ResponseEntity<?> getDynamic(@RequestParam String fields, @RequestParam(defaultValue = "true") boolean distinct) {
 
@@ -213,7 +193,26 @@ public class CorrespondenceController {
 
         return ResponseEntity.ok(correspondenceService.search(letter));
     }
+
+@PostMapping("/filter-data")
+	public ResponseEntity<DataTableResponse<CorrespondenceGridDTO>> getFilteredDocuments(
+			@RequestBody DataTableRequest request, HttpSession session) {
+		// Parse pagination
+		int start = request.getStart(); // Offset
+		int length = request.getLength(); // Page size
+		int draw = request.getDraw(); // Sync token
+		User user = (User) session.getAttribute("user");
+		Map<Integer, List<String>> columnFilters = request.getColumnFilters();
+		List<CorrespondenceGridDTO> paginated = correspondenceService.getFilteredCorrespondence(columnFilters, start, length, user);
+		long recordsFiltered = correspondenceService.countFilteredCorrespondence(columnFilters, user);
+
+		DataTableResponse<CorrespondenceGridDTO> response = new DataTableResponse<>();
+		response.setDraw(draw);
+		response.setRecordsTotal(correspondenceService.countAllCorrespondence(user)); // Total in DB (optional: unfiltered)
+		response.setRecordsFiltered(recordsFiltered); // After filtering
+		response.setData(paginated);
+
+		return ResponseEntity.ok(response);
+	}
+
 }
-
-
-

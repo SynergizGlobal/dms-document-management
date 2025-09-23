@@ -13,7 +13,7 @@ import com.synergizglobal.dms.entity.pmis.User;
 public interface ICorrespondenceService {
 
 
-    CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl, String loggedUserId, String loggedUserName) throws Exception;
+    CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl, String loggedUserId, String loggedUserName,String userRole) throws Exception;
 
     List<CorrespondenceLetterProjection> getLettersByAction(String action);
 
@@ -27,7 +27,6 @@ public interface ICorrespondenceService {
     List<Map<String, Object>> fetchDynamic(List<String> fields, boolean distinct);
 
     List<CorrespondenceLetter> search(CorrespondenceLetter letter);
-
 	List<CorrespondenceGridDTO> getFilteredCorrespondence(Map<Integer, List<String>> columnFilters, int start,
 			int length, User user);
 
