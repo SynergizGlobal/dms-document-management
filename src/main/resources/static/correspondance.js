@@ -807,7 +807,42 @@ $(document).ready(function() {
 		});
 	});
 });
+$('#draftTable tbody').on('click', 'tr', async function() {
+	let rowData = $('#draftTable').DataTable().row(this).data();
 
+	if (!rowData) return; // skip if rowData is empty (like header row)
+
+	// Debug: see what values are available
+	console.log("Row clicked:", rowData);
+
+	// Example: populate modal fields
+	/* $('#modalCategory').text(rowData.category);
+	 $('#modalLetterNo').text(rowData.letterNo);
+	 $('#modalFrom').text(rowData.from);
+	 $('#modalTo').text(rowData.to);
+	 $('#modalSubject').text(rowData.subject);
+	 $('#modalDueDate').text(rowData.dueDate);
+	 $('#modalStatus').text(rowData.status);
+	 $('#modalDepartment').text(rowData.department);*/
+	uploadModal.style.display = 'block';
+	await fetchProjects();
+	await fetchContracts();
+	await fetchDepartments();
+	await fetchStatuses();
+	// Open the modal (Bootstrap example)
+	$('#category').val(rowData.category).trigger('change');
+	$('#projectName').val(rowData.projectName).trigger('change');
+	$('#contractName').val(rowData.contractName).trigger('change');
+	$('#letterNo').val(rowData.letterNumber);
+	//$('#letterDate').text(rowData.letterDate);
+	$('#toField').val(rowData.to);
+	$('#requiredResponse').val(rowData.requiredResponse);
+	$('#dueDate').val(rowData.dueDate);
+	$('#subject').val(rowData.subject);
+	$('#currentStatus').val(rowData.currentStatus);
+	$('#department').val(rowData.department);
+	$('#attachment').val(rowData.attachment);
+});
 // Initialize DataTable for document table
 $(document).ready(function() {
 	/*$('#mainTable').DataTable({
@@ -828,45 +863,45 @@ $(document).ready(function() {
 		"pageLength": 10
 	});*/
 	if ($.fn.DataTable.isDataTable('#draftTable')) {
-			$('#draftTable').DataTable().clear().destroy();
-		}
+		$('#draftTable').DataTable().clear().destroy();
+	}
 
-		draftTable = $('#draftTable').DataTable({
-			serverSide: true,
-			processing: true,
-			ajax: {
-				url: '/dms/api/correspondence/drafts',
-				type: 'POST',
-				contentType: 'application/json',
-				data: function(d) {
-					console.log("Payload:", d); // debug
-					return JSON.stringify({
-						draw: d.draw,
-						start: d.start,
-						length: d.length
-					});
-				},
-				dataSrc: 'data'
+	draftTable = $('#draftTable').DataTable({
+		serverSide: true,
+		processing: true,
+		ajax: {
+			url: '/dms/api/correspondence/drafts',
+			type: 'POST',
+			contentType: 'application/json',
+			data: function(d) {
+				console.log("Payload:", d); // debug
+				return JSON.stringify({
+					draw: d.draw,
+					start: d.start,
+					length: d.length
+				});
 			},
-			columns: [
-				{
-					data: 'correspondenceId', visible: false
-				},
-				{ data: 'category' },
-				{ data: 'letterNumber'}, // check API keys!
-				{ data: 'from' },
-				{ data: 'to' },
-				{ data: 'subject' },
-				{ data: 'requiredResponse' },
-				{ data: 'dueDate' },
-				{ data: 'projectName' },
-				{ data: 'contractName' },			
-				{ data: 'currentStatus' },
-				{ data: 'department' },
-				{ data: 'attachment' },
-				{ data: 'type' }
-			]
-		});
+			dataSrc: 'data'
+		},
+		columns: [
+			{
+				data: 'correspondenceId', visible: false
+			},
+			{ data: 'category' },
+			{ data: 'letterNumber' }, // check API keys!
+			{ data: 'from' },
+			{ data: 'to' },
+			{ data: 'subject' },
+			{ data: 'requiredResponse' },
+			{ data: 'dueDate' },
+			{ data: 'projectName' },
+			{ data: 'contractName' },
+			{ data: 'currentStatus' },
+			{ data: 'department' },
+			{ data: 'attachment' },
+			{ data: 'type' }
+		]
+	});
 });
 //let mainTableInstance = null;
 let columnFilters = {};
@@ -901,11 +936,12 @@ function initializeDataTables() {
 				}
 			},
 			{ data: 'category' },
-			{ data: 'letterNumber'			,
-			        render: function(data, type, row) {
-			            if (!data) return '';
-			            return `<a href="/dms/view.html?id=${row.correspondenceId}">${data}</a>`;
-			        } 
+			{
+				data: 'letterNumber',
+				render: function(data, type, row) {
+					if (!data) return '';
+					return `<a href="/dms/view.html?id=${row.correspondenceId}">${data}</a>`;
+				}
 			}, // check API keys!
 			{ data: 'from' },
 			{ data: 'to' },
@@ -913,7 +949,7 @@ function initializeDataTables() {
 			{ data: 'requiredResponse' },
 			{ data: 'dueDate' },
 			{ data: 'projectName' },
-			{ data: 'contractName' },			
+			{ data: 'contractName' },
 			{ data: 'currentStatus' },
 			{ data: 'department' },
 			{ data: 'attachment' },
