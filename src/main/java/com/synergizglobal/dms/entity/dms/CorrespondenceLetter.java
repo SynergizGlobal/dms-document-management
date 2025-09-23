@@ -94,7 +94,7 @@ public class CorrespondenceLetter {
     private String mailDirection;
 
     @Column(name="user_name")
-    private String UserName;
+    private String userName;
 
     @Column(name="user_id")
     private String  userId;
