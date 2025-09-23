@@ -63,6 +63,7 @@
 					<table class="document-table" id="mainTable">
 						<thead>
 							<tr>
+								<th style="display : none;">Correspondence Id</th>
 								<th>Category</th>
 								<th>Letter Number</th>
 								<th>From</th>
@@ -80,7 +81,7 @@
 
 							<!-- Enhanced Filter Row with Multi-Select Dropdowns -->
 							<tr class="filter-row">
-								<th>
+								<th style="display:none;">
 									<div class="filter-container">
 										<input type="text" class="column-filter" data-column="0"
 											placeholder="Search" readonly> <span
@@ -162,7 +163,7 @@
 								</th>
 								<th>
 									<div class="filter-container">
-										<input type="text" class="column-filter" data-column="9"
+										<input type="text" class="column-filter" data-column="10"
 											placeholder="Search" readonly> <span
 											class="filter-dropdown-toggle">▼</span>
 										<div class="filter-dropdown" data-column="10"></div>
@@ -170,7 +171,7 @@
 								</th>
 								<th>
 									<div class="filter-container">
-										<input type="text" class="column-filter" data-column="9"
+										<input type="text" class="column-filter" data-column="11"
 											placeholder="Search" readonly> <span
 											class="filter-dropdown-toggle">▼</span>
 										<div class="filter-dropdown" data-column="11"></div>
@@ -178,13 +179,20 @@
 								</th>
 								<th>
 									<div class="filter-container">
-										<input type="text" class="column-filter" data-column="9"
+										<input type="text" class="column-filter" data-column="12"
 											placeholder="Search" readonly> <span
 											class="filter-dropdown-toggle">▼</span>
 										<div class="filter-dropdown" data-column="12"></div>
 									</div>
 								</th>
-
+								<th>
+									<div class="filter-container">
+										<input type="text" class="column-filter" data-column="13"
+											placeholder="Search" readonly> <span
+											class="filter-dropdown-toggle">▼</span>
+										<div class="filter-dropdown" data-column="13"></div>
+									</div>
+								</th>
 							</tr>
 
 							<!-- ADD THIS FILTER ROW IMMEDIATELY AFTER THE HEADER ROW -->
@@ -218,11 +226,13 @@
 								<td><input type="text" class="editable-input" value=""></td>
 								<td><input type="text" class="editable-input" value=""></td>
 								<td><input type="text" class="editable-input" value=""></td>
+								<td><input type="text" class="editable-input" value=""></td>
 							</tr>
 
 
 							<tr>
 								<td><span class="file-type-label file-type-pdf"></span></td>
+								<td><input type="text" class="editable-input" value=""></td>
 								<td><input type="text" class="editable-input" value=""></td>
 								<td><input type="text" class="editable-input" value=""></td>
 								<td><input type="text" class="editable-input" value=""></td>

@@ -850,8 +850,14 @@ function initializeDataTables() {
 			dataSrc: 'data'
 		},
 		columns: [
+			{
+				data: 'correspondencId', visible: false,
+				render: function(data) {
+					return `<input type="hidden" class="doc-id-hidden" value="${data}">`;
+				}
+			},
 			{ data: 'category' },
-			{ data: 'letterNo' }, // check API keys!
+			{ data: 'letterNumber' }, // check API keys!
 			{ data: 'from' },
 			{ data: 'to' },
 			{ data: 'subject' },
@@ -859,7 +865,7 @@ function initializeDataTables() {
 			{ data: 'contractName' },
 			{ data: 'requiredResponse' },
 			{ data: 'dueDate' },
-			{ data: 'status' },
+			{ data: 'currentStatus' },
 			{ data: 'department' },
 			{ data: 'attachment' },
 			{ data: 'type' }
