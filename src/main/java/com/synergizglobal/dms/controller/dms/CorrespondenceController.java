@@ -76,7 +76,7 @@ public class CorrespondenceController {
 
     @GetMapping("/getCorrespondeneceList")
     public ResponseEntity<List<CorrespondenceLetterProjection>> getCorrespondeneceList(
-            @RequestParam String action) {
+            @RequestParam("action") String action) {
         return ResponseEntity.ok(correspondenceService.getLettersByAction(action));
     }
 
@@ -96,7 +96,7 @@ public class CorrespondenceController {
 
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<CorrespondenceLetterViewDto> getCorrespondenceWithFiles(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<CorrespondenceLetterViewDto> getCorrespondenceWithFiles(@PathVariable("id") Long id, HttpServletRequest request) {
         CorrespondenceLetterViewDto dto = correspondenceService.getCorrespondenceWithFiles(id);
         if (dto == null) {
             return ResponseEntity.notFound().build();
