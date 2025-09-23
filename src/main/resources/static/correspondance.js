@@ -806,13 +806,13 @@ $(document).ready(function() {
 
 // Initialize DataTable for document table
 $(document).ready(function() {
-	$('#mainTable').DataTable({
+	/*$('#mainTable').DataTable({
 		"language": {
 			"lengthMenu": "Show _MENU_ entries",
 			"info": "Showing _START_ to _END_ of _TOTAL_ entries"
 		},
 		"pageLength": 10
-	});
+	});*/
 });
 
 $(document).ready(function() {
@@ -824,30 +824,56 @@ $(document).ready(function() {
 		"pageLength": 10
 	});
 });
+let mainTableInstance = null;
+let columnFilters = {};
+function initializeDataTables() {
+	if ($.fn.DataTable.isDataTable('#mainTable')) {
+		$('#mainTable').DataTable().clear().destroy();
+	}
 
+	mainTableInstance = $('#mainTable').DataTable({
+		serverSide: true,
+		processing: true,
+		ajax: {
+			url: '/dms/api/correspondence/filter-data',
+			type: 'POST',
+			contentType: 'application/json',
+			data: function(d) {
+				console.log("Payload:", d); // debug
+				return JSON.stringify({
+					draw: d.draw,
+					start: d.start,
+					length: d.length,
+					columnFilters: columnFilters
+				});
+			},
+			dataSrc: 'data'
+		},
+		columns: [
+			{ data: 'category' },
+			{ data: 'letterNo' }, // check API keys!
+			{ data: 'from' },
+			{ data: 'to' },
+			{ data: 'subject' },
+			{ data: 'projectName' },
+			{ data: 'contractName' },
+			{ data: 'requiredResponse' },
+			{ data: 'dueDate' },
+			{ data: 'status' },
+			{ data: 'department' },
+			{ data: 'attachment' },
+			{ data: 'type' }
+		]
+	});
+}
 // Multi-checkbox functionality
 $(document).ready(function() {
 	// Global variables
-	let mainTableInstance = null;
-	let columnFilters = {}; // Store selected filters for each column
+	// Store selected filters for each column
 
-	// Initialize DataTable
-	function initializeDataTables() {
-		if (!mainTableInstance && $('#mainTable').length) {
-			mainTableInstance = $('#mainTable').DataTable({
-				"language": {
-					"lengthMenu": "Show _MENU_ entries",
-					"info": "Showing _START_ to _END of _TOTAL_ entries"
-				},
-				"pageLength": 10,
-				"destroy": true,
-				"drawCallback": function() {
-					// Update filter dropdowns after table redraw
-					updateAllColumnFilters();
-				}
-			});
-		}
-	}
+	initializeDataTables();
+
+
 
 	// Enhanced Column Filter System
 	function getColumnData(columnIndex) {
@@ -885,11 +911,26 @@ $(document).ready(function() {
 
 		// Get unique values from the column
 		const uniqueValues = new Set();
-		$('#mainTable tbody tr').each(function() {
+		/*$('#mainTable tbody tr').each(function() {
 			const cell = $(this).find('td').eq(columnIndex);
 			let value = cell.find('input').length ? cell.find('input').val() : cell.text();
 			value = value.trim();
 			if (value) uniqueValues.add(value);
+		});*/
+		$.ajax({
+			url: `/dms/api/correspondence/filters/${columnIndex}`, // Dynamic URL with column index
+			type: 'GET',
+			async: false,
+			contentType: 'application/json',
+			success: function(values) {
+				values.forEach(value => {
+					uniqueValues.add(value);
+				});
+
+			},
+			error: function(xhr, status, error) {
+				console.error("Error fetching filter values:", error);
+			}
 		});
 
 		// Add checkboxes (all unchecked by default)
