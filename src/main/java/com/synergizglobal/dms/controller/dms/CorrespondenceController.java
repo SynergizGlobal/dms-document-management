@@ -25,6 +25,8 @@ import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
 import com.synergizglobal.dms.dto.DataTableRequest;
 import com.synergizglobal.dms.dto.DataTableResponse;
+import com.synergizglobal.dms.dto.DraftDataTableRequest;
+import com.synergizglobal.dms.dto.DraftDataTableResponse;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
@@ -222,5 +224,10 @@ public class CorrespondenceController {
 
 		return ResponseEntity.ok(response);
 	}
-
+@PostMapping("/drafts")
+public DraftDataTableResponse<CorrespondenceGridDTO> getDrafts(@RequestBody DraftDataTableRequest request,
+		HttpSession session) {
+	User user = (User) session.getAttribute("user");
+	return correspondenceService.getDrafts(request, user.getUserId());
+}
 }

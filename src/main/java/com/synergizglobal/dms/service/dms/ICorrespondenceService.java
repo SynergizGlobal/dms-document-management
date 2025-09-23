@@ -7,6 +7,8 @@ import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
+import com.synergizglobal.dms.dto.DraftDataTableRequest;
+import com.synergizglobal.dms.dto.DraftDataTableResponse;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
 
@@ -33,4 +35,6 @@ public interface ICorrespondenceService {
 	long countFilteredCorrespondence(Map<Integer, List<String>> columnFilters, User user);
 
 	long countAllCorrespondence(User user);
+
+	DraftDataTableResponse<CorrespondenceGridDTO> getDrafts(DraftDataTableRequest request, String userId);
 }

@@ -30,6 +30,6 @@ public class CorrespondenceGridDTO {
 	private LocalDate dueDate;
 	private String projectName;
 	private String contractName;
-	private Integer attachmet;
+	private Integer attachment;
 	private String type;
 }

@@ -1,17 +1,37 @@
 package com.synergizglobal.dms.service.impl;
 
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.synergizglobal.dms.constant.Constant;
 import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewProjection;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
+import com.synergizglobal.dms.dto.DraftDataTableRequest;
+import com.synergizglobal.dms.dto.DraftDataTableResponse;
 import com.synergizglobal.dms.dto.FileViewDto;
 import com.synergizglobal.dms.entity.dms.CorrespondenceFile;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.entity.dms.CorrespondenceReference;
-import com.synergizglobal.dms.entity.dms.Document;
-import com.synergizglobal.dms.entity.dms.DocumentFile;
 import com.synergizglobal.dms.entity.dms.ReferenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.repository.dms.CorrespondenceLetterRepository;
@@ -26,26 +46,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -414,7 +414,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			// Wrap OR in parentheses
 			predicates.add(createdByUser);
 		}
-
+		 predicates.add(cb.equal(root.get("action"), "send"));
 		// 🔹 DISTINCT by fileName, fileNumber, and docFile.id using GROUP BY
 		cq.multiselect(root // DocumentFile
 		).where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]))).groupBy(root.get("id"))
@@ -438,7 +438,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		return CorrespondenceGridDTO.builder().correspondenceId(cor.getCorrespondenceId()).category(cor.getCategory())
 				.letterNumber(cor.getLetterNumber()).from(cor.getUserName()).to(cor.getTo()).subject(cor.getSubject())
 				.requiredResponse(cor.getRequiredResponse()).dueDate(cor.getDueDate())
-				.currentStatus(cor.getCurrentStatus()).department(cor.getDepartment()).attachmet(cor.getFileCount())
+				.currentStatus(cor.getCurrentStatus()).department(cor.getDepartment()).attachment(cor.getFileCount())
 				.type(cor.getMailDirection()).projectName(cor.getProjectName()).contractName(cor.getContractName())
 				.build();
 	}
@@ -484,6 +484,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				predicates.add(fieldPath.in(values));
 			}
 		}
+		 predicates.add(cb.equal(root.get("action"), "send"));
 		String role = user.getUserRoleNameFk();
 
 		// 🔹 Apply user restrictions
@@ -503,6 +504,26 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	public long countAllCorrespondence(User user) {
 		// TODO Auto-generated method stub
 		return 100;
+	}
+
+	@Override
+	public DraftDataTableResponse<CorrespondenceGridDTO> getDrafts(DraftDataTableRequest request, String userId) {
+		int page = request.getStart() / request.getLength();
+	    PageRequest pageRequest = PageRequest.of(page, request.getLength(), Sort.by(Sort.Direction.DESC, "updatedAt"));
+
+	    org.springframework.data.domain.Page<CorrespondenceLetter> resultPage = correspondenceRepo.findByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT ,pageRequest);
+	    
+	    List<CorrespondenceGridDTO> dtos = resultPage.getContent()
+	            .stream()
+	            .map(this::convertToDTOWithSingleFile)
+	            .toList();
+	    
+	    return new DraftDataTableResponse<>(
+	        request.getDraw(),
+	        correspondenceRepo.countByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT),
+	        resultPage.getTotalElements(),
+	        dtos
+	    );
 	}
 
 }

@@ -3,6 +3,8 @@ package com.synergizglobal.dms.repository.dms;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewProjection;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
+import com.synergizglobal.dms.entity.dms.SendDocument;
 
 @Repository
 public interface CorrespondenceLetterRepository extends JpaRepository<CorrespondenceLetter, Long>{
@@ -101,6 +104,10 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     WHERE c.letter_number = :letterNumber
     """, nativeQuery = true)
     List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesViewByLetterNumber(@Param("letterNumber") String letterNumber);
+
+	Page<CorrespondenceLetter> findByUserIdAndAction(String userId, String saveAsDraft, PageRequest pageRequest);
+
+	Long countByUserIdAndAction(String userId, String saveAsDraft);
 
 
 }
