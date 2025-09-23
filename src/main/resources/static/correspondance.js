@@ -851,20 +851,25 @@ function initializeDataTables() {
 		},
 		columns: [
 			{
-				data: 'correspondencId', visible: false,
+				data: 'correspondenceId', visible: false,
 				render: function(data) {
 					return `<input type="hidden" class="doc-id-hidden" value="${data}">`;
 				}
 			},
 			{ data: 'category' },
-			{ data: 'letterNumber' }, // check API keys!
+			{ data: 'letterNumber'			,
+			        render: function(data, type, row) {
+			            if (!data) return '';
+			            return `<a href="/dms/view.html?id=${row.correspondenceId}">${data}</a>`;
+			        } 
+			}, // check API keys!
 			{ data: 'from' },
 			{ data: 'to' },
 			{ data: 'subject' },
-			{ data: 'projectName' },
-			{ data: 'contractName' },
 			{ data: 'requiredResponse' },
 			{ data: 'dueDate' },
+			{ data: 'projectName' },
+			{ data: 'contractName' },			
 			{ data: 'currentStatus' },
 			{ data: 'department' },
 			{ data: 'attachment' },

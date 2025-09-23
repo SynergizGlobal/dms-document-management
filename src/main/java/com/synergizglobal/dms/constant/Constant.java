@@ -38,4 +38,21 @@ public class Constant {
 		    put(13, "department.name");
 		    put(14, "documentFiles.viewedOrDownloaded");
 	}};
+	public static final Map<Integer, String> CORESSPONDENCE_COLUMN_INDEX_FIELD_MAP = new HashMap<>() {{
+		put(0, "correspondenceId");
+		put(1, "category");
+	    put(2, "letterNumber");
+	    put(3, "from");
+	    put(4, "to");
+	    put(5, "subject");
+	    put(6, "projectName");
+	    put(7, "contractName");
+	    put(8, "requiredResponse");
+	    put(9, "dueDate");
+	    put(10, "currentStatus");
+	    put(11, "department");
+	    put(12, "attachment");
+	    put(13, "type");
+}};
+	
 }
