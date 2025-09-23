@@ -1,7 +1,7 @@
 package com.synergizglobal.dms.service.impl;
 
 import com.synergizglobal.dms.constant.Constant;
-
+import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewProjection;
@@ -347,6 +347,25 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	public List<CorrespondenceLetter> search(CorrespondenceLetter letter) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<CorrespondenceGridDTO> getFilteredCorrespondence(Map<Integer, List<String>> columnFilters, int start,
+			int length, User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long countFilteredCorrespondence(Map<Integer, List<String>> columnFilters, User user) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long countAllCorrespondence(User user) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 

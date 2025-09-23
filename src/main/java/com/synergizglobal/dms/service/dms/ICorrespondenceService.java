@@ -3,10 +3,12 @@ package com.synergizglobal.dms.service.dms;
 import java.util.List;
 import java.util.Map;
 
+import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
+import com.synergizglobal.dms.entity.pmis.User;
 
 public interface ICorrespondenceService {
 
@@ -25,4 +27,11 @@ public interface ICorrespondenceService {
     List<Map<String, Object>> fetchDynamic(List<String> fields, boolean distinct);
 
     List<CorrespondenceLetter> search(CorrespondenceLetter letter);
+
+	List<CorrespondenceGridDTO> getFilteredCorrespondence(Map<Integer, List<String>> columnFilters, int start,
+			int length, User user);
+
+	long countFilteredCorrespondence(Map<Integer, List<String>> columnFilters, User user);
+
+	long countAllCorrespondence(User user);
 }

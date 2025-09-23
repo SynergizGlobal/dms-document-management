@@ -694,7 +694,7 @@ window.removeAttachment = removeAttachment;
 //    loadCorrespondenceList('all');
 //});
 document.addEventListener('DOMContentLoaded', function() {
-	loadCorrespondenceList('send');   // ✅ सही
+	//loadCorrespondenceList('send');   // ✅ सही
 });
 
 

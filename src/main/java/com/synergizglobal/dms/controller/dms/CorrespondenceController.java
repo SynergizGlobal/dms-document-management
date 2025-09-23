@@ -16,9 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synergizglobal.dms.controller.pmis.ContractController;
+import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
+import com.synergizglobal.dms.dto.DataTableRequest;
+import com.synergizglobal.dms.dto.DataTableResponse;
+import com.synergizglobal.dms.dto.DocumentGridDTO;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -127,7 +131,28 @@ public class CorrespondenceController {
 
         return ResponseEntity.ok(correspondenceService.getFiltered(letter));
     }
+    
+	@PostMapping("/filter-data")
+	public ResponseEntity<DataTableResponse<CorrespondenceGridDTO>> getFilteredDocuments(
+			@RequestBody DataTableRequest request, HttpSession session) {
+		// Parse pagination
+		int start = request.getStart(); // Offset
+		int length = request.getLength(); // Page size
+		int draw = request.getDraw(); // Sync token
+		User user = (User) session.getAttribute("user");
+		Map<Integer, List<String>> columnFilters = request.getColumnFilters();
+		List<CorrespondenceGridDTO> paginated = correspondenceService.getFilteredCorrespondence(columnFilters, start, length, user);
+		long recordsFiltered = correspondenceService.countFilteredCorrespondence(columnFilters, user);
 
+		DataTableResponse<CorrespondenceGridDTO> response = new DataTableResponse<>();
+		response.setDraw(draw);
+		response.setRecordsTotal(correspondenceService.countAllCorrespondence(user)); // Total in DB (optional: unfiltered)
+		response.setRecordsFiltered(recordsFiltered); // After filtering
+		response.setData(paginated);
+
+		return ResponseEntity.ok(response);
+	}
+	
     @GetMapping("/filter/column")
     public ResponseEntity<?> getDynamic(@RequestParam String fields, @RequestParam(defaultValue = "true") boolean distinct) {
 
