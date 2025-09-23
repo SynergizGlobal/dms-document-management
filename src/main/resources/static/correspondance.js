@@ -240,7 +240,7 @@ function clearTable(tableId) {
 // Get form data
 function getFormData() {
     const ccValue = document.getElementById('ccField').value;
-    const referenceLettersValue = document.getElementById('referenceLetters').value;
+    const referenceLettersValue = $('#referenceLetters').val();
 
     return {
         category: document.getElementById('category').value,
@@ -248,7 +248,7 @@ function getFormData() {
         letterDate: document.getElementById('letterDate').value,
         to: document.getElementById('toField').value,
         cc: ccValue ? ccValue.split(',').map(item => item.trim()).filter(item => item) : [],
-        referenceLetters: referenceLettersValue ? referenceLettersValue.split(',').map(item => item.trim()).filter(item => item) : [],
+        referenceLetters: referenceLettersValue ,//? referenceLettersValue.split(',').map(item => item.trim()).filter(item => item) : [],
         subject: document.getElementById('subject').value,
         keyInformation: document.getElementById('keyInformation').value,
         requiredResponse: document.getElementById('requiredResponse').value,
@@ -260,7 +260,34 @@ function getFormData() {
         action: 'upload'
     };
 }
+$(function() {
+  $('#referenceLetters').select2({
+    placeholder: 'Enter Reference Letters',
+    multiple: true,
+    tags: true, // Allow free-text entry
+    minimumInputLength: 1,
 
+    ajax: {
+      url: '/dms/api/correspondence/getReferenceLetters',
+      dataType: 'json',
+      delay: 250,
+      data: function(params) {
+        return {
+          query: params.term // query param
+        };
+      },
+      processResults: function(data) {
+        return {
+          results: data.map(item => ({
+            id: item,   // each string becomes id
+            text: item  // each string becomes text
+          }))
+        };
+      },
+      cache: true
+    }
+  });
+});
 // Get attachments from form
 function getAttachmentsFromForm() {
     return Array.from(attachmentInput.files);
