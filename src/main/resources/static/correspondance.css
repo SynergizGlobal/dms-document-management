@@ -1644,6 +1644,9 @@ table.dataTable tbody td {
 /*Reference letters*/
 /* Make sure Select2 dropdown is always on top */
 /* Make dropdown list visible and styled properly */
+.select2-container {
+    width: 100% !important;   /* Full width of parent */
+}
 .select2-container .select2-dropdown {
   z-index: 9999 !important;
   background: #fff;
