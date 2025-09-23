@@ -1,5 +1,5 @@
 // Base API configuration
-const API_BASE_URL = 'http://localhost:8000/dms/api/correspondence';
+const API_BASE_URL = '/dms/api/correspondence';
 
 // Email validation function
 function isValidEmail(email) {
@@ -965,7 +965,7 @@ function setupAutocomplete(inputId) {
             var searchTerm = lastCommaIndex === -1 ? currentVal : currentVal.substring(lastCommaIndex + 1).trim();
 
             $.ajax({
-                url: "http://localhost:8000/dms/api/users/search",
+                url: "/dms/api/users/search",
                 data: { query: searchTerm },
                 success: function (data) {
                     response($.map(data, function (item) {
@@ -1027,7 +1027,7 @@ $(function () {
         }
 
         $.ajax({
-            url: "http://localhost:8000/dms/api/correspondence/getReferenceLetters",
+            url: "/dms/api/correspondence/getReferenceLetters",
             data: { query: lastTerm },
             success: function (data) {
                 response(data);
@@ -1059,7 +1059,7 @@ $(function () {
 // Function to fetch statuses from API
 async function fetchStatuses() {
     try {
-        const response = await fetch('http://localhost:8000/dms/api/statuses/get');
+        const response = await fetch('/dms/api/statuses/get');
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -1102,7 +1102,7 @@ async function fetchDepartments() {
         const departmentSelect = document.getElementById('department');
         departmentSelect.innerHTML = '<option value="">Loading departments...</option>';
 
-        const response = await fetch('http://localhost:8000/dms/api/departments/get');
+        const response = await fetch('/dms/api/departments/get');
 
         if (!response.ok) {
             throw new Error(`Server returned ${response.status}`);
@@ -1239,6 +1239,8 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function () {
                 // Refresh dropdowns if functions exist
                 if (typeof fetchDepartments === 'function') try { fetchDepartments(); } catch(_) {}
                 if (typeof fetchStatuses === 'function') try { fetchStatuses(); } catch(_) {}
+				if (typeof fetchProjects === 'function') try { fetchProjects(); } catch(_) {}
+				if (typeof fetchContracts === 'function') try { fetchContracts(); } catch(_) {}
             }, 300);
 
             // Clean URL to avoid re-open on reload
@@ -1346,7 +1348,7 @@ async function fetchProjects() {
         const projectSelect = document.getElementById('projectName');
         projectSelect.innerHTML = '<option value="">Loading projects...</option>';
 
-        const response = await fetch('http://localhost:8000/dms/api/projects/get', {
+        const response = await fetch('/dms/api/projects/get', {
             credentials: 'include' // Important for session cookies
         });
 
@@ -1395,7 +1397,7 @@ async function fetchContracts() {
         const contractSelect = document.getElementById('contractName');
         contractSelect.innerHTML = '<option value="">Loading contracts...</option>';
 
-        const response = await fetch('http://localhost:8000/dms/api/contracts/get', {
+        const response = await fetch('/dms/api/contracts/get', {
             credentials: 'include' // Important for session cookies
         });
 

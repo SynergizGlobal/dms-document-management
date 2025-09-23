@@ -83,7 +83,7 @@ public class CorrespondenceController {
 
     @GetMapping("/getReferenceLetters")
     public ResponseEntity<List<String>> getReferenceLetters(
-            @RequestParam(required = false) String query) {
+            @RequestParam(required = false, name="query") String query) {
 
         List<String> letters = correspondenceService.findReferenceLetters(query);
 
