@@ -111,4 +111,8 @@ public class CorrespondenceLetter {
     @JsonIgnore
     @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CorrespondenceFile> files = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SendCorrespondenceLetter> sendCorLetters;
 }
