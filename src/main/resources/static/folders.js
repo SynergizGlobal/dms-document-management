@@ -18,7 +18,8 @@ let currentView = 'folders';
 let searchVisible = false;
 let navigationStack = [];
 
-function loadArchivedFiles(folderid) {
+function loadArchivedFiles(folderid, foldername) {
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' +foldername);
 	fetch(`/dms/api/documents/archived/folder-grid/${encodeURIComponent(folderid)}`	, {
 					method: "POST",
 					headers: {
@@ -103,7 +104,8 @@ function loadArchiveFolder(folderId) {
 		grid.appendChild(folderCard);
 	});
 }
-function loadSubFolders(folderid) {
+function loadSubFolders(folderid, foldername) {
+	$("#breadcrumb-current").text('>' +foldername);
 	fetch(`/dms/api/subfolders/grid/${encodeURIComponent(folderid)}`
 		, {
 			method: "POST",
@@ -128,7 +130,7 @@ function loadSubFolders(folderid) {
 			folders.forEach(folder => {
 				const folderCard = document.createElement("div");
 				folderCard.className = "folder-card";
-				folderCard.onclick = () => openFolder(folder.id, "subfolder");
+				folderCard.onclick = () => openFolder(folder.id, "subfolder", folder.name);
 
 				folderCard.innerHTML = `
 	                    <div class="folder-icon">
@@ -150,7 +152,8 @@ function loadSubFolders(folderid) {
 		})
 		.catch(err => console.error("Error loading folders:", err));
 }
-function loadFiles(folderid) {
+function loadFiles(folderid, foldername) {
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' +foldername);
 	fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`	, {
 				method: "POST",
 				headers: {
@@ -278,7 +281,7 @@ const documentsData = {
 	}
 };
 
-function openFolder(folderid, type) {
+function openFolder(folderid, type, foldername) {
 	// Add click animation
 	event.currentTarget.style.transform = 'scale(0.95)';
 	setTimeout(() => {
@@ -287,15 +290,15 @@ function openFolder(folderid, type) {
 	if (type == "correspondence")
 		loadCorrespondenceInboundAndOutbound();
 	if (type == "folder")
-		loadSubFolders(folderid);
+		loadSubFolders(folderid, foldername);
 	if (type == "subfolder") {
-		loadFiles(folderid);
+		loadFiles(folderid, foldername);
 		//loadArchiveFolder(folderid);
 	}
 	if (type == "file")
 		window.open(`/dms/api/documents/view?path=${encodeURIComponent(folderid)}`, "_blank");
 	if (type == "archive")
-		loadArchivedFiles(folderid);
+		loadArchivedFiles(folderid, "Archived");
 	/*if (folderName === 'drawings') {
 		showDrawingsView();
 	} else if (folderName === 'correspondence') {
@@ -700,6 +703,7 @@ function createFilter(api, $dropdown, $toggle, $filterInput) {
 				selected.push($(this).val());
 			});
 			$filterInput.val(selected.join(", ")); // Show selected in input box
+			$("#breadcrumb-current").text('');
 		});
 	});
 
@@ -783,7 +787,7 @@ function loadFolders(projects, contracts) {
 			folders.forEach(folder => {
 				const folderCard = document.createElement("div");
 				folderCard.className = "folder-card";
-				folderCard.onclick = () => openFolder(folder.id, "folder");
+				folderCard.onclick = () => openFolder(folder.id, "folder", folder.name);
 
 				folderCard.innerHTML = `
                 <div class="folder-icon">

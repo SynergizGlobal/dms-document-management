@@ -8,6 +8,8 @@ import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
 import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
+import com.synergizglobal.dms.dto.DraftDataTableRequest;
+import com.synergizglobal.dms.dto.DraftDataTableResponse;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
 
@@ -32,7 +34,7 @@ public interface ICorrespondenceService {
 
     List<CorrespondenceGridDTO> getFilteredCorrespondence(Map<Integer, List<String>> columnFilters, int start,
                                                           int length, User user);
-
+    DraftDataTableResponse<CorrespondenceGridDTO> getDrafts(DraftDataTableRequest request, String userId);
     long countFilteredCorrespondence(Map<Integer, List<String>> columnFilters, User user);
 
     long countAllCorrespondence(User user);
@@ -88,4 +90,6 @@ public interface ICorrespondenceService {
     List<String> findAllToSend();
 
     List<String> findGroupedToSend(String userId);
+    
+    
 }

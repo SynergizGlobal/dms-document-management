@@ -3,6 +3,8 @@ package com.synergizglobal.dms.repository.dms;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -38,7 +40,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         order by c.updated_at desc, c.created_at desc
         """, nativeQuery = true)
     List<CorrespondenceLetterProjection> findLetters(@Param("action") String action);
-
+      
     @Query(value = """
 
 			        SELECT
@@ -67,8 +69,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                                         ON cr.reference_letter_id = rf.ref_id
                                             	    WHERE c.correspondence_id = :id
     	    """, nativeQuery = true)
-    List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesView(@Param("id") Long id);
-
+    	List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesView(@Param("id") Long id);
+    
     Optional<CorrespondenceLetter> findByLetterNumber(String letterNumber);
 
 
@@ -101,6 +103,11 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     WHERE c.letter_number = :letterNumber
     """, nativeQuery = true)
     List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesViewByLetterNumber(@Param("letterNumber") String letterNumber);
+
+	Page<CorrespondenceLetter> findByUserIdAndAction(String userId, String saveAsDraft, PageRequest pageRequest);
+
+	Long countByUserIdAndAction(String userId, String saveAsDraft);
+
 
     @Query(value = "select count(*) from dms.correspondence_letter", nativeQuery = true)
     long countAllFiles();
@@ -191,8 +198,4 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     @Query("select distinct c.to from CorrespondenceLetter c where c.userId = :userId")
     List<String> findGroupedToSend(@Param("userId") String userId);
 }
-
-
-
-
 
