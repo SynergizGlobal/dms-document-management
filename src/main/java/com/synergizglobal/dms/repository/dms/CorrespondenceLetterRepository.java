@@ -109,15 +109,45 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
 	Long countByUserIdAndAction(String userId, String saveAsDraft);
 
 
-    @Query(value = "select count(*) from dms.correspondence_letter", nativeQuery = true)
+    @Query(value = " SELECT count(*) FROM (  \r\n"
+    		+ "SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  \r\n"
+    		+ "sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, \r\n"
+    		+ " c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, \r\n"
+    		+ " c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, \r\n"
+    		+ " sl.type as type  FROM dms.correspondence_letter c  \r\n"
+    		+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id \r\n"
+    		+ " AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' \r\n"
+    		+ " GROUP BY c.correspondence_id  UNION \r\n"
+    		+ " SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, \r\n"
+    		+ " sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, \r\n"
+    		+ " c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,\r\n"
+    		+ " c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,\r\n"
+    		+ " sl.type as type  FROM dms.correspondence_letter c \r\n"
+    		+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.is_cc = 0  \r\n"
+    		+ " WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id \r\n"
+    		+ " ) x WHERE 1=1  ORDER BY x.dueDate ", nativeQuery = true)
     long countAllFiles();
 
     @Query(value = """
-    	    select count(distinct c.correspondence_id)
-    	    from dms.correspondence_letter c
-    	    where c.user_name = :userId or c.to_user_id = :userId
+    	    SELECT count(*) FROM (  
+SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
+ c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
+ c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
+ sl.type as type  FROM dms.correspondence_letter c  
+ LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
+ GROUP BY c.correspondence_id  UNION 
+ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
+ c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
+ c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
+ sl.type as type  FROM dms.correspondence_letter c 
+ LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
+ ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
-    long countAllFiles(String userId);
+    long countAllFiles(@Param("userId") String userId);
 
 
     @Query("select distinct c.category from CorrespondenceLetter c where c.action = 'send' ")

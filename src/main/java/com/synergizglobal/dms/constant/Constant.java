@@ -52,7 +52,7 @@ public class Constant {
 	    put(10, "currentStatus");
 	    put(11, "department");
 	    put(12, "fileCount");
-	    put(13, "mailDirection");
+	    put(13, "type");
 }};
 	
 }

@@ -78,156 +78,150 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	@Override
 	@Transactional
-	public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl,
-	                                       String loggedUserId, String loggedUserName,
-	                                       String userRole) throws Exception {
+	public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl, String loggedUserId,
+			String loggedUserName, String userRole) throws Exception {
 
-	    Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
-	    if (existingLetter.isPresent()) {
-	        throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
-	    }
+		Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
+		if (existingLetter.isPresent()) {
+			throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
+		}
 
-	    CorrespondenceLetter entity = new CorrespondenceLetter();
-	    entity.setCategory(dto.getCategory());
-	    entity.setLetterNumber(dto.getLetterNumber());
-	    entity.setLetterDate(dto.getLetterDate());
-	    entity.setSubject(dto.getSubject());
-	    entity.setKeyInformation(dto.getKeyInformation());
-	    entity.setRequiredResponse(dto.getRequiredResponse());
-	    entity.setDueDate(dto.getDueDate());
-	    entity.setAction(dto.getAction());
-	    entity.setCurrentStatus(dto.getCurrentStatus());
-	    entity.setDepartment(dto.getDepartment());
-	    entity.setProjectName(dto.getProjectName());
-	    entity.setContractName(dto.getContractName());
+		CorrespondenceLetter entity = new CorrespondenceLetter();
+		entity.setCategory(dto.getCategory());
+		entity.setLetterNumber(dto.getLetterNumber());
+		entity.setLetterDate(dto.getLetterDate());
+		entity.setSubject(dto.getSubject());
+		entity.setKeyInformation(dto.getKeyInformation());
+		entity.setRequiredResponse(dto.getRequiredResponse());
+		entity.setDueDate(dto.getDueDate());
+		entity.setAction(dto.getAction());
+		entity.setCurrentStatus(dto.getCurrentStatus());
+		entity.setDepartment(dto.getDepartment());
+		entity.setProjectName(dto.getProjectName());
+		entity.setContractName(dto.getContractName());
 
-	    CorrespondenceLetter savedEntity = correspondenceRepo.save(entity);
-	    User loggedInUserObj = userRepository.findById(loggedUserId).get();
-	    // ---------- Handle TO -----------
-	    if (dto.getTo() != null && !dto.getTo().isBlank()) {
-	        User userTo = findUserByEmailOrUsername(dto.getTo());
+		CorrespondenceLetter savedEntity = correspondenceRepo.save(entity);
+		User loggedInUserObj = userRepository.findById(loggedUserId).get();
+		// ---------- Handle TO -----------
+		if (dto.getTo() != null && !dto.getTo().isBlank()) {
+			User userTo = findUserByEmailOrUsername(dto.getTo());
 
-	        // OUTGOING row
-	        SendCorrespondenceLetter outgoing = new SendCorrespondenceLetter();
-	        outgoing.setToUserId(userTo.getUserId());
-	        outgoing.setToUserName(userTo.getUserName());
-	        outgoing.setToUserEmail(userTo.getEmailId());
-	        outgoing.setCC(false);
-	        outgoing.setFromUserId(loggedUserId);
-	        outgoing.setType("Outgoing");
-	        outgoing.setToDept(userTo.getDepartmentFk());
-	        
-	        outgoing.setFromDept(loggedInUserObj.getDepartmentFk());
-	        outgoing.setFromUserName(loggedInUserObj.getUserName());
-	        outgoing.setCorrespondenceLetter(savedEntity);
-	        sendCorrespondenceLetterRepository.save(outgoing);
+			// OUTGOING row
+			SendCorrespondenceLetter outgoing = new SendCorrespondenceLetter();
+			outgoing.setToUserId(userTo.getUserId());
+			outgoing.setToUserName(userTo.getUserName());
+			outgoing.setToUserEmail(userTo.getEmailId());
+			outgoing.setCC(false);
+			outgoing.setFromUserId(loggedUserId);
+			outgoing.setType("Outgoing");
+			outgoing.setToDept(userTo.getDepartmentFk());
 
-	        // INCOMING row
-	        SendCorrespondenceLetter incoming = new SendCorrespondenceLetter();
-	        incoming.setToUserId(userTo.getUserId());
-	        incoming.setToUserName(userTo.getUserName());
-	        incoming.setToUserEmail(userTo.getEmailId());
-	        incoming.setCC(false);
-	        incoming.setFromUserId(loggedUserId);
-	        incoming.setType("Incoming");
-	        incoming.setToDept(userTo.getDepartmentFk());
-	        
-	        incoming.setFromDept(loggedInUserObj.getDepartmentFk());
-	        incoming.setFromUserName(loggedInUserObj.getUserName());
-	        incoming.setCorrespondenceLetter(savedEntity);
-	        sendCorrespondenceLetterRepository.save(incoming);
-	    }
+			outgoing.setFromDept(loggedInUserObj.getDepartmentFk());
+			outgoing.setFromUserName(loggedInUserObj.getUserName());
+			outgoing.setCorrespondenceLetter(savedEntity);
+			sendCorrespondenceLetterRepository.save(outgoing);
 
-	    // ---------- Handle CCs -----------
-	    if (dto.getCc() != null && !dto.getCc().isEmpty()) {
-	        for (String cc : dto.getCc()) {
-	            User userCC = findUserByEmailOrUsername(cc);
+			// INCOMING row
+			SendCorrespondenceLetter incoming = new SendCorrespondenceLetter();
+			incoming.setToUserId(userTo.getUserId());
+			incoming.setToUserName(userTo.getUserName());
+			incoming.setToUserEmail(userTo.getEmailId());
+			incoming.setCC(false);
+			incoming.setFromUserId(loggedUserId);
+			incoming.setType("Incoming");
+			incoming.setToDept(userTo.getDepartmentFk());
 
-	            // OUTGOING row
-	            SendCorrespondenceLetter outgoing = new SendCorrespondenceLetter();
-	            outgoing.setToUserId(userCC.getUserId());
-	            outgoing.setToUserName(userCC.getUserName());
-	            outgoing.setToUserEmail(userCC.getEmailId());
-	            outgoing.setToDept(userCC.getDepartmentFk());
-	            outgoing.setCC(true);
-	            outgoing.setFromUserId(loggedUserId);
-	            outgoing.setType("Outgoing");
-	            outgoing.setFromDept(loggedInUserObj.getDepartmentFk());
-		        outgoing.setFromUserName(loggedInUserObj.getUserName());
-	            outgoing.setCorrespondenceLetter(savedEntity);
-	            sendCorrespondenceLetterRepository.save(outgoing);
+			incoming.setFromDept(loggedInUserObj.getDepartmentFk());
+			incoming.setFromUserName(loggedInUserObj.getUserName());
+			incoming.setCorrespondenceLetter(savedEntity);
+			sendCorrespondenceLetterRepository.save(incoming);
+		}
 
-	            // INCOMING row
-	            SendCorrespondenceLetter incoming = new SendCorrespondenceLetter();
-	            incoming.setToUserId(userCC.getUserId());
-	            incoming.setToUserName(userCC.getUserName());
-	            incoming.setToUserEmail(userCC.getEmailId());
-	            incoming.setToDept(userCC.getDepartmentFk());
-	            incoming.setCC(true);
-	            incoming.setFromUserId(loggedUserId);
-	            incoming.setType("Incoming");
-	            incoming.setFromDept(loggedInUserObj.getDepartmentFk());
-	            incoming.setFromUserName(loggedInUserObj.getUserName());
-	            incoming.setCorrespondenceLetter(savedEntity);
-	            sendCorrespondenceLetterRepository.save(incoming);
-	        }
-	    }
+		// ---------- Handle CCs -----------
+		if (dto.getCc() != null && !dto.getCc().isEmpty()) {
+			for (String cc : dto.getCc()) {
+				User userCC = findUserByEmailOrUsername(cc);
 
-	    // ---------- Handle References -----------
-	    List<String> refNumbers = new ArrayList<>();
-	    if (dto.getReferenceLetters() != null && !dto.getReferenceLetters().isEmpty()) {
-	        refNumbers = dto.getReferenceLetters().stream()
-	                .flatMap(ref -> Arrays.stream(ref.split(";")))
-	                .map(String::trim)
-	                .filter(s -> !s.isEmpty() && s.length() <= 100)
-	                .toList();
-	    }
+				// OUTGOING row
+				SendCorrespondenceLetter outgoing = new SendCorrespondenceLetter();
+				outgoing.setToUserId(userCC.getUserId());
+				outgoing.setToUserName(userCC.getUserName());
+				outgoing.setToUserEmail(userCC.getEmailId());
+				outgoing.setToDept(userCC.getDepartmentFk());
+				outgoing.setCC(true);
+				outgoing.setFromUserId(loggedUserId);
+				outgoing.setType("Outgoing");
+				outgoing.setFromDept(loggedInUserObj.getDepartmentFk());
+				outgoing.setFromUserName(loggedInUserObj.getUserName());
+				outgoing.setCorrespondenceLetter(savedEntity);
+				sendCorrespondenceLetterRepository.save(outgoing);
 
-	    List<CorrespondenceReference> referenceList = new ArrayList<>();
-	    for (String refNum : refNumbers) {
-	        ReferenceLetter ref = new ReferenceLetter();
-	        ref.setRefLetters(refNum);
-	        ReferenceLetter savedRef = referenceRepo.save(ref);
+				// INCOMING row
+				SendCorrespondenceLetter incoming = new SendCorrespondenceLetter();
+				incoming.setToUserId(userCC.getUserId());
+				incoming.setToUserName(userCC.getUserName());
+				incoming.setToUserEmail(userCC.getEmailId());
+				incoming.setToDept(userCC.getDepartmentFk());
+				incoming.setCC(true);
+				incoming.setFromUserId(loggedUserId);
+				incoming.setType("Incoming");
+				incoming.setFromDept(loggedInUserObj.getDepartmentFk());
+				incoming.setFromUserName(loggedInUserObj.getUserName());
+				incoming.setCorrespondenceLetter(savedEntity);
+				sendCorrespondenceLetterRepository.save(incoming);
+			}
+		}
 
-	        CorrespondenceReference corrRef = new CorrespondenceReference();
-	        corrRef.setReferenceLetter(savedRef);
-	        corrRef.setCorrespondenceLetter(savedEntity);
-	        referenceList.add(corrRef);
-	    }
-	    correspondenceReferenceRepository.saveAll(referenceList);
+		// ---------- Handle References -----------
+		List<String> refNumbers = new ArrayList<>();
+		if (dto.getReferenceLetters() != null && !dto.getReferenceLetters().isEmpty()) {
+			refNumbers = dto.getReferenceLetters().stream().flatMap(ref -> Arrays.stream(ref.split(";")))
+					.map(String::trim).filter(s -> !s.isEmpty() && s.length() <= 100).toList();
+		}
 
-	    // ---------- Handle Files -----------
-	    saveFileDetails(dto, savedEntity);
+		List<CorrespondenceReference> referenceList = new ArrayList<>();
+		for (String refNum : refNumbers) {
+			ReferenceLetter ref = new ReferenceLetter();
+			ref.setRefLetters(refNum);
+			ReferenceLetter savedRef = referenceRepo.save(ref);
 
-	    // ---------- Email -----------
-	    if (Constant.SEND.equalsIgnoreCase(dto.getAction())) {
-	        // Get TO email (first recipient)
-	        String toEmail = dto.getTo();
-	        if (dto.getTo() != null && !dto.getTo().isBlank()) {
-	            User userTo = findUserByEmailOrUsername(dto.getTo());
-	            toEmail = userTo.getEmailId();
-	        }
+			CorrespondenceReference corrRef = new CorrespondenceReference();
+			corrRef.setReferenceLetter(savedRef);
+			corrRef.setCorrespondenceLetter(savedEntity);
+			referenceList.add(corrRef);
+		}
+		correspondenceReferenceRepository.saveAll(referenceList);
 
-	        emailService.sendCorrespondenceEmail(savedEntity, dto.getDocuments(),baseUrl);
-	        
-	    } else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
-	        // draft handling
-	    } else {
-	        throw new IllegalArgumentException("Send valid action");
-	    }
+		// ---------- Handle Files -----------
+		saveFileDetails(dto, savedEntity);
 
-	    return savedEntity;
+		// ---------- Email -----------
+		if (Constant.SEND.equalsIgnoreCase(dto.getAction())) {
+			// Get TO email (first recipient)
+			String toEmail = dto.getTo();
+			if (dto.getTo() != null && !dto.getTo().isBlank()) {
+				User userTo = findUserByEmailOrUsername(dto.getTo());
+				toEmail = userTo.getEmailId();
+			}
+
+			emailService.sendCorrespondenceEmail(savedEntity, dto.getDocuments(), baseUrl);
+
+		} else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
+			// draft handling
+		} else {
+			throw new IllegalArgumentException("Send valid action");
+		}
+
+		return savedEntity;
 	}
 
 	/**
 	 * Utility to resolve user by email or username
 	 */
 	private User findUserByEmailOrUsername(String value) {
-	    return userRepository.findByEmailId(value)
-	            .or(() -> userRepository.findByUserName(value))
-	            .orElseThrow(() -> new IllegalArgumentException("User not found: " + value));
+		return userRepository.findByEmailId(value).or(() -> userRepository.findByUserName(value))
+				.orElseThrow(() -> new IllegalArgumentException("User not found: " + value));
 	}
-
 
 	private CorrespondenceLetter saveFileDetails(CorrespondenceUploadLetter dto, CorrespondenceLetter entity)
 			throws Exception {
@@ -746,5 +740,172 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		return new DraftDataTableResponse<>(request.getDraw(),
 				correspondenceRepo.countByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT),
 				resultPage.getTotalElements(), dtos);
+	}
+
+	@Override
+	public List<CorrespondenceGridDTO> getFilteredCorrespondenceNative(Map<Integer, List<String>> columnFilters,
+			int start, int length, User user) {
+
+		String userId = user.getUserId();
+
+		String baseSelect = " SELECT c.correspondence_id as correspondenceId, c.category as category, "
+				+ " c.letter_number as letterNumber, " + " sl.from_user_name as `from`, " + " sl.to_user_name as `to`, "
+				+ " c.subject as subject, " + " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
+				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
+				+ " c.current_status as currentStatus, " + " c.department as department, "
+				+ " c.file_count as attachment, " + " sl.type as type " + " FROM dms.correspondence_letter c "
+				+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id ";
+		String role = user.getUserRoleNameFk();
+
+		// 🔹 Restrict by creator or recipient if not IT Admin
+
+		// outgoing
+		String outgoing = baseSelect + " AND sl.from_user_id = ?1 AND sl.is_cc = 0 "
+				+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
+		if ("IT Admin".equals(role)) {
+			outgoing = baseSelect + " AND sl.is_cc = 0 " + " WHERE sl.type = 'Outgoing' AND c.action = 'send' "
+					+ " GROUP BY c.correspondence_id ";
+		}
+		// incoming
+		String incoming = baseSelect + " AND sl.to_user_id = ?2 " + " WHERE sl.type = 'Incoming' AND c.action = 'send' "
+				+ " GROUP BY c.correspondence_id ";
+		if ("IT Admin".equals(role)) {
+			incoming = baseSelect + " AND sl.is_cc = 0 " + " WHERE sl.type = 'Incoming' AND c.action = 'send' "
+					+ " GROUP BY c.correspondence_id ";
+		}
+		// wrap union
+		String sql = " SELECT * FROM ( " + outgoing + " UNION " + incoming + " ) x WHERE 1=1 ";
+
+		// 🔹 dynamic filters
+		List<Object> params = new ArrayList<>();
+		if (!"IT Admin".equals(role)) {
+			params.add(userId);
+			params.add(userId);
+		}
+
+		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
+			Integer colIndex = entry.getKey();
+			List<String> values = entry.getValue();
+			if (values == null || values.isEmpty())
+				continue;
+
+			String col = Constant.CORESSPONDENCE_COLUMN_INDEX_FIELD_MAP.get(colIndex);
+			if (col == null || col.isBlank())
+				continue;
+
+			if ("dueDate".equals(col)) {
+				sql += " AND x.dueDate IN (";
+				for (int i = 0; i < values.size(); i++) {
+					sql += " ?" + (params.size() + 1);
+					if (i < values.size() - 1)
+						sql += ",";
+					params.add(java.sql.Date.valueOf(values.get(i)));
+				}
+				sql += ")";
+			} else {
+				sql += " AND x." + col + " IN (";
+				for (int i = 0; i < values.size(); i++) {
+					sql += " ?" + (params.size() + 1);
+					if (i < values.size() - 1)
+						sql += ",";
+					params.add(values.get(i));
+				}
+				sql += ")";
+			}
+		}
+
+		// order + pagination
+		sql += " ORDER BY x.dueDate DESC LIMIT ?" + (params.size() + 1) + " OFFSET ?" + (params.size() + 2);
+		params.add(length);
+		params.add(start);
+
+		// execute
+		jakarta.persistence.Query query = entityManager.createNativeQuery(sql, "CorrespondenceNativeDTOMapping");
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i + 1, params.get(i));
+		}
+
+		@SuppressWarnings("unchecked")
+		List<CorrespondenceGridDTO> result = query.getResultList();
+		return result;
+	}
+
+	public long getFilteredCorrespondenceNativeCount(java.util.Map<Integer, java.util.List<String>> columnFilters,
+			User user) {
+
+		String userId = user.getUserId();
+
+		String baseSelect = " SELECT c.category as category, " + " c.letter_number as letterNumber, "
+				+ " sl.from_user_name as fromUser, " + " sl.to_user_name as toUser, " + " c.subject as subject, "
+				+ " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
+				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
+				+ " c.current_status as currentStatus, " + " c.department as department, "
+				+ " c.file_count as attachment, " + " sl.type as type " + " FROM dms.correspondence_letter c ";
+		String role = user.getUserRoleNameFk();
+		String outgoing = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
+				+ " ON c.correspondence_id = sl.correspondence_id AND sl.from_user_id = ? AND sl.is_cc = 0 "
+				+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
+		if ("IT Admin".equals(role)) {
+			outgoing = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
+					+ " ON c.correspondence_id = sl.correspondence_id AND sl.is_cc = 0 "
+					+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
+		}
+		String incoming = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
+				+ " ON c.correspondence_id = sl.correspondence_id AND sl.to_user_id = ? "
+				+ " WHERE sl.type = 'Incoming' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
+		if ("IT Admin".equals(role)) {
+			incoming = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
+					+ " ON c.correspondence_id = sl.correspondence_id AND sl.is_cc = 0  "
+					+ " WHERE sl.type = 'Incoming' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
+		}
+		StringBuilder sql = new StringBuilder();
+		sql.append(" SELECT COUNT(*) FROM ( ");
+		sql.append(outgoing);
+		sql.append(" UNION ");
+		sql.append(incoming);
+		sql.append(" ) x WHERE 1 = 1 ");
+
+		java.util.List<java.lang.Object> params = new java.util.ArrayList<>();
+		if (!"IT Admin".equals(role)) {
+			params.add(userId);
+			params.add(userId);
+		} // incoming ?2
+
+		if (columnFilters != null) {
+			java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			for (java.util.Map.Entry<Integer, java.util.List<String>> entry : columnFilters.entrySet()) {
+				Integer colIndex = entry.getKey();
+				java.util.List<String> values = entry.getValue();
+				if (values == null || values.isEmpty())
+					continue;
+
+				String col = Constant.CORESSPONDENCE_COLUMN_INDEX_FIELD_MAP.get(colIndex);
+				if (col == null || col.isBlank())
+					continue;
+
+				sql.append(" AND x.").append(col).append(" IN (");
+				for (int i = 0; i < values.size(); i++) {
+					sql.append("?");
+					if (i < values.size() - 1)
+						sql.append(",");
+					if ("dueDate".equals(col)) {
+						java.time.LocalDate ld = java.time.LocalDate.parse(values.get(i), formatter);
+						params.add(java.sql.Date.valueOf(ld));
+					} else {
+						params.add(values.get(i));
+					}
+				}
+				sql.append(") ");
+			}
+		}
+
+		jakarta.persistence.Query q = entityManager.createNativeQuery(sql.toString());
+
+		for (int i = 0; i < params.size(); i++) {
+			q.setParameter(i + 1, params.get(i));
+		}
+
+		return (Long) q.getSingleResult();
+		// return cnt.longValue();
 	}
 }

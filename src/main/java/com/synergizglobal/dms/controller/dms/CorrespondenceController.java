@@ -213,8 +213,8 @@ public class CorrespondenceController {
         int draw = request.getDraw(); // Sync token
         User user = (User) session.getAttribute("user");
         Map<Integer, List<String>> columnFilters = request.getColumnFilters();
-        List<CorrespondenceGridDTO> paginated = correspondenceService.getFilteredCorrespondence(columnFilters, start, length, user);
-        long recordsFiltered = correspondenceService.countFilteredCorrespondence(columnFilters, user);
+        List<CorrespondenceGridDTO> paginated = correspondenceService.getFilteredCorrespondenceNative(columnFilters, start, length, user);
+        long recordsFiltered = correspondenceService.getFilteredCorrespondenceNativeCount(columnFilters, user);
 
         DataTableResponse<CorrespondenceGridDTO> response = new DataTableResponse<>();
         response.setDraw(draw);

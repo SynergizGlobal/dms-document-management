@@ -1,6 +1,5 @@
 package com.synergizglobal.dms.service.dms;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -91,5 +90,8 @@ public interface ICorrespondenceService {
 
     List<String> findGroupedToSend(String userId);
     
-    
+    public List<CorrespondenceGridDTO> getFilteredCorrespondenceNative(
+	        Map<Integer, List<String>> columnFilters, int start, int length, User user);
+
+	long getFilteredCorrespondenceNativeCount(Map<Integer, List<String>> columnFilters, User user);
 }
