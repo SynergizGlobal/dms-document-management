@@ -120,82 +120,82 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     long countAllFiles(String userId);
 
 
-    @Query("select distinct c.category from CorrespondenceLetter c")
+    @Query("select distinct c.category from CorrespondenceLetter c where c.action = 'send' ")
     List<String> findAllCategory();
 
-    @Query("select distinct c.category from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.category from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedCategory(@Param("userId") String userId);
 
-    @Query("select distinct c.letterNumber from CorrespondenceLetter c")
+    @Query("select distinct c.letterNumber from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllLetterNumbers();
 
 
-    @Query("select distinct c.letterNumber from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.letterNumber from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedLetterNumbers(@Param("userId") String userId);
 
-    @Query("select distinct c.userName from CorrespondenceLetter c")
+    @Query("select distinct c.userName from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllFrom();
 
-    @Query("select distinct c.userName from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.userName from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedFrom(@Param("userId") String userId);
 
-    @Query("select distinct c.subject from CorrespondenceLetter c")
+    @Query("select distinct c.subject from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllSubject();
 
-    @Query("select distinct c.subject from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.subject from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedSubject(@Param("userId") String userId);
 
-    @Query("select distinct c.requiredResponse from CorrespondenceLetter c")
+    @Query("select distinct c.requiredResponse from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllRequiredResponse();
 
-    @Query("select distinct c.requiredResponse from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.requiredResponse from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedRequiredResponse(@Param("userId") String userId);
 
-    @Query("select distinct c.dueDate from CorrespondenceLetter c")
+    @Query("select distinct c.dueDate from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllDueDates();
 
-    @Query("select distinct c.dueDate from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.dueDate from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedDueDates(@Param("userId") String userId);
 
-    @Query("select distinct c.projectName from CorrespondenceLetter c")
+    @Query("select distinct c.projectName from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllProjectNames();
 
-    @Query("select distinct c.projectName from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.projectName from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedProjectNames(@Param("userId") String userId);
 
-    @Query("select distinct c.contractName from CorrespondenceLetter c")
+    @Query("select distinct c.contractName from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllContractNames();
 
-    @Query("select distinct c.contractName from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.contractName from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedContractNames(@Param("userId") String userId);
 
-    @Query("select distinct c.currentStatus from CorrespondenceLetter c")
+    @Query("select distinct c.currentStatus from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllStatus();
 
-    @Query("select distinct c.currentStatus from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.currentStatus from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedStatus(@Param("userId") String userId);
-    @Query("select distinct c.department from CorrespondenceLetter c")
+    @Query("select distinct c.department from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllDepartment();
 
-    @Query("select distinct c.department from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.department from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedDepartment(@Param("userId") String userId);
 
-    @Query("select distinct c.fileCount from CorrespondenceLetter c")
+    @Query("select distinct c.fileCount from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllAttachment();
 
-    @Query("select distinct c.fileCount from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.fileCount from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedAttachment(@Param("userId") String userId);
 
-    @Query("select distinct c.mailDirection from CorrespondenceLetter c")
+    @Query("select distinct c.mailDirection from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllTypesOfMail();
 
-    @Query("select distinct c.mailDirection from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.mailDirection from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedTypesOfMail(@Param("userId") String userId);
 
-    @Query("select distinct c.to from CorrespondenceLetter c")
+    @Query("select distinct c.to from CorrespondenceLetter c where c.action = 'send'")
     List<String> findAllToSend();
 
-    @Query("select distinct c.to from CorrespondenceLetter c where c.userId = :userId")
+    @Query("select distinct c.to from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedToSend(@Param("userId") String userId);
 }
 
