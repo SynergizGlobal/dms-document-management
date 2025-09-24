@@ -42,17 +42,17 @@ public class Constant {
 		put(0, "correspondenceId");
 		put(1, "category");
 	    put(2, "letterNumber");
-	    put(3, "from");
+	    put(3, "userName");
 	    put(4, "to");
 	    put(5, "subject");
-	    put(6, "projectName");
-	    put(7, "contractName");
-	    put(8, "requiredResponse");
-	    put(9, "dueDate");
+	    put(6, "requiredResponse");
+	    put(7, "dueDate");
+	    put(8, "projectName");
+	    put(9, "contractName");
 	    put(10, "currentStatus");
 	    put(11, "department");
-	    put(12, "attachment");
-	    put(13, "type");
+	    put(12, "fileCount");
+	    put(13, "mailDirection");
 }};
 	
 }

@@ -1730,3 +1730,9 @@ table.dataTable tbody td {
 .table-container {
 	color: black !important;
 }
+.filter-dropdown-toggle[disabled] {
+  pointer-events: none;      /* Disable clicks and other pointer events */
+  opacity: 0.5;              /* Make it look disabled (optional) */
+  cursor: default;           /* Change cursor to default arrow */
+  user-select: none;         /* Prevent text selection */
+}
