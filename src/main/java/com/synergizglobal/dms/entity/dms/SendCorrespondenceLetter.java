@@ -51,17 +51,15 @@ public class SendCorrespondenceLetter {
     @Column(name = "from_dept", length = 100)
     private String fromDept;
     
-    @Column(name="status")
-    private String status;
+   
+    @Column(name="type")
+    private String type;
+    
     
     
     @CreationTimestamp
     private LocalDateTime createdAt;
-    
-    @JsonIgnore
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CorrespondenceFile> files = new ArrayList<>();
-    
+  
     
     @ManyToOne
     @JoinColumn(name = "correspondence_id")

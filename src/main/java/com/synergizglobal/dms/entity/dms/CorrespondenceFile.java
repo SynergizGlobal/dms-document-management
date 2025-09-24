@@ -32,8 +32,4 @@ public class CorrespondenceFile {
     @JsonIgnore
     private CorrespondenceLetter correspondenceLetter;
     
-    
-    @ManyToOne
-    @JoinColumn(name = "send_correspondence_id")
-    private SendCorrespondenceLetter sendCorrespondenceLetter;
 }

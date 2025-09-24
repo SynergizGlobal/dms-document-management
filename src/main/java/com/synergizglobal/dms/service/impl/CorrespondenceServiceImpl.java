@@ -15,10 +15,12 @@ import com.synergizglobal.dms.entity.dms.CorrespondenceReference;
 import com.synergizglobal.dms.entity.dms.Document;
 import com.synergizglobal.dms.entity.dms.DocumentFile;
 import com.synergizglobal.dms.entity.dms.ReferenceLetter;
+import com.synergizglobal.dms.entity.dms.SendCorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.repository.dms.CorrespondenceLetterRepository;
 import com.synergizglobal.dms.repository.dms.CorrespondenceReferenceRepository;
 import com.synergizglobal.dms.repository.dms.ReferenceLetterRepository;
+import com.synergizglobal.dms.repository.dms.SendCorrespondenceLetterRepository;
 import com.synergizglobal.dms.repository.pmis.UserRepository;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
 
@@ -69,105 +71,163 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	private final UserRepository userRepository;
 
+	private final SendCorrespondenceLetterRepository sendCorrespondenceLetterRepository;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@Override
 	@Transactional
-	public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl, String loggedUserId,
-										   String loggedUserName, String userRole) throws Exception {
+	public CorrespondenceLetter saveLetter(CorrespondenceUploadLetter dto, String baseUrl,
+	                                       String loggedUserId, String loggedUserName,
+	                                       String userRole) throws Exception {
 
-		Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
+	    Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
+	    if (existingLetter.isPresent()) {
+	        throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
+	    }
 
-		if (existingLetter.isPresent()) {
-			throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
-		}
+	    CorrespondenceLetter entity = new CorrespondenceLetter();
+	    entity.setCategory(dto.getCategory());
+	    entity.setLetterNumber(dto.getLetterNumber());
+	    entity.setLetterDate(dto.getLetterDate());
+	    entity.setSubject(dto.getSubject());
+	    entity.setKeyInformation(dto.getKeyInformation());
+	    entity.setRequiredResponse(dto.getRequiredResponse());
+	    entity.setDueDate(dto.getDueDate());
+	    entity.setAction(dto.getAction());
+	    entity.setCurrentStatus(dto.getCurrentStatus());
+	    entity.setDepartment(dto.getDepartment());
+	    entity.setProjectName(dto.getProjectName());
+	    entity.setContractName(dto.getContractName());
 
-		CorrespondenceLetter entity = new CorrespondenceLetter();
-		entity.setCategory(dto.getCategory());
-		entity.setLetterNumber(dto.getLetterNumber());
-		entity.setLetterDate(dto.getLetterDate());
-		entity.setTo(dto.getTo());
-		if (dto.getCc() != null && !dto.getCc().isEmpty()) {
-			entity.setCcRecipient(String.join(",", dto.getCc()));
-		}
-		entity.setSubject(dto.getSubject());
-		entity.setKeyInformation(dto.getKeyInformation());
-		entity.setRequiredResponse(dto.getRequiredResponse());
-		entity.setDueDate(dto.getDueDate());
-		entity.setAction(dto.getAction());
-		entity.setCurrentStatus(dto.getCurrentStatus());
-		entity.setDepartment(dto.getDepartment());
-		entity.setProjectName(dto.getProjectName());
-		entity.setContractName(dto.getContractName());
-		entity.setUserId(loggedUserId);
-		entity.setUserName(loggedUserName);
+	    CorrespondenceLetter savedEntity = correspondenceRepo.save(entity);
+	    User loggedInUserObj = userRepository.findById(loggedUserId).get();
+	    // ---------- Handle TO -----------
+	    if (dto.getTo() != null && !dto.getTo().isBlank()) {
+	        User userTo = findUserByEmailOrUsername(dto.getTo());
 
-		if (dto.getTo() != null && !dto.getTo().isBlank()) {
-			// try by email first, then by username
-			Optional<User> recipient = userRepository.findByEmailId(dto.getTo());
-			if (recipient.isEmpty()) {
-				recipient = userRepository.findByUserName(dto.getTo());
-			}
+	        // OUTGOING row
+	        SendCorrespondenceLetter outgoing = new SendCorrespondenceLetter();
+	        outgoing.setToUserId(userTo.getUserId());
+	        outgoing.setToUserName(userTo.getUserName());
+	        outgoing.setToUserEmail(userTo.getEmailId());
+	        outgoing.setCC(false);
+	        outgoing.setFromUserId(loggedUserId);
+	        outgoing.setType("Outgoing");
+	        outgoing.setToDept(userTo.getDepartmentFk());
+	        
+	        outgoing.setFromDept(loggedInUserObj.getDepartmentFk());
+	        outgoing.setFromUserName(loggedInUserObj.getUserName());
+	        outgoing.setCorrespondenceLetter(savedEntity);
+	        sendCorrespondenceLetterRepository.save(outgoing);
 
-			if (recipient.isPresent()) {
-				User rec = recipient.get();
-				entity.setToUserId(rec.getUserId());
-				entity.setToUserName(rec.getUserName());
-			} else {
-				// optional: log and keep toUserId null, but store 'to' as given
-				// log.info("Recipient not found for '{}', storing only the provided `to`
-				// string", dto.getTo());
-				System.out.print("Recipient not found for '{}', storing only the provided `to` string" + dto.getTo());
-			}
-		}
+	        // INCOMING row
+	        SendCorrespondenceLetter incoming = new SendCorrespondenceLetter();
+	        incoming.setToUserId(userTo.getUserId());
+	        incoming.setToUserName(userTo.getUserName());
+	        incoming.setToUserEmail(userTo.getEmailId());
+	        incoming.setCC(false);
+	        incoming.setFromUserId(loggedUserId);
+	        incoming.setType("Incoming");
+	        incoming.setToDept(userTo.getDepartmentFk());
+	        
+	        incoming.setFromDept(loggedInUserObj.getDepartmentFk());
+	        incoming.setFromUserName(loggedInUserObj.getUserName());
+	        incoming.setCorrespondenceLetter(savedEntity);
+	        sendCorrespondenceLetterRepository.save(incoming);
+	    }
 
-// Determine direction based on who is sending
-		if ("Contractor".equalsIgnoreCase(userRole)) {
-			// Contractor user is creating this letter → Outgoing
-			entity.setMailDirection("OUTGOING");
-		} else {
-			// Employer/Engineer sending → Incoming for contractor
-			entity.setMailDirection("INCOMING");
-		}
+	    // ---------- Handle CCs -----------
+	    if (dto.getCc() != null && !dto.getCc().isEmpty()) {
+	        for (String cc : dto.getCc()) {
+	            User userCC = findUserByEmailOrUsername(cc);
 
-		CorrespondenceLetter savedEntity = correspondenceRepo.save(entity);
+	            // OUTGOING row
+	            SendCorrespondenceLetter outgoing = new SendCorrespondenceLetter();
+	            outgoing.setToUserId(userCC.getUserId());
+	            outgoing.setToUserName(userCC.getUserName());
+	            outgoing.setToUserEmail(userCC.getEmailId());
+	            outgoing.setToDept(userCC.getDepartmentFk());
+	            outgoing.setCC(true);
+	            outgoing.setFromUserId(loggedUserId);
+	            outgoing.setType("Outgoing");
+	            outgoing.setFromDept(loggedInUserObj.getDepartmentFk());
+		        outgoing.setFromUserName(loggedInUserObj.getUserName());
+	            outgoing.setCorrespondenceLetter(savedEntity);
+	            sendCorrespondenceLetterRepository.save(outgoing);
 
-		List<String> refNumbers = new ArrayList<>();
+	            // INCOMING row
+	            SendCorrespondenceLetter incoming = new SendCorrespondenceLetter();
+	            incoming.setToUserId(userCC.getUserId());
+	            incoming.setToUserName(userCC.getUserName());
+	            incoming.setToUserEmail(userCC.getEmailId());
+	            incoming.setToDept(userCC.getDepartmentFk());
+	            incoming.setCC(true);
+	            incoming.setFromUserId(loggedUserId);
+	            incoming.setType("Incoming");
+	            incoming.setFromDept(loggedInUserObj.getDepartmentFk());
+	            incoming.setFromUserName(loggedInUserObj.getUserName());
+	            incoming.setCorrespondenceLetter(savedEntity);
+	            sendCorrespondenceLetterRepository.save(incoming);
+	        }
+	    }
 
-		if (dto.getReferenceLetters() != null && !dto.getReferenceLetters().isEmpty()) {
-			refNumbers = dto.getReferenceLetters().stream().flatMap(ref -> Arrays.stream(ref.split(";")))
-					.map(String::trim).filter(s -> !s.isEmpty() && s.length() <= 100).toList();
-		}
+	    // ---------- Handle References -----------
+	    List<String> refNumbers = new ArrayList<>();
+	    if (dto.getReferenceLetters() != null && !dto.getReferenceLetters().isEmpty()) {
+	        refNumbers = dto.getReferenceLetters().stream()
+	                .flatMap(ref -> Arrays.stream(ref.split(";")))
+	                .map(String::trim)
+	                .filter(s -> !s.isEmpty() && s.length() <= 100)
+	                .toList();
+	    }
 
-		List<CorrespondenceReference> referenceList = new ArrayList<>();
+	    List<CorrespondenceReference> referenceList = new ArrayList<>();
+	    for (String refNum : refNumbers) {
+	        ReferenceLetter ref = new ReferenceLetter();
+	        ref.setRefLetters(refNum);
+	        ReferenceLetter savedRef = referenceRepo.save(ref);
 
-		for (String refNum : refNumbers) {
-			ReferenceLetter ref = new ReferenceLetter();
-			ref.setRefLetters(refNum);
-			ReferenceLetter savedRef = referenceRepo.save(ref);
+	        CorrespondenceReference corrRef = new CorrespondenceReference();
+	        corrRef.setReferenceLetter(savedRef);
+	        corrRef.setCorrespondenceLetter(savedEntity);
+	        referenceList.add(corrRef);
+	    }
+	    correspondenceReferenceRepository.saveAll(referenceList);
 
-			CorrespondenceReference corrRef = new CorrespondenceReference();
-			corrRef.setReferenceLetter(savedRef);
-			corrRef.setCorrespondenceLetter(savedEntity);
+	    // ---------- Handle Files -----------
+	    saveFileDetails(dto, savedEntity);
 
-			referenceList.add(corrRef);
-		}
+	    // ---------- Email -----------
+	    if (Constant.SEND.equalsIgnoreCase(dto.getAction())) {
+	        // Get TO email (first recipient)
+	        String toEmail = dto.getTo();
+	        if (dto.getTo() != null && !dto.getTo().isBlank()) {
+	            User userTo = findUserByEmailOrUsername(dto.getTo());
+	            toEmail = userTo.getEmailId();
+	        }
 
-		correspondenceReferenceRepository.saveAll(referenceList);
+	        emailService.sendCorrespondenceEmail(savedEntity, dto.getDocuments(),baseUrl);
+	        
+	    } else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
+	        // draft handling
+	    } else {
+	        throw new IllegalArgumentException("Send valid action");
+	    }
 
-		saveFileDetails(dto, savedEntity);
-
-		if (Constant.SEND.equalsIgnoreCase(dto.getAction())) {
-			emailService.sendCorrespondenceEmail(savedEntity, dto.getDocuments(), baseUrl);
-		} else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
-
-		} else {
-			throw new IllegalArgumentException("Send valid action");
-		}
-
-		return savedEntity;
+	    return savedEntity;
 	}
+
+	/**
+	 * Utility to resolve user by email or username
+	 */
+	private User findUserByEmailOrUsername(String value) {
+	    return userRepository.findByEmailId(value)
+	            .or(() -> userRepository.findByUserName(value))
+	            .orElseThrow(() -> new IllegalArgumentException("User not found: " + value));
+	}
+
 
 	private CorrespondenceLetter saveFileDetails(CorrespondenceUploadLetter dto, CorrespondenceLetter entity)
 			throws Exception {
@@ -369,7 +429,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	@Override
 	public List<CorrespondenceGridDTO> getFilteredCorrespondence(Map<Integer, List<String>> columnFilters, int start,
-																 int length, User user) {
+			int length, User user) {
 
 		jakarta.persistence.criteria.CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		jakarta.persistence.criteria.CriteriaQuery<jakarta.persistence.Tuple> cq = cb.createTupleQuery();
@@ -390,7 +450,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 			jakarta.persistence.criteria.Path<?> fieldPath;
 			switch (path) {
-				default -> fieldPath = root.get(path);
+			default -> fieldPath = root.get(path);
 			}
 			if ("dueDate".equals(path)) {
 				List<LocalDate> dates = new ArrayList<>();
@@ -418,10 +478,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			// Wrap OR in parentheses
 			predicates.add(createdByUser);
 		}
-		 predicates.add(cb.equal(root.get("action"), "send"));
+		predicates.add(cb.equal(root.get("action"), "send"));
 		// 🔹 DISTINCT by fileName, fileNumber, and docFile.id using GROUP BY
 		cq.multiselect(root // DocumentFile
-				).where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]))).groupBy(root.get("id"))
+		).where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]))).groupBy(root.get("id"))
 				.orderBy(cb.desc(root.get("updatedAt")));
 
 		var query = entityManager.createQuery(cq);
@@ -468,7 +528,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 			jakarta.persistence.criteria.Path<?> fieldPath;
 			switch (path) {
-				default -> fieldPath = root.get(path);
+			default -> fieldPath = root.get(path);
 			}
 
 			if ("dueDate".equals(path)) {
@@ -488,7 +548,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				predicates.add(fieldPath.in(values));
 			}
 		}
-		 predicates.add(cb.equal(root.get("action"), "send"));
+		predicates.add(cb.equal(root.get("action"), "send"));
 		String role = user.getUserRoleNameFk();
 
 		// 🔹 Apply user restrictions
@@ -537,43 +597,43 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	@Override
 	public List<String> findGroupedLetterNumbers(String userId) {
 
-		return  correspondenceRepo.findGroupedLetterNumbers( userId);
+		return correspondenceRepo.findGroupedLetterNumbers(userId);
 	}
 
 	@Override
 	public List<String> findAllFrom() {
 
-		return  correspondenceRepo.findAllFrom();
+		return correspondenceRepo.findAllFrom();
 	}
 
 	@Override
 	public List<String> findGroupedFrom(String userId) {
 
-		return correspondenceRepo.findGroupedFrom( userId);
+		return correspondenceRepo.findGroupedFrom(userId);
 	}
 
 	@Override
 	public List<String> findAllSubject() {
 
-		return  correspondenceRepo.findAllSubject();
+		return correspondenceRepo.findAllSubject();
 	}
 
 	@Override
 	public List<String> findGroupedSubject(String userId) {
 
-		return  correspondenceRepo.findGroupedSubject(userId);
+		return correspondenceRepo.findGroupedSubject(userId);
 	}
 
 	@Override
 	public List<String> findAllRequiredResponse() {
 
-		return  correspondenceRepo.findAllRequiredResponse();
+		return correspondenceRepo.findAllRequiredResponse();
 	}
 
 	@Override
 	public List<String> findGroupedRequiredResponse(String userId) {
 
-		return  correspondenceRepo.findGroupedRequiredResponse(userId);
+		return correspondenceRepo.findGroupedRequiredResponse(userId);
 	}
 
 	@Override
@@ -585,31 +645,31 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	@Override
 	public List<String> findGroupedDueDates(String userId) {
 
-		return  correspondenceRepo.findGroupedDueDates( userId) ;
+		return correspondenceRepo.findGroupedDueDates(userId);
 	}
 
 	@Override
 	public List<String> findAllProjectNames() {
 
-		return  correspondenceRepo.findAllProjectNames();
+		return correspondenceRepo.findAllProjectNames();
 	}
 
 	@Override
 	public List<String> findGroupedProjectNames(String userId) {
 
-		return  correspondenceRepo.findGroupedProjectNames( userId);
+		return correspondenceRepo.findGroupedProjectNames(userId);
 	}
 
 	@Override
 	public List<String> findAllContractNames() {
 
-		return  correspondenceRepo.findAllContractNames();
+		return correspondenceRepo.findAllContractNames();
 	}
 
 	@Override
 	public List<String> findGroupedContractNames(String userId) {
 
-		return  correspondenceRepo.findGroupedContractNames(userId);
+		return correspondenceRepo.findGroupedContractNames(userId);
 	}
 
 	@Override
@@ -621,7 +681,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	@Override
 	public List<String> findGroupedStatus(String userId) {
 
-		return correspondenceRepo.findGroupedStatus( userId);
+		return correspondenceRepo.findGroupedStatus(userId);
 	}
 
 	@Override
@@ -633,61 +693,58 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	@Override
 	public List<String> findGroupedDepartment(String userId) {
 
-		return  correspondenceRepo.findGroupedDepartment( userId);
+		return correspondenceRepo.findGroupedDepartment(userId);
 	}
 
 	@Override
 	public List<String> findAllAttachment() {
 
-		return  correspondenceRepo.findAllAttachment();
+		return correspondenceRepo.findAllAttachment();
 	}
 
 	@Override
 	public List<String> findGroupedAttachment(String userId) {
 
-		return  correspondenceRepo.findGroupedAttachment(userId);
+		return correspondenceRepo.findGroupedAttachment(userId);
 	}
 
 	@Override
 	public List<String> findAllTypesOfMail() {
 
-		return  correspondenceRepo. findAllTypesOfMail() ;
+		return correspondenceRepo.findAllTypesOfMail();
 	}
 
 	@Override
 	public List<String> findGroupedTypesOfMail(String userId) {
 
-		return correspondenceRepo.findGroupedTypesOfMail( userId);
+		return correspondenceRepo.findGroupedTypesOfMail(userId);
 	}
 
 	@Override
 	public List<String> findAllToSend() {
 
-		return  correspondenceRepo.findAllToSend();
+		return correspondenceRepo.findAllToSend();
 	}
 
 	@Override
 	public List<String> findGroupedToSend(String userId) {
 
-		return correspondenceRepo.findGroupedToSend( userId);
+		return correspondenceRepo.findGroupedToSend(userId);
 	}
+
 	@Override
 	public DraftDataTableResponse<CorrespondenceGridDTO> getDrafts(DraftDataTableRequest request, String userId) {
 		int page = request.getStart() / request.getLength();
-	    PageRequest pageRequest = PageRequest.of(page, request.getLength(), Sort.by(Sort.Direction.DESC, "updatedAt"));
+		PageRequest pageRequest = PageRequest.of(page, request.getLength(), Sort.by(Sort.Direction.DESC, "updatedAt"));
 
-	    org.springframework.data.domain.Page<CorrespondenceLetter> resultPage = correspondenceRepo.findByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT ,pageRequest);
-	    
-	    List<CorrespondenceGridDTO> dtos = resultPage.getContent()
-	            .stream()
-	            .map(this::convertToDTOWithSingleFile)
-	            .toList();
-	    
-	    return new DraftDataTableResponse<>(
-	        request.getDraw(),
-	        correspondenceRepo.countByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT),
-	        resultPage.getTotalElements(),
-	        dtos
-	    );
+		org.springframework.data.domain.Page<CorrespondenceLetter> resultPage = correspondenceRepo
+				.findByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT, pageRequest);
+
+		List<CorrespondenceGridDTO> dtos = resultPage.getContent().stream().map(this::convertToDTOWithSingleFile)
+				.toList();
+
+		return new DraftDataTableResponse<>(request.getDraw(),
+				correspondenceRepo.countByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT),
+				resultPage.getTotalElements(), dtos);
 	}
 }
