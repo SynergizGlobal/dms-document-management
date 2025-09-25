@@ -16,11 +16,19 @@ public class CorrespondenceFileServiceImpl implements CorrespondenceFileService{
 	
     private final CorrespondenceFileRepository fileRepository;
 
-	@Override
-	public List<CorrespondenceFolderFileDTO> getFiles(List<String> projectNames, List<String> contractNames,
-			String type, String baseUrl) {
-	
-		  return fileRepository.findFolderFilesByProjectsContractsAndType(projectNames, contractNames, type, baseUrl);
+    @Override
+    public List<CorrespondenceFolderFileDTO> getFiles(
+            List<String> projectNames,
+            List<String> contractNames,
+            String type,
+            String action,
+            String baseUrl,
+            String userId,
+            boolean isAdmin) {
+
+        return fileRepository.findFolderFilesByProjectsContractsAndType(
+                projectNames, contractNames, type, action, baseUrl, userId, isAdmin
+        );
     }
 
 }

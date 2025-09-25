@@ -25,6 +25,7 @@ import com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO;
 import com.synergizglobal.dms.service.dms.CorrespondenceFileService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/correspondence")
@@ -62,36 +63,37 @@ public class CorrespondenceFileController {
     }
     
     
+
     @GetMapping("/getFolderFiles")
     public ResponseEntity<List<CorrespondenceFolderFileDTO>> getFiles(
             @RequestParam List<String> projectNames,
             @RequestParam List<String> contractNames,
             @RequestParam String type,
+            @RequestParam String action,      
+            @RequestParam String userId,     
             HttpServletRequest request
     ) {
-        // Build base URL of your app
         String baseUrl = request.getScheme() + "://" 
                 + request.getServerName() 
                 + ":" + request.getServerPort() 
                 + request.getContextPath();
 
-        // File download URL base
-        String fileBaseUrl = baseUrl + "/api/correspondence/files/";
+        HttpSession session = request.getSession();
+        String role =(String) session.getAttribute("userRoleNameFk");
+        boolean isAdmin = "IT Admin".trim().equalsIgnoreCase(role);
+        
+        System.out.println("is"+ isAdmin);
 
-        // Get metadata from DB
-        List<CorrespondenceFolderFileDTO> files =
-                fileService.getFiles(projectNames, contractNames, type, fileBaseUrl);
+        List<CorrespondenceFolderFileDTO> files = fileService.getFiles(
+                projectNames, contractNames, type, action, baseUrl, userId, isAdmin
+        );
 
-        // Check against storageRoot and fix URLs
+        // Set download URL only if file exists
         files.forEach(file -> {
-            Path filePath = storageRoot.resolve(file.getFilePath()).normalize(); // use DB path
-            if (Files.exists(filePath)) {
-                // build correct download URL including folder
-                file.setDownloadUrl(fileBaseUrl + file.getFilePath());
-            } else {
-                // file missing in storage folder
-                file.setDownloadUrl(null);
-            }
+            Path filePath = storageRoot.resolve(file.getFilePath()).normalize();
+            file.setDownloadUrl(Files.exists(filePath) 
+                    ? baseUrl + "/api/correspondence/files/" + file.getFilePath()
+                    : null);
         });
 
         return ResponseEntity.ok(files);
