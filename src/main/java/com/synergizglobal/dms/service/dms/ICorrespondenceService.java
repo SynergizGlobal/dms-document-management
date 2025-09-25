@@ -3,6 +3,7 @@ package com.synergizglobal.dms.service.dms;
 import java.util.List;
 import java.util.Map;
 
+import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
@@ -33,7 +34,7 @@ public interface ICorrespondenceService {
 
     List<CorrespondenceGridDTO> getFilteredCorrespondence(Map<Integer, List<String>> columnFilters, int start,
                                                           int length, User user);
-    DraftDataTableResponse<CorrespondenceGridDTO> getDrafts(DraftDataTableRequest request, String userId);
+    DraftDataTableResponse<CorrespondenceDraftGridDTO> getDrafts(DraftDataTableRequest request, String userId);
     long countFilteredCorrespondence(Map<Integer, List<String>> columnFilters, User user);
 
     long countAllCorrespondence(User user);

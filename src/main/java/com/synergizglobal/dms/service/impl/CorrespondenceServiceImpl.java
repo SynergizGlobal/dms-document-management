@@ -1,6 +1,7 @@
 package com.synergizglobal.dms.service.impl;
 
 import com.synergizglobal.dms.constant.Constant;
+import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
@@ -730,19 +731,17 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	}
 
 	@Override
-	public DraftDataTableResponse<CorrespondenceGridDTO> getDrafts(DraftDataTableRequest request, String userId) {
-		int page = request.getStart() / request.getLength();
-		PageRequest pageRequest = PageRequest.of(page, request.getLength(), Sort.by(Sort.Direction.DESC, "updatedAt"));
+	public DraftDataTableResponse<CorrespondenceDraftGridDTO> getDrafts(DraftDataTableRequest request, String userId) {
+		int limit = request.getLength();               // rows per page
+		int offset = request.getStart();               // starting row
+		//PageRequest pageRequest = PageRequest.of(page, request.getLength(), Sort.by(Sort.Direction.DESC, "updatedAt"));
 
-		org.springframework.data.domain.Page<CorrespondenceLetter> resultPage = correspondenceRepo
-				.findByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT, pageRequest);
-
-		List<CorrespondenceGridDTO> dtos = resultPage.getContent().stream().map(this::convertToDTOWithSingleFile)
-				.toList();
+		List<CorrespondenceDraftGridDTO> dtos = correspondenceRepo
+				.findByUserIdAndAction(userId, limit, offset);
 
 		return new DraftDataTableResponse<>(request.getDraw(),
 				correspondenceRepo.countByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT),
-				resultPage.getTotalElements(), dtos);
+				correspondenceRepo.countByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT), dtos);
 	}
 
 	@Override

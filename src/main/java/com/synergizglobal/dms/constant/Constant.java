@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Constant {
 	public static final String SEND = "Send";
-	public static final String SAVE_AS_DRAFT = "Save AS Draft";
+	public static final String SAVE_AS_DRAFT = "Save as Draft";
 	public static final String FILE_NAME = "File Name";
 	public static final String FILE_NUMBER = "File Number";
 	public static final String REVISION_NUMBER = "Revision No";

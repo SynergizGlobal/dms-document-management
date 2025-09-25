@@ -9,9 +9,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
+import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewProjection;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
+
+import jakarta.persistence.SqlResultSetMapping;
 
 @Repository
 public interface CorrespondenceLetterRepository extends JpaRepository<CorrespondenceLetter, Long>{
@@ -104,9 +109,66 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     """, nativeQuery = true)
     List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesViewByLetterNumber(@Param("letterNumber") String letterNumber);
 
-	Page<CorrespondenceLetter> findByUserIdAndAction(String userId, String saveAsDraft, PageRequest pageRequest);
+    @Query(value ="""
+    		SELECT DISTINCT
+        sl.correspondence_id AS correspondencId,
+        c.category AS category,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        DATE_FORMAT(c.due_date, '%Y-%m-%d') as dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM dms.correspondence_letter c
+    LEFT JOIN dms.send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id 
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Outgoing' 
+      AND c.action = 'Save as Draft'
+      AND sl.from_user_id = :userId
+    ORDER BY c.UPDATED_AT
+    LIMIT :limit OFFSET :offset
+    		"""
+    		, nativeQuery = true
+    		)
+    List<CorrespondenceDraftGridDTO> findByUserIdAndAction(@Param("userId") String userId,@Param("limit") Integer limit,@Param("offset") Integer offset);
 
-	Long countByUserIdAndAction(String userId, String saveAsDraft);
+    @Query(value ="""
+    		SELECT COUNT(*) from (
+    SELECT 
+        sl.correspondence_id AS correspondencId,
+        c.category AS category,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        DATE_FORMAT(c.due_date, '%Y-%m-%d') as dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM dms.correspondence_letter c
+    LEFT JOIN dms.send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id 
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Outgoing' 
+      AND c.action = 'Save as Draft'
+      AND sl.from_user_id = :userId
+    ORDER BY c.UPDATED_AT
+    ) x
+    		"""
+    		, nativeQuery = true
+    		)
+	Long countByUserIdAndAction(@Param("userId") String userId,@Param("saveAsDraft") String saveAsDraft);
 
 
     @Query(value = " SELECT count(*) FROM (  \r\n"

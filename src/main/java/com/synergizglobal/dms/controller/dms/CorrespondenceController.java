@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
 import com.synergizglobal.dms.dto.CorrespondenceLetterViewDto;
@@ -225,7 +226,7 @@ public class CorrespondenceController {
 		return ResponseEntity.ok(response);
 	}
 @PostMapping("/drafts")
-public DraftDataTableResponse<CorrespondenceGridDTO> getDrafts(@RequestBody DraftDataTableRequest request,
+public DraftDataTableResponse<CorrespondenceDraftGridDTO> getDrafts(@RequestBody DraftDataTableRequest request,
 		HttpSession session) {
 	User user = (User) session.getAttribute("user");
 	return correspondenceService.getDrafts(request, user.getUserId());

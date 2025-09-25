@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,6 +22,29 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+@jakarta.persistence.SqlResultSetMapping(
+	    name = "CorrespondenceGridDTOMapping",
+	    classes = @jakarta.persistence.ConstructorResult(
+	        targetClass = CorrespondenceDraftGridDTO.class,
+	        columns = {
+	        	@jakarta.persistence.ColumnResult(name = "correspondenceId", type = Long.class),
+	        	@jakarta.persistence.ColumnResult(name = "category", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "letterNumber", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "from", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "to", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "subject", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "requiredResponse", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "dueDate", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "projectName", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "contractName", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "currentStatus", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "department", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "attachment", type = Integer.class),
+	        	@jakarta.persistence.ColumnResult(name = "type", type = String.class)
+	        }
+	    )
+	)
 @jakarta.persistence.SqlResultSetMapping(
 	    name = "CorrespondenceNativeDTOMapping",
 	    classes = @jakarta.persistence.ConstructorResult(
