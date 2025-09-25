@@ -94,9 +94,9 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		CorrespondenceLetter entity =null;
 		if (dto.getCorrespondenceId() != null) {
 			entity = existingLetter.get();
-			entity.getFiles().removeIf(f -> true);
-			entity.getCorrespondenceReferences().removeIf(f -> true);
-			entity.getSendCorLetters().removeIf(f -> true);
+			entity.getFiles().clear();
+			entity.getCorrespondenceReferences().clear();
+			entity.getSendCorLetters().clear();
 		} else {
 			entity = new CorrespondenceLetter();
 		}
@@ -187,7 +187,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				sendCors.add(incoming);
 			}
 		}
-		entity.setSendCorLetters(sendCors);
+		if(dto.getCorrespondenceId() != null)
+			entity.getSendCorLetters().addAll(sendCors);
+		else
+			entity.setSendCorLetters(sendCors);
 		// ---------- Handle References -----------
 		List<String> refNumbers = new ArrayList<>();
 		if (dto.getReferenceLetters() != null && !dto.getReferenceLetters().isEmpty()) {
@@ -266,7 +269,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 			// call new file storage method (returns relative paths)
 			List<String> fileRelativePaths = fileStorageService.saveFiles(documents);
-
+			//entity.getFiles().clear();
 			List<CorrespondenceFile> fileEntities = new ArrayList<>();
 
 			for (int i = 0; i < documents.size(); i++) {
@@ -295,8 +298,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 				fileEntities.add(cf);
 			}
-
-			entity.setFiles(fileEntities);
+			if(dto.getCorrespondenceId() != null)
+				entity.getFiles().addAll(fileEntities);	
+			else
+				entity.setFiles(fileEntities);
 		} else {
 			entity.setFileCount(0);
 			entity.setFiles(new ArrayList<>());

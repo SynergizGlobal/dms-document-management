@@ -153,16 +153,16 @@ public class CorrespondenceLetter {
     @Column(name = "to_user_name", length = 200)
     private String toUserName;
 
-    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
      @ToString.Exclude
     private List<CorrespondenceReference> correspondenceReferences;
     @JsonIgnore
-    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL, orphanRemoval = true)
      @ToString.Exclude
     private List<CorrespondenceFile> files = new ArrayList<>();
     
-    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
      @ToString.Exclude
     private List<SendCorrespondenceLetter> sendCorLetters;
