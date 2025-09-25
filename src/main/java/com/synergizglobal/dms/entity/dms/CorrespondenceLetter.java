@@ -158,7 +158,7 @@ public class CorrespondenceLetter {
      @ToString.Exclude
     private List<CorrespondenceReference> correspondenceReferences;
     @JsonIgnore
-    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL)
      @ToString.Exclude
     private List<CorrespondenceFile> files = new ArrayList<>();
     

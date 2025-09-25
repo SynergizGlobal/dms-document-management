@@ -56,6 +56,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -86,11 +87,19 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			String loggedUserName, String userRole) throws Exception {
 
 		Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
-		if (existingLetter.isPresent()) {
+		if (existingLetter.isPresent() && !dto.getAction().equals(Constant.SAVE_AS_DRAFT)
+				&& dto.getCorrespondenceId() == null) {
 			throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
 		}
-
-		CorrespondenceLetter entity = new CorrespondenceLetter();
+		CorrespondenceLetter entity =null;
+		if (dto.getCorrespondenceId() != null) {
+			entity = existingLetter.get();
+			entity.getFiles().removeIf(f -> true);
+			entity.getCorrespondenceReferences().removeIf(f -> true);
+			entity.getSendCorLetters().removeIf(f -> true);
+		} else {
+			entity = new CorrespondenceLetter();
+		}
 		entity.setCategory(dto.getCategory());
 		entity.setLetterNumber(dto.getLetterNumber());
 		entity.setLetterDate(dto.getLetterDate());
@@ -103,9 +112,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		entity.setDepartment(dto.getDepartment());
 		entity.setProjectName(dto.getProjectName());
 		entity.setContractName(dto.getContractName());
-
 		CorrespondenceLetter savedEntity = correspondenceRepo.save(entity);
 		User loggedInUserObj = userRepository.findById(loggedUserId).get();
+		
+		List<SendCorrespondenceLetter> sendCors = new ArrayList<>();
 		// ---------- Handle TO -----------
 		if (dto.getTo() != null && !dto.getTo().isBlank()) {
 			User userTo = findUserByEmailOrUsername(dto.getTo());
@@ -124,7 +134,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			outgoing.setFromUserName(loggedInUserObj.getUserName());
 			outgoing.setCorrespondenceLetter(savedEntity);
 			sendCorrespondenceLetterRepository.save(outgoing);
-
+			sendCors.add(outgoing);
 			// INCOMING row
 			SendCorrespondenceLetter incoming = new SendCorrespondenceLetter();
 			incoming.setToUserId(userTo.getUserId());
@@ -139,6 +149,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			incoming.setFromUserName(loggedInUserObj.getUserName());
 			incoming.setCorrespondenceLetter(savedEntity);
 			sendCorrespondenceLetterRepository.save(incoming);
+			sendCors.add(incoming);
 		}
 
 		// ---------- Handle CCs -----------
@@ -159,7 +170,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				outgoing.setFromUserName(loggedInUserObj.getUserName());
 				outgoing.setCorrespondenceLetter(savedEntity);
 				sendCorrespondenceLetterRepository.save(outgoing);
-
+				sendCors.add(outgoing);
 				// INCOMING row
 				SendCorrespondenceLetter incoming = new SendCorrespondenceLetter();
 				incoming.setToUserId(userCC.getUserId());
@@ -173,9 +184,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				incoming.setFromUserName(loggedInUserObj.getUserName());
 				incoming.setCorrespondenceLetter(savedEntity);
 				sendCorrespondenceLetterRepository.save(incoming);
+				sendCors.add(incoming);
 			}
 		}
-
+		entity.setSendCorLetters(sendCors);
 		// ---------- Handle References -----------
 		List<String> refNumbers = new ArrayList<>();
 		if (dto.getReferenceLetters() != null && !dto.getReferenceLetters().isEmpty()) {
@@ -202,15 +214,14 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		// ---------- Email -----------
 		if (Constant.SEND.equalsIgnoreCase(dto.getAction())) {
 			// Get TO email (first recipient)
-		//	String toEmail = dto.getTo();
+			// String toEmail = dto.getTo();
 			if (dto.getTo() != null && !dto.getTo().isBlank()) {
 				User userTo = findUserByEmailOrUsername(dto.getTo());
-			//	toEmail = userTo.getEmailId();
+				// toEmail = userTo.getEmailId();
 			}
- List<SendCorrespondenceLetter> sendCorLetters = savedEntity.getSendCorLetters();
-            log.info("sendCorLetters: " + sendCorLetters);
-            emailService.sendCorrespondenceEmail(savedEntity, baseUrl);
-
+			List<SendCorrespondenceLetter> sendCorLetters = savedEntity.getSendCorLetters();
+			log.info("sendCorLetters: " + sendCorLetters);
+			emailService.sendCorrespondenceEmail(savedEntity, baseUrl);
 
 		} else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
 			// draft handling
@@ -239,16 +250,18 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			// // Determine target user id for storing files:
 			// // OUTGOING -> store under sender (entity.getUserId())
 			// // INCOMING -> store under recipient if known, otherwise under sender
-			// String direction = entity.getMailDirection() != null ? entity.getMailDirection().toUpperCase() : "UNKNOWN";
+			// String direction = entity.getMailDirection() != null ?
+			// entity.getMailDirection().toUpperCase() : "UNKNOWN";
 
 			// String targetUserId;
 			// if ("OUTGOING".equals(direction)) {
-			// 	targetUserId = entity.getUserId();
+			// targetUserId = entity.getUserId();
 			// } else if ("INCOMING".equals(direction)) {
-			// 	targetUserId = entity.getToUserId() != null && !entity.getToUserId().isBlank() ? entity.getToUserId()
-			// 			: entity.getUserId();
+			// targetUserId = entity.getToUserId() != null &&
+			// !entity.getToUserId().isBlank() ? entity.getToUserId()
+			// : entity.getUserId();
 			// } else {
-			// 	targetUserId = entity.getUserId() != null ? entity.getUserId() : "anonymous";
+			// targetUserId = entity.getUserId() != null ? entity.getUserId() : "anonymous";
 			// }
 
 			// call new file storage method (returns relative paths)
@@ -734,12 +747,12 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	@Override
 	public DraftDataTableResponse<CorrespondenceDraftGridDTO> getDrafts(DraftDataTableRequest request, String userId) {
-		int limit = request.getLength();               // rows per page
-		int offset = request.getStart();               // starting row
-		//PageRequest pageRequest = PageRequest.of(page, request.getLength(), Sort.by(Sort.Direction.DESC, "updatedAt"));
+		int limit = request.getLength(); // rows per page
+		int offset = request.getStart(); // starting row
+		// PageRequest pageRequest = PageRequest.of(page, request.getLength(),
+		// Sort.by(Sort.Direction.DESC, "updatedAt"));
 
-		List<CorrespondenceDraftGridDTO> dtos = correspondenceRepo
-				.findByUserIdAndAction(userId, limit, offset);
+		List<CorrespondenceDraftGridDTO> dtos = correspondenceRepo.findByUserIdAndAction(userId, limit, offset);
 
 		return new DraftDataTableResponse<>(request.getDraw(),
 				correspondenceRepo.countByUserIdAndAction(userId, Constant.SAVE_AS_DRAFT),
@@ -757,8 +770,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				+ " c.subject as subject, " + " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
 				+ " c.current_status as currentStatus, " + " c.department as department, "
-				+ " c.file_count as attachment, " + " sl.type as `type` , c.UPDATED_AT " + 
-				" FROM dms.correspondence_letter c "
+				+ " c.file_count as attachment, " + " sl.type as `type` , c.UPDATED_AT "
+				+ " FROM dms.correspondence_letter c "
 				+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id ";
 		String role = user.getUserRoleNameFk();
 
@@ -801,7 +814,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			if (Set.of("from", "to", "type").contains(col)) {
 				col = "`" + col + "`";
 			}
-			
+
 			if ("dueDate".equals(col)) {
 				sql += " AND x.dueDate IN (";
 				for (int i = 0; i < values.size(); i++) {
@@ -895,7 +908,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				if (Set.of("from", "to", "type").contains(col)) {
 					col = "`" + col + "`";
 				}
-				
+
 				sql.append(" AND x.").append(col).append(" IN (");
 				for (int i = 0; i < values.size(); i++) {
 					sql.append("?");

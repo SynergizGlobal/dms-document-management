@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CorrespondenceUploadLetter {
-
+	private Long correspondenceId;
 	private String category;
 	private String letterNumber;
 	private String to;

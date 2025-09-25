@@ -75,6 +75,7 @@ function closeUploadModal() {
 	attachmentsList.innerHTML = '';
 	currentAttachMode = false;
 	attachToLetterNo = null;
+	$('#correspondenceId').remove();
 }
 
 closeModal.addEventListener('click', closeUploadModal);
@@ -239,27 +240,52 @@ function clearTable(tableId) {
 }
 
 // Get form data
-function getFormData() {
-	const ccValue = document.getElementById('ccField').value;
-	const referenceLettersValue = $('#referenceLetters').val();
+function getFormData(from) {
+	if (from === 'Save as Draft') {
+		const correspondenceId = $('#correspondenceId').val();
+		const ccValue = document.getElementById('ccField').value;
+		const referenceLettersValue = $('#referenceLetters').val();
 
-	return {
-		category: document.getElementById('category').value,
-		letterNumber: document.getElementById('letterNo').value,
-		letterDate: document.getElementById('letterDate').value,
-		to: document.getElementById('toField').value,
-		cc: ccValue ? ccValue.split(',').map(item => item.trim()).filter(item => item) : [],
-		referenceLetters: referenceLettersValue,//? referenceLettersValue.split(',').map(item => item.trim()).filter(item => item) : [],
-		subject: document.getElementById('subject').value,
-		keyInformation: document.getElementById('keyInformation').value,
-		requiredResponse: document.getElementById('requiredResponse').value,
-		currentStatus: document.getElementById('currentStatus').value,
-		department: document.getElementById('department').value,
-		dueDate: document.getElementById('dueDate').value,
-		projectName: document.getElementById('projectName').value,
-		contractName: document.getElementById('contractName').value,
-		action: 'upload'
-	};
+		return {
+			correspondenceId: correspondenceId,
+			category: document.getElementById('category').value,
+			letterNumber: document.getElementById('letterNo').value,
+			letterDate: document.getElementById('letterDate').value,
+			to: document.getElementById('toField').value,
+			cc: ccValue ? ccValue.split(',').map(item => item.trim()).filter(item => item) : [],
+			referenceLetters: referenceLettersValue,//? referenceLettersValue.split(',').map(item => item.trim()).filter(item => item) : [],
+			subject: document.getElementById('subject').value,
+			keyInformation: document.getElementById('keyInformation').value,
+			requiredResponse: document.getElementById('requiredResponse').value,
+			currentStatus: document.getElementById('currentStatus').value,
+			department: document.getElementById('department').value,
+			dueDate: document.getElementById('dueDate').value,
+			projectName: document.getElementById('projectName').value,
+			contractName: document.getElementById('contractName').value,
+			action: 'upload'
+		};
+	} else {
+		const ccValue = document.getElementById('ccField').value;
+		const referenceLettersValue = $('#referenceLetters').val();
+
+		return {
+			category: document.getElementById('category').value,
+			letterNumber: document.getElementById('letterNo').value,
+			letterDate: document.getElementById('letterDate').value,
+			to: document.getElementById('toField').value,
+			cc: ccValue ? ccValue.split(',').map(item => item.trim()).filter(item => item) : [],
+			referenceLetters: referenceLettersValue,//? referenceLettersValue.split(',').map(item => item.trim()).filter(item => item) : [],
+			subject: document.getElementById('subject').value,
+			keyInformation: document.getElementById('keyInformation').value,
+			requiredResponse: document.getElementById('requiredResponse').value,
+			currentStatus: document.getElementById('currentStatus').value,
+			department: document.getElementById('department').value,
+			dueDate: document.getElementById('dueDate').value,
+			projectName: document.getElementById('projectName').value,
+			contractName: document.getElementById('contractName').value,
+			action: 'upload'
+		};
+	}
 }
 $(function() {
 	$('#referenceLetters').select2({
@@ -312,6 +338,7 @@ async function uploadLetterToServer(formData, files) {
 
 		// Add the DTO as JSON
 		const dto = {
+			correspondenceId : formData.correspondenceId,
 			category: formData.category,
 			letterNumber: formData.letterNumber,
 			to: formData.to,
@@ -425,7 +452,7 @@ sendBtn.addEventListener('click', async function() {
 
 // Save as Draft button functionality
 saveAsDraftBtn.addEventListener('click', async function() {
-	const formData = getFormData();
+	const formData = getFormData("Save as Draft");
 
 	if (!formData.letterNumber) {
 		alert('Please enter at least a Letter Number');
@@ -834,6 +861,17 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 		type: "GET",
 		contentType: "application/json",
 		success: function(response) {
+			// First remove old hidden field if exists (to avoid duplicates)
+			$('#correspondenceId').remove();
+
+			// Create and append hidden field with correspondenceId
+			$('<input>').attr({
+				type: 'hidden',
+				id: 'correspondenceId',
+				name: 'correspondenceId',
+				value: rowData.correspondenceId
+			}).appendTo('#uploadForm'); // replace with your actual form/container id
+
 			let sendcorrespondence = [];
 			$.ajax({
 				url: `/dms/api/correspondence/get/sendcorrespondence/${rowData.correspondenceId}`,
