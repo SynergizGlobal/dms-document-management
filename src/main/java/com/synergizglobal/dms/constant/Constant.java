@@ -51,7 +51,7 @@ public class Constant {
 	    put(9, "contractName");
 	    put(10, "currentStatus");
 	    put(11, "department");
-	    put(12, "fileCount");
+	    put(12, "attachment");
 	    put(13, "type");
 }};
 	
