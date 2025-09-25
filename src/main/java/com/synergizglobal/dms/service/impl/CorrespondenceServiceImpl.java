@@ -756,7 +756,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				+ " c.subject as subject, " + " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
 				+ " c.current_status as currentStatus, " + " c.department as department, "
-				+ " c.file_count as attachment, " + " sl.type as `type` " + " FROM dms.correspondence_letter c "
+				+ " c.file_count as attachment, " + " sl.type as `type` , c.UPDATED_AT " + 
+				" FROM dms.correspondence_letter c "
 				+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id ";
 		String role = user.getUserRoleNameFk();
 
@@ -822,7 +823,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		}
 
 		// order + pagination
-		sql += " ORDER BY x.dueDate DESC LIMIT ?" + (params.size() + 1) + " OFFSET ?" + (params.size() + 2);
+		sql += " ORDER BY x.UPDATED_AT DESC LIMIT ?" + (params.size() + 1) + " OFFSET ?" + (params.size() + 2);
 		params.add(length);
 		params.add(start);
 
