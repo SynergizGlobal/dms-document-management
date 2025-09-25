@@ -42,7 +42,7 @@ public class Constant {
 		put(0, "correspondenceId");
 		put(1, "category");
 	    put(2, "letterNumber");
-	    put(3, "userName");
+	    put(3, "from");
 	    put(4, "to");
 	    put(5, "subject");
 	    put(6, "requiredResponse");

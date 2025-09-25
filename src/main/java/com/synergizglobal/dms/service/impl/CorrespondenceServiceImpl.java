@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
@@ -753,7 +754,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				+ " c.subject as subject, " + " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
 				+ " c.current_status as currentStatus, " + " c.department as department, "
-				+ " c.file_count as attachment, " + " sl.type as type " + " FROM dms.correspondence_letter c "
+				+ " c.file_count as attachment, " + " sl.type as `type` " + " FROM dms.correspondence_letter c "
 				+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id ";
 		String role = user.getUserRoleNameFk();
 
@@ -793,6 +794,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			if (col == null || col.isBlank())
 				continue;
 
+			if (Set.of("from", "to", "type").contains(col)) {
+				col = "`" + col + "`";
+			}
+			
 			if ("dueDate".equals(col)) {
 				sql += " AND x.dueDate IN (";
 				for (int i = 0; i < values.size(); i++) {
@@ -836,11 +841,11 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		String userId = user.getUserId();
 
 		String baseSelect = " SELECT c.category as category, " + " c.letter_number as letterNumber, "
-				+ " sl.from_user_name as fromUser, " + " sl.to_user_name as toUser, " + " c.subject as subject, "
+				+ " sl.from_user_name as `from`, " + " sl.to_user_name as `to`, " + " c.subject as subject, "
 				+ " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
 				+ " c.current_status as currentStatus, " + " c.department as department, "
-				+ " c.file_count as attachment, " + " sl.type as type " + " FROM dms.correspondence_letter c ";
+				+ " c.file_count as attachment, " + " sl.type as `type` " + " FROM dms.correspondence_letter c ";
 		String role = user.getUserRoleNameFk();
 		String outgoing = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
 				+ " ON c.correspondence_id = sl.correspondence_id AND sl.from_user_id = ? AND sl.is_cc = 0 "
@@ -883,6 +888,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				if (col == null || col.isBlank())
 					continue;
 
+				if (Set.of("from", "to", "type").contains(col)) {
+					col = "`" + col + "`";
+				}
+				
 				sql.append(" AND x.").append(col).append(" IN (");
 				for (int i = 0; i < values.size(); i++) {
 					sql.append("?");

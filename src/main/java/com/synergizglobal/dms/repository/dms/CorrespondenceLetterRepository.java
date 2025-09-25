@@ -150,20 +150,170 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
     long countAllFiles(@Param("userId") String userId);
 
 
-    @Query("select distinct c.category from CorrespondenceLetter c where c.action = 'send' ")
+    @Query(value="""
+    		SELECT distinct category 
+FROM (
+    SELECT 
+        c.category AS category,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        c.due_date AS dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM dms.correspondence_letter c
+    LEFT JOIN dms.send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id 
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Outgoing' 
+      AND c.action = 'send'
+    GROUP BY c.correspondence_id
+    
+    UNION
+    
+    SELECT 
+        c.category AS category,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        c.due_date AS dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM dms.correspondence_letter c
+    LEFT JOIN dms.send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id  
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Incoming' 
+      AND c.action = 'send'
+    GROUP BY c.correspondence_id
+) x;
+
+    		""", nativeQuery = true)
     List<String> findAllCategory();
 
     @Query("select distinct c.category from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedCategory(@Param("userId") String userId);
 
-    @Query("select distinct c.letterNumber from CorrespondenceLetter c where c.action = 'send'")
+    @Query(value="""
+    		SELECT distinct letterNumber 
+FROM (
+    SELECT 
+        c.category AS category,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        c.due_date AS dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM dms.correspondence_letter c
+    LEFT JOIN dms.send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id 
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Outgoing' 
+      AND c.action = 'send'
+    GROUP BY c.correspondence_id
+    
+    UNION
+    
+    SELECT 
+        c.category AS category,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        c.due_date AS dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM dms.correspondence_letter c
+    LEFT JOIN dms.send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id  
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Incoming' 
+      AND c.action = 'send'
+    GROUP BY c.correspondence_id
+) x;
+
+    		""", nativeQuery = true)
     List<String> findAllLetterNumbers();
 
 
     @Query("select distinct c.letterNumber from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
     List<String> findGroupedLetterNumbers(@Param("userId") String userId);
 
-    @Query("select distinct c.userName from CorrespondenceLetter c where c.action = 'send'")
+    @Query(value="""
+    		SELECT distinct `from` 
+FROM (
+    SELECT 
+        c.category AS category,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        c.due_date AS dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM dms.correspondence_letter c
+    LEFT JOIN dms.send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id 
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Outgoing' 
+      AND c.action = 'send'
+    GROUP BY c.correspondence_id
+    
+    UNION
+    
+    SELECT 
+        c.category AS category,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        c.due_date AS dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM dms.correspondence_letter c
+    LEFT JOIN dms.send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id  
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Incoming' 
+      AND c.action = 'send'
+    GROUP BY c.correspondence_id
+) x;
+
+    		""", nativeQuery = true)
     List<String> findAllFrom();
 
     @Query("select distinct c.userName from CorrespondenceLetter c where c.userId = :userId and c.action = 'send'")
