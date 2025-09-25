@@ -20,6 +20,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 @jakarta.persistence.SqlResultSetMapping(
 	    name = "CorrespondenceNativeDTOMapping",
 	    classes = @jakarta.persistence.ConstructorResult(
@@ -130,12 +131,15 @@ public class CorrespondenceLetter {
 
     @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL)
     @JsonIgnore
+     @ToString.Exclude
     private List<CorrespondenceReference> correspondenceReferences;
     @JsonIgnore
     @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL, orphanRemoval = true)
+     @ToString.Exclude
     private List<CorrespondenceFile> files = new ArrayList<>();
     
     @OneToMany(mappedBy = "correspondenceLetter", cascade = CascadeType.ALL)
     @JsonIgnore
+     @ToString.Exclude
     private List<SendCorrespondenceLetter> sendCorLetters;
 }

@@ -53,7 +53,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CorrespondenceServiceImpl implements ICorrespondenceService {
@@ -199,13 +199,15 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		// ---------- Email -----------
 		if (Constant.SEND.equalsIgnoreCase(dto.getAction())) {
 			// Get TO email (first recipient)
-			String toEmail = dto.getTo();
+		//	String toEmail = dto.getTo();
 			if (dto.getTo() != null && !dto.getTo().isBlank()) {
 				User userTo = findUserByEmailOrUsername(dto.getTo());
-				toEmail = userTo.getEmailId();
+			//	toEmail = userTo.getEmailId();
 			}
+ List<SendCorrespondenceLetter> sendCorLetters = savedEntity.getSendCorLetters();
+            log.info("sendCorLetters: " + sendCorLetters);
+            emailService.sendCorrespondenceEmail(savedEntity, baseUrl);
 
-			emailService.sendCorrespondenceEmail(savedEntity, dto.getDocuments(), baseUrl);
 
 		} else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
 			// draft handling
@@ -231,23 +233,23 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		if (documents != null && !documents.isEmpty()) {
 			entity.setFileCount(documents.size());
 
-			// Determine target user id for storing files:
-			// OUTGOING -> store under sender (entity.getUserId())
-			// INCOMING -> store under recipient if known, otherwise under sender
-			String direction = entity.getMailDirection() != null ? entity.getMailDirection().toUpperCase() : "UNKNOWN";
+			// // Determine target user id for storing files:
+			// // OUTGOING -> store under sender (entity.getUserId())
+			// // INCOMING -> store under recipient if known, otherwise under sender
+			// String direction = entity.getMailDirection() != null ? entity.getMailDirection().toUpperCase() : "UNKNOWN";
 
-			String targetUserId;
-			if ("OUTGOING".equals(direction)) {
-				targetUserId = entity.getUserId();
-			} else if ("INCOMING".equals(direction)) {
-				targetUserId = entity.getToUserId() != null && !entity.getToUserId().isBlank() ? entity.getToUserId()
-						: entity.getUserId();
-			} else {
-				targetUserId = entity.getUserId() != null ? entity.getUserId() : "anonymous";
-			}
+			// String targetUserId;
+			// if ("OUTGOING".equals(direction)) {
+			// 	targetUserId = entity.getUserId();
+			// } else if ("INCOMING".equals(direction)) {
+			// 	targetUserId = entity.getToUserId() != null && !entity.getToUserId().isBlank() ? entity.getToUserId()
+			// 			: entity.getUserId();
+			// } else {
+			// 	targetUserId = entity.getUserId() != null ? entity.getUserId() : "anonymous";
+			// }
 
 			// call new file storage method (returns relative paths)
-			List<String> fileRelativePaths = fileStorageService.saveFiles(documents, direction, targetUserId);
+			List<String> fileRelativePaths = fileStorageService.saveFiles(documents);
 
 			List<CorrespondenceFile> fileEntities = new ArrayList<>();
 

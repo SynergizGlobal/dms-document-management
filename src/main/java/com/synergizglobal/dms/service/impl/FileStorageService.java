@@ -22,25 +22,20 @@ public class FileStorageService {
 
     private static final int MAX_FILENAME_LENGTH = 200;
     private static final String CORRESPONDENCE_ROOT = "Correspondence";
-    public List<String> saveFiles(List<MultipartFile> files, String mailDirection, String userId) throws IOException {
+    public List<String> saveFiles(List<MultipartFile> files) throws IOException {
         List<String> storedRelativePaths = new ArrayList<>();
 
         if (files == null || files.isEmpty()) {
             throw new IOException("No files to save!");
         }
 
-        if (mailDirection == null || mailDirection.isBlank()) {
-            mailDirection = "UNKNOWN";
-        }
-        if (userId == null || userId.isBlank()) {
-            userId = "anonymous";
-        }
+       
 
         // Base upload directory (absolute, normalized)
         Path baseUploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
 
         // Build target directory: {uploadDir}/correspondence/{mailDirection}/{userId}
-        Path targetDir = baseUploadPath.resolve(Paths.get(CORRESPONDENCE_ROOT, mailDirection.toUpperCase(), userId)).normalize();
+        Path targetDir = baseUploadPath.resolve(Paths.get(CORRESPONDENCE_ROOT)).normalize();
 
         // Security check: ensure targetDir is inside baseUploadPath
         if (!targetDir.startsWith(baseUploadPath)) {

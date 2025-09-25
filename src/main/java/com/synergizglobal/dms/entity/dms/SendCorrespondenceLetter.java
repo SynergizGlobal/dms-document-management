@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Entity
 @Data
 @Table(name = "SEND_CORRESPONDENCE_LETTER")
@@ -50,19 +51,19 @@ public class SendCorrespondenceLetter {
 
     @Column(name = "from_dept", length = 100)
     private String fromDept;
-    
-   
+
+
     @Column(name="type")
     private String type;
-    
-    
-    
+
+
+
     @CreationTimestamp
     private LocalDateTime createdAt;
-  
-    
-    @ManyToOne
+
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "correspondence_id")
     private CorrespondenceLetter correspondenceLetter;
-    
+
 }
