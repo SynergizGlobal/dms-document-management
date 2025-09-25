@@ -29,6 +29,7 @@ import com.synergizglobal.dms.dto.DataTableResponse;
 import com.synergizglobal.dms.dto.DraftDataTableRequest;
 import com.synergizglobal.dms.dto.DraftDataTableResponse;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
+import com.synergizglobal.dms.entity.dms.SendCorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
 
@@ -96,6 +97,17 @@ public class CorrespondenceController {
         return ResponseEntity.ok(correspondenceService.getLettersByAction(action));
     }
 
+    @GetMapping("/get/{correspondenceId}")
+    public ResponseEntity<CorrespondenceLetter> getCorrespondeneceById(
+            @PathVariable("correspondenceId") Long correspondenceId) {
+        return ResponseEntity.ok(correspondenceService.getCorrespondeneceById(correspondenceId));
+    }
+    
+    @GetMapping("/get/sendcorrespondence/{correspondenceId}")
+    public ResponseEntity<List<SendCorrespondenceLetter>> getSendCorrespondeneceById(
+            @PathVariable("correspondenceId") Long correspondenceId) {
+        return ResponseEntity.ok(correspondenceService.getSendCorrespondeneceById(correspondenceId));
+    }
 
     @GetMapping("/getReferenceLetters")
     public ResponseEntity<List<String>> getReferenceLetters(

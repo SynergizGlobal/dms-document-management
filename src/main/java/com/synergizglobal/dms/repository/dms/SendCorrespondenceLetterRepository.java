@@ -12,5 +12,8 @@ public interface SendCorrespondenceLetterRepository extends JpaRepository<SendCo
 
     @Query("from SendCorrespondenceLetter l where l.correspondenceLetter.correspondenceId=:id")
     List<SendCorrespondenceLetter> findBySendCorrespondenceLetter(@Param("id") Long id);
+    
+    @Query("SELECT s FROM SendCorrespondenceLetter s WHERE s.correspondenceLetter.correspondenceId = :correspondenceId")
+    List<SendCorrespondenceLetter> findAllByCorrespondenceId(@Param("correspondenceId") Long correspondenceId);
 
 }

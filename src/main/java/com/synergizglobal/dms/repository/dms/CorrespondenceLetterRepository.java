@@ -1105,5 +1105,15 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
     List<String> findGroupedToSend(@Param("userId") String userId);
+    
+    @Query("""
+    	    SELECT DISTINCT c
+    	    FROM CorrespondenceLetter c
+    	    LEFT JOIN FETCH c.files f
+    	    LEFT JOIN FETCH c.sendCorLetters s
+    	    LEFT JOIN FETCH c.correspondenceReferences r
+    	    WHERE c.correspondenceId = :id
+    	""")
+    	Optional<CorrespondenceLetter> findWithAllRelations(@Param("id") Long id);
 }
 

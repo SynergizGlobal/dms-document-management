@@ -11,6 +11,7 @@ import com.synergizglobal.dms.dto.CorrespondenceUploadLetter;
 import com.synergizglobal.dms.dto.DraftDataTableRequest;
 import com.synergizglobal.dms.dto.DraftDataTableResponse;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
+import com.synergizglobal.dms.entity.dms.SendCorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
 
 public interface ICorrespondenceService {
@@ -95,4 +96,8 @@ public interface ICorrespondenceService {
 	        Map<Integer, List<String>> columnFilters, int start, int length, User user);
 
 	long getFilteredCorrespondenceNativeCount(Map<Integer, List<String>> columnFilters, User user);
+
+	CorrespondenceLetter getCorrespondeneceById(Long correspondenceId);
+
+	List<SendCorrespondenceLetter> getSendCorrespondeneceById(Long correspondenceId);
 }

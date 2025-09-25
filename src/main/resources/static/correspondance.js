@@ -829,19 +829,61 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 	await fetchContracts();
 	await fetchDepartments();
 	await fetchStatuses();
-	// Open the modal (Bootstrap example)
-	$('#category').val(rowData.category).trigger('change');
-	$('#projectName').val(rowData.projectName).trigger('change');
-	$('#contractName').val(rowData.contractName).trigger('change');
-	$('#letterNo').val(rowData.letterNumber);
-	//$('#letterDate').text(rowData.letterDate);
-	$('#toField').val(rowData.to);
-	$('#requiredResponse').val(rowData.requiredResponse);
-	$('#dueDate').val(rowData.dueDate);
-	$('#subject').val(rowData.subject);
-	$('#currentStatus').val(rowData.currentStatus);
-	$('#department').val(rowData.department);
-	$('#attachment').val(rowData.attachment);
+	$.ajax({
+		url: `/dms/api/correspondence/get/${rowData.correspondenceId}`,
+		type: "GET",
+		contentType: "application/json",
+		success: function(response) {
+			let sendcorrespondence = [];
+			$.ajax({
+				url: `/dms/api/correspondence/get/sendcorrespondence/${rowData.correspondenceId}`,
+				type: "GET",
+				async: false,
+				contentType: "application/json",
+				success: function(response) {
+					if (response && response.length > 0) {
+						let match = response.find(sc => sc.cc === false && sc.type === 'Outgoing');
+						if (match) {
+							$('#toField').val(match.toUserEmail);
+						}
+					}
+					if (response && response.length > 0) {
+						let matches = response
+							.filter(sc => sc.cc === true && sc.type === 'Outgoing')
+							.map(sc => sc.toUserEmail);
+
+						if (matches.length > 0) {
+							$('#ccField').val(matches.join(', '));
+						}
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error("Error fetching correspondence:", error);
+					alert("Failed to fetch correspondence details.");
+				}
+			});
+
+			console.log("API Response:", response);
+			// Open the modal (Bootstrap example)
+			$('#category').val(response.category).trigger('change');
+			$('#projectName').val(response.projectName).trigger('change');
+			$('#contractName').val(response.contractName).trigger('change');
+			$('#letterNo').val(response.letterNumber);
+			//$('#letterDate').text(rowData.letterDate);
+			//$('#toField').val(response.to);
+			$('#requiredResponse').val(response.requiredResponse);
+			$('#dueDate').val(response.dueDate);
+			$('#subject').val(response.subject);
+			$('#currentStatus').val(response.currentStatus);
+			$('#department').val(response.department);
+			$('#attachment').val(response.attachment);
+		},
+		error: function(xhr, status, error) {
+			console.error("Error fetching correspondence:", error);
+			alert("Failed to fetch correspondence details.");
+		}
+	});
+
 });
 // Initialize DataTable for document table
 $(document).ready(function() {

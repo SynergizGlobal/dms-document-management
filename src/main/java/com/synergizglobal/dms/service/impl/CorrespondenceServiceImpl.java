@@ -33,6 +33,8 @@ import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -918,5 +920,20 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 		return (Long) q.getSingleResult();
 		// return cnt.longValue();
+	}
+
+	@Override
+	public CorrespondenceLetter getCorrespondeneceById(Long correspondenceId) {
+		CorrespondenceLetter letter = correspondenceRepo.findById(correspondenceId).get();
+		Hibernate.initialize(letter.getFiles());
+		Hibernate.initialize(letter.getSendCorLetters());
+		Hibernate.initialize(letter.getCorrespondenceReferences());
+		return letter;
+	}
+
+	@Override
+	public List<SendCorrespondenceLetter> getSendCorrespondeneceById(Long correspondenceId) {
+		// TODO Auto-generated method stub
+		return sendCorrespondenceLetterRepository.findAllByCorrespondenceId(correspondenceId);
 	}
 }
