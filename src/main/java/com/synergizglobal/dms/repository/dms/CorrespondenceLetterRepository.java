@@ -132,7 +132,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     WHERE sl.type = 'Outgoing' 
       AND c.action = 'Save as Draft'
       AND sl.from_user_id = :userId
-    ORDER BY c.UPDATED_AT
+    ORDER BY c.UPDATED_AT DESC
     LIMIT :limit OFFSET :offset
     		"""
     		, nativeQuery = true
