@@ -62,7 +62,7 @@ public class SendCorrespondenceLetter {
     private LocalDateTime createdAt;
 
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "correspondence_id")
     private CorrespondenceLetter correspondenceLetter;
 

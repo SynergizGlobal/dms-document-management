@@ -5,9 +5,11 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Repository;
 
 import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
@@ -1115,5 +1117,12 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
     	    WHERE c.correspondenceId = :id
     	""")
     	Optional<CorrespondenceLetter> findWithAllRelations(@Param("id") Long id);
+    
+    @Query("""
+    	    SELECT DISTINCT c
+    	    FROM CorrespondenceLetter c
+    	    WHERE c.correspondenceId = :correspondenceId
+    	""")
+    Optional<CorrespondenceLetter> findByCorrespondenceId(@Param("correspondenceId") Long correspondenceId);
 }
 

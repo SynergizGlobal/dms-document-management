@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 public class CorrespondenceReference {
     @Id
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "correspondenceLetter_id")
     private CorrespondenceLetter correspondenceLetter;
     @Id

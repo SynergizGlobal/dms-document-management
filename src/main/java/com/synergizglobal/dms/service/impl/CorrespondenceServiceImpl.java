@@ -97,6 +97,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			entity.getFiles().clear();
 			entity.getCorrespondenceReferences().clear();
 			entity.getSendCorLetters().clear();
+			correspondenceRepo.saveAndFlush(entity);
+			entity = correspondenceRepo.findByCorrespondenceId(dto.getCorrespondenceId()).get();
 		} else {
 			entity = new CorrespondenceLetter();
 		}
