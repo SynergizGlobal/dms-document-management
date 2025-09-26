@@ -127,8 +127,8 @@ public class CorrespondenceFileController {
 	
 	
 	  @GetMapping("/files-id/{correspondenceId}")
-	    public ResponseEntity<List<CorrespondenceFileDTO>> getFiles(@PathVariable Long correspondenceId) {
-		  System.out.print("Called");
+	    public ResponseEntity<List<CorrespondenceFileDTO>> getFiles(@PathVariable("correspondenceId") Long correspondenceId) {
+		  //System.out.print("Called");
 	        List<CorrespondenceFileDTO> files = fileService.getFilesByCorrespondenceId(correspondenceId);
 	        return ResponseEntity.ok(files);
 	    }

@@ -7,7 +7,7 @@ function isValidEmail(email) {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	return emailRegex.test(email);
 }
-
+let removedExistingFiles = [];
 // Sidebar navigation
 document.querySelectorAll('.sidebar-item').forEach(item => {
 	item.addEventListener('click', function() {
@@ -15,6 +15,8 @@ document.querySelectorAll('.sidebar-item').forEach(item => {
 		this.classList.add('active');
 	});
 });
+
+// Render both existing + newly added files
 
 // Storage for uploaded letters data
 let lettersData = {};
@@ -76,6 +78,7 @@ function closeUploadModal() {
 	currentAttachMode = false;
 	attachToLetterNo = null;
 	$('#correspondenceId').remove();
+	removedExistingFiles = [];
 }
 
 closeModal.addEventListener('click', closeUploadModal);
@@ -103,26 +106,52 @@ attachmentInput.addEventListener('change', function(e) {
 	});
 });
 
-function addAttachmentToList(file) {
+function addAttachmentToList(file, isExisting = false) {
 	const attachmentItem = document.createElement('div');
 	attachmentItem.className = 'attachment-item';
 
-	const fileExtension = file.name.split('.').pop().toUpperCase();
-	const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+	let fileName, fileSize, fileExtension;
 
-	attachmentItem.innerHTML = `
-        <div class="attachment-icon">${fileExtension}</div>
-        <div class="attachment-info">
-            <div class="attachment-name">${file.name}</div>
-            <div class="attachment-size">${fileSize}</div>
-        </div>
-        <button type="button" class="remove-attachment" onclick="removeAttachment(this)">×</button>
-    `;
+	if (isExisting) {
+		// Backend-provided object { name, url, size? }
+		fileName = file.name;
+		fileSize = file.size ? (file.size / 1024).toFixed(1) + ' KB' : '';
+		fileExtension = file.name.split('.').pop().toUpperCase();
+		attachmentItem.dataset.fileId = file.id;
+		attachmentItem.innerHTML = `
+			<div class="attachment-icon">${fileExtension}</div>
+			<div class="attachment-info">
+				<div class="attachment-name">
+					<a href="${file.url}" target="_blank">${fileName}</a>
+				</div>
+				<div class="attachment-size">${fileSize}</div>
+			</div>
+			<button type="button" class="remove-attachment" onclick="removeAttachment(this, true)">×</button>
+		`;
+	} else {
+		// Real File object from <input type="file">
+		fileName = file.name;
+		fileSize = (file.size / 1024).toFixed(1) + ' KB';
+		fileExtension = file.name.split('.').pop().toUpperCase();
+
+		attachmentItem.innerHTML = `
+			<div class="attachment-icon">${fileExtension}</div>
+			<div class="attachment-info">
+				<div class="attachment-name">${fileName}</div>
+				<div class="attachment-size">${fileSize}</div>
+			</div>
+			<button type="button" class="remove-attachment" onclick="removeAttachment(this, false)">×</button>
+		`;
+	}
 
 	attachmentsList.appendChild(attachmentItem);
 }
 
-function removeAttachment(button) {
+function removeAttachment(button, existing = false) {
+	const attachmentItem = button.parentElement;
+	if (existing) {
+		removedExistingFiles.push(attachmentItem.dataset.fileId);
+	}
 	button.parentElement.remove();
 }
 
@@ -357,7 +386,8 @@ async function uploadLetterToServer(formData, files) {
 			letterDate: formData.letterDate,
 			projectName: formData.projectName,
 			contractName: formData.contractName,
-			action: formData.action
+			action: formData.action,
+			removedExistingFiles: removedExistingFiles
 		};
 
 		console.log('Sending DTO:', dto);
@@ -928,6 +958,22 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 					alert("Failed to fetch correspondence details.");
 				}
 			});
+			$.ajax({
+				url: `/dms/api/correspondence/files-id/${rowData.correspondenceId}`,
+				type: "GET",
+				async: false,
+				contentType: "application/json",
+				success: function(existingFiles) {
+					existingFiles.forEach(file => addAttachmentToList(file, true));
+				},
+				error: function(xhr, status, error) {
+					console.error("Error fetching correspondence:", error);
+					alert("Failed to fetch correspondence details.");
+				}
+			});
+		
+			
+
 			console.log("API Response:", response);
 			// Open the modal (Bootstrap example)
 			$('#category').val(response.category).trigger('change');

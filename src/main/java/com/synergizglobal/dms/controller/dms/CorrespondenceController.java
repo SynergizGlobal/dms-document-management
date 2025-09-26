@@ -52,13 +52,15 @@ public class CorrespondenceController {
     @PostMapping(value = "/uploadLetter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadLetter(
             @RequestPart("dto") String dtoJson,
-            @RequestParam("document") MultipartFile[] documentsArray, HttpServletRequest request) {
+            @RequestParam(value = "document", required = false) MultipartFile[] documentsArray,
+            HttpServletRequest request) {
 
         try {
             CorrespondenceUploadLetter dto =
                     objectMapper.readValue(dtoJson, CorrespondenceUploadLetter.class);
 
-            dto.setDocuments(Arrays.asList(documentsArray));
+            if(documentsArray != null)
+            	dto.setDocuments(Arrays.asList(documentsArray));
             String baseUrl = request.getScheme() + "://" + // http / https
                     request.getServerName() + // domain or IP
                     ":" + request.getServerPort() + // port

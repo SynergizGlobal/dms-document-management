@@ -18,6 +18,7 @@ import com.synergizglobal.dms.entity.dms.DocumentFile;
 import com.synergizglobal.dms.entity.dms.ReferenceLetter;
 import com.synergizglobal.dms.entity.dms.SendCorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
+import com.synergizglobal.dms.repository.dms.CorrespondenceFileRepository;
 import com.synergizglobal.dms.repository.dms.CorrespondenceLetterRepository;
 import com.synergizglobal.dms.repository.dms.CorrespondenceReferenceRepository;
 import com.synergizglobal.dms.repository.dms.ReferenceLetterRepository;
@@ -78,6 +79,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	private final SendCorrespondenceLetterRepository sendCorrespondenceLetterRepository;
 
+	private final CorrespondenceFileRepository correspondenceFileRepository;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -91,10 +94,19 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				&& dto.getCorrespondenceId() == null) {
 			throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
 		}
-		CorrespondenceLetter entity =null;
+		CorrespondenceLetter entity = null;
 		if (dto.getCorrespondenceId() != null) {
 			entity = existingLetter.get();
-			entity.getFiles().clear();
+			// entity.getFiles().clear();
+			for (String fileId : dto.getRemovedExistingFiles()) {
+				Optional<CorrespondenceFile> fileToRemove = entity.getFiles().stream()
+						.filter(t -> fileId.equals("" + t.getId())).findFirst();
+				if (fileToRemove.isPresent()) {
+					CorrespondenceFile cf = fileToRemove.get();
+					entity.getFiles().remove(cf); // Remove from in-memory collection
+					//correspondenceFileRepository.deleteById(Long.parseLong(fileId));
+				}
+			}
 			entity.getCorrespondenceReferences().clear();
 			entity.getSendCorLetters().clear();
 			correspondenceRepo.saveAndFlush(entity);
@@ -116,7 +128,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		entity.setContractName(dto.getContractName());
 		CorrespondenceLetter savedEntity = correspondenceRepo.save(entity);
 		User loggedInUserObj = userRepository.findById(loggedUserId).get();
-		
+
 		List<SendCorrespondenceLetter> sendCors = new ArrayList<>();
 		// ---------- Handle TO -----------
 		if (dto.getTo() != null && !dto.getTo().isBlank()) {
@@ -189,7 +201,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				sendCors.add(incoming);
 			}
 		}
-		if(dto.getCorrespondenceId() != null)
+		if (dto.getCorrespondenceId() != null)
 			entity.getSendCorLetters().addAll(sendCors);
 		else
 			entity.setSendCorLetters(sendCors);
@@ -271,9 +283,13 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 			// call new file storage method (returns relative paths)
 			List<String> fileRelativePaths = fileStorageService.saveFiles(documents);
-			//entity.getFiles().clear();
-			List<CorrespondenceFile> fileEntities = new ArrayList<>();
-
+			// entity.getFiles().clear();
+			List<CorrespondenceFile> fileEntities = null;
+			if (dto.getCorrespondenceId() != null) {
+				fileEntities = entity.getFiles();
+			} else {
+				fileEntities = new ArrayList<>();
+			}
 			for (int i = 0; i < documents.size(); i++) {
 				MultipartFile file = documents.get(i);
 				String relativePath = (i < fileRelativePaths.size()) ? fileRelativePaths.get(i) : null;
@@ -300,13 +316,14 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 				fileEntities.add(cf);
 			}
-			if(dto.getCorrespondenceId() != null)
-				entity.getFiles().addAll(fileEntities);	
+			if (dto.getCorrespondenceId() != null)
+				entity.getFiles().addAll(fileEntities);
 			else
 				entity.setFiles(fileEntities);
 		} else {
-			entity.setFileCount(0);
-			entity.setFiles(new ArrayList<>());
+			;
+			entity.setFileCount((int)entity.getFiles().stream().count());
+			//entity.setFiles(new ArrayList<>());
 		}
 
 		return entity;

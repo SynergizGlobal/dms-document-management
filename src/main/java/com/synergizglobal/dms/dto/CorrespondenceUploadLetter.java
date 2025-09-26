@@ -31,4 +31,5 @@ public class CorrespondenceUploadLetter {
 	private LocalDate letterDate;
 	private String projectName;
 	private String contractName;
+	private List<String> removedExistingFiles;
 }
