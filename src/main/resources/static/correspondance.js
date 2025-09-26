@@ -451,6 +451,7 @@ sendBtn.addEventListener('click', async function() {
 
 		alert('Attach functionality would require additional backend implementation');
 		closeUploadModal();
+		draftTable.ajax.reload();
 	} else {
 		// Handle normal send mode
 		const formData = getFormData();
@@ -510,7 +511,7 @@ saveAsDraftBtn.addEventListener('click', async function() {
 		alert('Draft saved successfully!');
 
 		closeUploadModal();
-
+		draftTable.ajax.reload();
 		// Refresh the table - fetch fresh data from server
 		//loadCorrespondenceList('all');
 	} catch (error) {
