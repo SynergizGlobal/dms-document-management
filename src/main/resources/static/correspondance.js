@@ -889,6 +889,7 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 	 $('#modalStatus').text(rowData.status);
 	 $('#modalDepartment').text(rowData.department);*/
 	uploadModal.style.display = 'block';
+	$("#loader").show();
 	await fetchProjects();
 	await fetchContracts();
 	await fetchDepartments();
@@ -991,6 +992,7 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 			$('#currentStatus').val(response.currentStatus);
 			$('#department').val(response.department);
 			$('#attachment').val(response.attachment);
+			$("#loader").hide();
 		},
 		error: function(xhr, status, error) {
 			console.error("Error fetching correspondence:", error);
