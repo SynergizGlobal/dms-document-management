@@ -132,4 +132,7 @@ public interface CorrespondenceFileRepository extends JpaRepository<Corresponden
 		    """)
 	 List<CorrespondenceFolderFileDTO> getFilesOutgoing(@Param("projectNames") List<String> projectNames,@Param("contractNames") List<String> contractNames,
 			 @Param("type")String type, @Param("baseUrl")String baseUrl,@Param("userId") String userId);
-}
+
+	 @Query("SELECT f FROM CorrespondenceFile f WHERE f.correspondenceLetter.correspondenceId = :correspondenceId")
+	    List<CorrespondenceFile> findByCorrespondenceId(@Param("correspondenceId") Long correspondenceId);
+	}

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.synergizglobal.dms.dto.CorrespondenceFileDTO;
 import com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO;
 import com.synergizglobal.dms.dto.FolderGridDTO;
 import com.synergizglobal.dms.entity.pmis.User;
@@ -123,5 +124,13 @@ public class CorrespondenceFileController {
 			return ResponseEntity.internalServerError().build();
 		}
 	}
+	
+	
+	  @GetMapping("/files-id/{correspondenceId}")
+	    public ResponseEntity<List<CorrespondenceFileDTO>> getFiles(@PathVariable Long correspondenceId) {
+		  System.out.print("Called");
+	        List<CorrespondenceFileDTO> files = fileService.getFilesByCorrespondenceId(correspondenceId);
+	        return ResponseEntity.ok(files);
+	    }
 
 }

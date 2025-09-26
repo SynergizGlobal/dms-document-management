@@ -2,6 +2,7 @@ package com.synergizglobal.dms.service.dms;
 
 import java.util.List;
 
+import com.synergizglobal.dms.dto.CorrespondenceFileDTO;
 import com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO;
 
 public interface CorrespondenceFileService {
@@ -28,4 +29,6 @@ public interface CorrespondenceFileService {
 
 	 List<CorrespondenceFolderFileDTO> getFilesOutgoing(List<String> projectNames, List<String> contractNames,
 			String type, String baseUrl, String userId);
+	 
+	 List<CorrespondenceFileDTO> getFilesByCorrespondenceId(Long correspondenceId);
 }
