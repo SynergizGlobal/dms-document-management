@@ -523,7 +523,6 @@ $(document).ready(function() {
 			},
 			columns: [
 				{ data: 'sendTo' },
-				{ data: 'sendCc' },
 				{ data: 'sendSubject' },
 				{ data: 'sendReason' },
 				{ data: 'responseExpected' },
