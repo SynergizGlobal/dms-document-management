@@ -196,7 +196,7 @@ function loadCorrespondanceFiles(foldername) {
 
 				const folderCard = document.createElement("div");
 				folderCard.className = "folder-card";
-				folderCard.onclick = () => openFolder(folder.filePath, "file");
+				folderCard.onclick = () => openFolder(folder.downloadUrl, "correspondencefile");
 
 				folderCard.innerHTML = `
 	                    <div class="file-icon">${icon}</div>
@@ -361,6 +361,8 @@ function openFolder(folderid, type, foldername) {
 		loadCorrespondanceFiles("Incoming");
 	if (type == "Outgoing")
 		loadCorrespondanceFiles("Outgoing");
+	if (type == "correspondencefile")
+		window.open(folderid, "_blank");
 	/*if (folderName === 'drawings') {
 		showDrawingsView();
 	} else if (folderName === 'correspondence') {
