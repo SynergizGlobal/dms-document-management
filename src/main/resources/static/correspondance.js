@@ -122,7 +122,7 @@ function addAttachmentToList(file, isExisting = false) {
 			<div class="attachment-icon">${fileExtension}</div>
 			<div class="attachment-info">
 				<div class="attachment-name">
-					<a href="${file.url}" target="_blank">${fileName}</a>
+					<span>${fileName}</span>
 				</div>
 				<div class="attachment-size">${fileSize}</div>
 			</div>
@@ -1774,7 +1774,8 @@ function populateContractDropdown(contracts) {
 }
 
 uploadBtn.addEventListener('click', function() {
-
+	removedExistingFiles = [];
+	attachmentInput.files = [];
 	fetchProjects();
 	fetchContracts();
 	fetchDepartments();
