@@ -244,7 +244,11 @@ function getFormData(from) {
 	if (from === 'Save as Draft') {
 		const correspondenceId = $('#correspondenceId').val();
 		const ccValue = document.getElementById('ccField').value;
-		const referenceLettersValue = $('#referenceLetters').val();
+		//const referenceLettersValue = $('#referenceLetters').val();
+		let referenceLettersValue = [];
+		$('#referenceLetters').select2('data').forEach(function(item) {
+			referenceLettersValue.push(item.text);
+		});
 
 		return {
 			correspondenceId: correspondenceId,
@@ -291,7 +295,7 @@ $(function() {
 	$('#referenceLetters').select2({
 		placeholder: 'Enter Reference Letters',
 		multiple: true,
-		tags: true, // Allow free-text entry
+		//tags: true, // Allow free-text entry
 		minimumInputLength: 1,
 
 		ajax: {
@@ -338,7 +342,7 @@ async function uploadLetterToServer(formData, files) {
 
 		// Add the DTO as JSON
 		const dto = {
-			correspondenceId : formData.correspondenceId,
+			correspondenceId: formData.correspondenceId,
 			category: formData.category,
 			letterNumber: formData.letterNumber,
 			to: formData.to,
@@ -900,7 +904,30 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 					alert("Failed to fetch correspondence details.");
 				}
 			});
+			$.ajax({
+				url: `/dms/api/correspondence/references/${rowData.correspondenceId}`,
+				type: "GET",
+				async: false,
+				contentType: "application/json",
+				success: function(response) {
+					// Clear old options
+					$('#referenceLetters').empty();
 
+					// Append new options
+					response.forEach(function(item) {
+						let option = new Option(item.refLetters, item.refId, false, false);
+						$('#referenceLetters').append(option);
+					});
+
+					// Select all by default (or filter the ones you want)
+					let ids = response.map(item => item.refId);
+					$('#referenceLetters').val(ids).trigger('change');
+				},
+				error: function(xhr, status, error) {
+					console.error("Error fetching correspondence:", error);
+					alert("Failed to fetch correspondence details.");
+				}
+			});
 			console.log("API Response:", response);
 			// Open the modal (Bootstrap example)
 			$('#category').val(response.category).trigger('change');
