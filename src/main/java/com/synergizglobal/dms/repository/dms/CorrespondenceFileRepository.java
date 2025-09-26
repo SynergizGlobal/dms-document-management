@@ -41,4 +41,95 @@ public interface CorrespondenceFileRepository extends JpaRepository<Corresponden
 		            @Param("userId") String userId,
 		            @Param("isAdmin") boolean isAdmin
 		    );
+	 
+	 @Query("""
+		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		            f.fileName, 
+		            f.fileType, 
+		            f.filePath, 
+		            CONCAT(:baseUrl, '/files/', f.filePath), 
+		            c.letterNumber, 
+		            s.fromDept, 
+		            s.toDept, 
+		            s.type
+		        )
+		        FROM CorrespondenceFile f
+		        JOIN f.correspondenceLetter c
+		        JOIN c.sendCorLetters s
+		        WHERE c.projectName IN :projectNames
+		          AND c.contractName IN :contractNames
+		          AND s.type = :type
+		          AND c.action = 'send'
+		    """)
+	 List<CorrespondenceFolderFileDTO> getFilesForAdminIncoming( @Param("projectNames")List<String> projectNames, @Param("contractNames") List<String> contractNames,
+			 @Param("type")String type,@Param("baseUrl") String baseUrl);
+	 
+	 @Query("""
+		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		            f.fileName, 
+		            f.fileType, 
+		            f.filePath, 
+		            CONCAT(:baseUrl, '/files/', f.filePath), 
+		            c.letterNumber, 
+		            s.fromDept, 
+		            s.toDept, 
+		            s.type
+		        )
+		        FROM CorrespondenceFile f
+		        JOIN f.correspondenceLetter c
+		        JOIN c.sendCorLetters s
+		        WHERE c.projectName IN :projectNames
+		          AND c.contractName IN :contractNames
+		          AND s.type = :type
+		          AND s.isCC = false
+		          AND c.action = 'send'
+		    """)
+	 List<CorrespondenceFolderFileDTO> getFilesForAdminOutgoing( @Param("projectNames")List<String> projectNames, @Param("contractNames") List<String> contractNames,
+			 @Param("type")String type,@Param("baseUrl") String baseUrl);
+
+	 @Query("""
+		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		            f.fileName, 
+		            f.fileType, 
+		            f.filePath, 
+		            CONCAT(:baseUrl, '/files/', f.filePath), 
+		            c.letterNumber, 
+		            s.fromDept, 
+		            s.toDept, 
+		            s.type
+		        )
+		        FROM CorrespondenceFile f
+		        JOIN f.correspondenceLetter c
+		        JOIN c.sendCorLetters s
+		        WHERE c.projectName IN :projectNames
+		          AND c.contractName IN :contractNames
+		          AND s.type = :type
+		          AND c.action = 'send'
+		          AND (s.toUserId = :userId)
+		    """)
+	 List<CorrespondenceFolderFileDTO> getFilesIncoming(@Param("projectNames") List<String> projectNames,@Param("contractNames") List<String> contractNames,
+			 @Param("type")String type, @Param("baseUrl")String baseUrl,@Param("userId") String userId);
+	 @Query("""
+		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		            f.fileName, 
+		            f.fileType, 
+		            f.filePath, 
+		            CONCAT(:baseUrl, '/files/', f.filePath), 
+		            c.letterNumber, 
+		            s.fromDept, 
+		            s.toDept, 
+		            s.type
+		        )
+		        FROM CorrespondenceFile f
+		        JOIN f.correspondenceLetter c
+		        JOIN c.sendCorLetters s
+		        WHERE c.projectName IN :projectNames
+		          AND c.contractName IN :contractNames
+		          AND s.type = :type
+		          AND s.isCC = false
+		          AND c.action = 'send'
+		          AND (s.fromUserId = :userId)
+		    """)
+	 List<CorrespondenceFolderFileDTO> getFilesOutgoing(@Param("projectNames") List<String> projectNames,@Param("contractNames") List<String> contractNames,
+			 @Param("type")String type, @Param("baseUrl")String baseUrl,@Param("userId") String userId);
 }

@@ -16,4 +16,16 @@ public interface CorrespondenceFileService {
 	            String baseUrl,
 	            String userId,
 	            boolean isAdmin);
+
+	 List<CorrespondenceFolderFileDTO> getFilesForAdminIncoming(List<String> projectNames, List<String> contractNames,
+			String type, String baseUrl);
+
+	 List<CorrespondenceFolderFileDTO> getFilesForAdminOutgoing(List<String> projectNames, List<String> contractNames,
+			String type, String baseUrl);
+
+	 List<CorrespondenceFolderFileDTO> getFilesIncoming(List<String> projectNames, List<String> contractNames,
+			String type, String baseUrl, String userId);
+
+	 List<CorrespondenceFolderFileDTO> getFilesOutgoing(List<String> projectNames, List<String> contractNames,
+			String type, String baseUrl, String userId);
 }

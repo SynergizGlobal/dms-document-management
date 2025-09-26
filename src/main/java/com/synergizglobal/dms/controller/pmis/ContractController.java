@@ -1,6 +1,8 @@
 package com.synergizglobal.dms.controller.pmis;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.synergizglobal.dms.dto.ContractDTO;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.DocumentService;
+import com.synergizglobal.dms.service.dms.ICorrespondenceService;
 import com.synergizglobal.dms.service.pmis.ContractService;
 
 import jakarta.servlet.http.HttpSession;
@@ -24,6 +27,8 @@ public class ContractController {
 
     private final DocumentService documentService;
     
+    private final ICorrespondenceService correspondenceService;
+    
     @GetMapping("/get")
     public ResponseEntity<List<ContractDTO>> getAllContracts(HttpSession session) {
     	User user = (User) session.getAttribute("user");
@@ -35,8 +40,16 @@ public class ContractController {
     	User user = (User) session.getAttribute("user");
     	if(user.getUserRoleNameFk().equals("IT Admin")) {
     		//IT Admin
-    		return ResponseEntity.ok(documentService.findAllContractNamesByDocument());
+    		List<String> projectNames = new ArrayList<>();
+    		projectNames.addAll(correspondenceService.findAllContractNames());
+    		projectNames.addAll(documentService.findAllContractNamesByDocument());
+    		projectNames = projectNames.stream().distinct().collect(Collectors.toList());
+    		return ResponseEntity.ok(projectNames);
     	}
-    	return ResponseEntity.ok(documentService.findGroupedContractNames(user.getUserId()));
+    	List<String> projectNames = new ArrayList<>();
+		projectNames.addAll(correspondenceService.findGroupedContractNames(user.getUserId()));
+		projectNames.addAll(documentService.findGroupedContractNames(user.getUserId()));
+		projectNames = projectNames.stream().distinct().collect(Collectors.toList());
+		return ResponseEntity.ok(projectNames);
     }
 }

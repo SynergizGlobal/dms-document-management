@@ -19,17 +19,17 @@ let searchVisible = false;
 let navigationStack = [];
 
 function loadArchivedFiles(folderid, foldername) {
-	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' +foldername);
-	fetch(`/dms/api/documents/archived/folder-grid/${encodeURIComponent(folderid)}`	, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json"
-					},
-					body: JSON.stringify({
-						projects: selectedProjects,   // send array
-						contracts: selectedContracts  // send array
-					})
-				})
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
+	fetch(`/dms/api/documents/archived/folder-grid/${encodeURIComponent(folderid)}`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			projects: selectedProjects,   // send array
+			contracts: selectedContracts  // send array
+		})
+	})
 		.then(response => response.json())
 		.then(folders => {
 			const grid = document.querySelector(".folders-grid");
@@ -105,7 +105,7 @@ function loadArchiveFolder(folderId) {
 	});
 }
 function loadSubFolders(folderid, foldername) {
-	$("#breadcrumb-current").text('>' +foldername);
+	$("#breadcrumb-current").text('>' + foldername);
 	fetch(`/dms/api/subfolders/grid/${encodeURIComponent(folderid)}`
 		, {
 			method: "POST",
@@ -152,18 +152,76 @@ function loadSubFolders(folderid, foldername) {
 		})
 		.catch(err => console.error("Error loading folders:", err));
 }
+function loadCorrespondanceFiles(foldername) {
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
+	fetch(`/dms/api/correspondence/getFolderFiles?type=${foldername}`, {
+		method: "POST",
+		body: JSON.stringify({
+			projects: selectedProjects,   // send array
+			contracts: selectedContracts  // send array
+		}),
+		headers: {
+			"Content-Type": "application/json"
+		}
+	})
+		.then(response => response.json())
+		.then(folders => {
+			const grid = document.querySelector(".folders-grid");
+			grid.innerHTML = ""; // clear existing folders
+
+			if (!folders || folders.length === 0) {
+				grid.innerHTML = `<p style="text-align:center; color:gray;">No files available</p>`;
+				return;
+			}
+
+			folders.forEach(folder => {
+				const fileType = folder.fileType ? folder.fileType.toLowerCase() : "";
+
+				// Pick icon based on file type
+				let icon = `<i class="fa-solid fa-file" style="font-size:40px; color:#555;"></i>`;
+				if (fileType === "pdf")
+					icon = `<i class="fa-solid fa-file-pdf" style="font-size:40px; color:red;"></i>`;
+				else if (["doc", "docx"].includes(fileType))
+					icon = `<i class="fa-solid fa-file-word" style="font-size:40px; color:#2a5699;"></i>`;
+				else if (["xls", "xlsx"].includes(fileType))
+					icon = `<i class="fa-solid fa-file-excel" style="font-size:40px; color:#217346;"></i>`;
+				else if (["png", "jpg", "jpeg", "gif"].includes(fileType))
+					icon = `<i class="fa-solid fa-file-image" style="font-size:40px; color:#e3b341;"></i>`;
+				else if (["ppt", "pptx"].includes(fileType))
+					icon = `<i class="fa-solid fa-file-powerpoint" style="font-size:40px; color:#d24726;"></i>`;
+				else if (["zip", "rar"].includes(fileType))
+					icon = `<i class="fa-solid fa-file-zipper" style="font-size:40px; color:#f0a500;"></i>`;
+				else if (["txt"].includes(fileType))
+					icon = `<i class="fa-solid fa-file-lines" style="font-size:40px; color:#444;"></i>`;
+
+				const folderCard = document.createElement("div");
+				folderCard.className = "folder-card";
+				folderCard.onclick = () => openFolder(folder.filePath, "file");
+
+				folderCard.innerHTML = `
+	                    <div class="file-icon">${icon}</div>
+	                    <div class="folder-title">${folder.letterNumber}_${folder.fromDept}_${folder.toDept}_(${folder.fileType})</div>
+	                `;
+
+				grid.appendChild(folderCard);
+
+			});
+			loadArchiveFolder(folderid);
+		})
+		.catch(err => console.error("Error loading folders:", err));
+}
 function loadFiles(folderid, foldername) {
-	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' +foldername);
-	fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`	, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({
-					projects: selectedProjects,   // send array
-					contracts: selectedContracts  // send array
-				})
-			})
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
+	fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			projects: selectedProjects,   // send array
+			contracts: selectedContracts  // send array
+		})
+	})
 		.then(response => response.json())
 		.then(folders => {
 			const grid = document.querySelector(".folders-grid");
@@ -299,6 +357,10 @@ function openFolder(folderid, type, foldername) {
 		window.open(`/dms/api/documents/view?path=${encodeURIComponent(folderid)}`, "_blank");
 	if (type == "archive")
 		loadArchivedFiles(folderid, "Archived");
+	if (type == "Incoming")
+		loadCorrespondanceFiles("Incoming");
+	if (type == "Outgoing")
+		loadCorrespondanceFiles("Outgoing");
 	/*if (folderName === 'drawings') {
 		showDrawingsView();
 	} else if (folderName === 'correspondence') {
@@ -749,7 +811,7 @@ $(document).on("change", ".filter-dropdown input[type='checkbox']", function() {
 	//const projectStr = toSqlInClause(selectedProjects);
 	//const contractStr = toSqlInClause(selectedContracts);
 	loadFolders(selectedProjects, selectedContracts);
-	
+
 });
 
 // Convert array into string with quotes
@@ -846,7 +908,7 @@ function loadCorrespondence() {
 function loadCorrespondenceInboundAndOutbound() {
 	const grid = document.querySelector(".folders-grid");
 	grid.innerHTML = ""; // clear existing folders
-	const folders = ["Inbound", "Outbound"]
+	const folders = ["Incoming", "Outgoing"]
 	if (!folders || folders.length === 0) {
 		grid.innerHTML = `<p style="text-align:center; color:gray;">No folders available</p>`;
 		return;
