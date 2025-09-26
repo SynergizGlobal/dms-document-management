@@ -70,6 +70,9 @@ public class DocumentRevision {
     @Column(name = "created_by")
     private String createdBy;
    
+	@Column(name = "created_by_user")
+	private String createdByUser;
+    
     @Column(name = "project_name")
     private String projectName;
     

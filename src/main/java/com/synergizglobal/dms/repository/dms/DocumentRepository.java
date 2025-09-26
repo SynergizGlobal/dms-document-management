@@ -183,7 +183,7 @@ and d.not_required is null
 	
 	@Query(value="""
 			select
-distinct d.created_by
+distinct d.created_by_user
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
@@ -385,7 +385,7 @@ select
 			value ="""
    select 
 	distinct 
-	d.created_by
+	d.created_by_user
 	from dms.documents d
 	where d.not_required is null
 			"""

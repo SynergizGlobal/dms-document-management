@@ -149,8 +149,8 @@ public class DocumentServiceImpl implements DocumentService {
 		SubFolder subFolder = subFolderRepository.findByName(documentDto.getSubFolder()).get();
 		Department department = departmentRepository.findByName(documentDto.getDepartment()).get();
 		Status status = statusRepository.findByName(documentDto.getCurrentStatus()).get();
-		// User user = userRepository.findById(userId).get();
-
+		User user = userRepository.findById(userId).get();
+		
 		Optional<Document> documentInDBOptional = documentRepository.findByFileName(documentDto.getFileName());
 		// 1. If file name is same but file number is different
 		if (documentInDBOptional.isPresent()) {
@@ -230,7 +230,8 @@ public class DocumentServiceImpl implements DocumentService {
 					.department(department).fileDBNumber(UUID.randomUUID().toString()).documentFiles(newDocumentFiles)
 					.currentStatus(status).projectName(documentDto.getProjectName())
 					.contractName(documentDto.getContractName()).reasonForUpdate(documentDto.getReasonForUpdate())
-					.createdBy(userId).build();
+					.createdBy(userId)
+					.createdByUser(user.getUserName()).build();
 
 			// Save the new Document first
 			Document savedNewDocument = documentRepository.save(document);
@@ -255,7 +256,8 @@ public class DocumentServiceImpl implements DocumentService {
 					.fileDBNumber(documentInDB.getFileDBNumber()).createdBy(documentInDB.getCreatedBy())
 					// .document(latestFromDB.get()) // still valid at this point
 					.projectName(documentInDB.getProjectName()).contractName(documentInDB.getContractName())
-					.reasonForUpdate(documentInDB.getReasonForUpdate()).build();
+					.reasonForUpdate(documentInDB.getReasonForUpdate())
+					.createdByUser(documentInDB.getCreatedByUser()).build();
 
 			documentRevisionRepository.save(documentRevision);
 			documentRevisionRepository.flush();
@@ -281,7 +283,7 @@ public class DocumentServiceImpl implements DocumentService {
 	private DocumentDTO saveNewDocument(DocumentDTO documentDto, List<MultipartFile> files, Folder folder,
 			SubFolder subFolder, Department department, Status status, String userId) {
 		List<DocumentFile> newDocumentFiles;
-
+		User user = userRepository.findById(userId).get();
 		try {
 			newDocumentFiles = saveNewFilesToSubFolder(subFolder, files);
 		} catch (IOException e) {
@@ -293,7 +295,8 @@ public class DocumentServiceImpl implements DocumentService {
 				.folder(folder).subFolder(subFolder).department(department).currentStatus(status)
 				.fileDBNumber(UUID.randomUUID().toString()).projectName(documentDto.getProjectName())
 				.contractName(documentDto.getContractName()).reasonForUpdate(documentDto.getReasonForUpdate())
-				.createdBy(userId).build();
+				.createdBy(userId)
+				.createdByUser(user.getUserName()).build();
 		Document savedDocument = documentRepository.save(document);
 		for (DocumentFile documentFile : newDocumentFiles) {
 			documentFile.setDocument(savedDocument);
@@ -1075,7 +1078,7 @@ public class DocumentServiceImpl implements DocumentService {
 				// .createdAt(doc.getCreatedAt() != null ?
 				// doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
 				.dateUploaded(doc.getCreatedAt() != null ? doc.getCreatedAt().format(DATE_TIME_FORMATTER) : null)
-				.documentType("").createdBy(doc.getCreatedBy()).viewedOrDownloaded("")
+				.documentType("").createdBy(doc.getCreatedByUser()).viewedOrDownloaded("")
 				// Add file info
 				.fileType(file != null ? file.getFileType() : null).projectName(doc.getProjectName())
 				.contractName(doc.getContractName()).id("" + doc.getId()).viewedOrDownloaded(file.getFilePath())
