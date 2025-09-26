@@ -90,7 +90,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			String loggedUserName, String userRole) throws Exception {
 
 		Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
-		if (existingLetter.isPresent() && !dto.getAction().equals(Constant.SAVE_AS_DRAFT)
+		if ((existingLetter.isPresent() && existingLetter.get().getAction().equals("send"))&& !dto.getAction().equals(Constant.SAVE_AS_DRAFT)
 				&& dto.getCorrespondenceId() == null) {
 			throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
 		}

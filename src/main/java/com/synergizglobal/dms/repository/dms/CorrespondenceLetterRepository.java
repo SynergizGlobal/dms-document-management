@@ -78,7 +78,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     	    """, nativeQuery = true)
     	List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesView(@Param("id") Long id);
     
-    @Query("SELECT c FROM CorrespondenceLetter c WHERE c.letterNumber = :letterNumber AND c.action = 'send'")
+    @Query("SELECT c FROM CorrespondenceLetter c WHERE c.letterNumber = :letterNumber")
     Optional<CorrespondenceLetter> findByLetterNumber(@Param("letterNumber") String letterNumber);
 
 

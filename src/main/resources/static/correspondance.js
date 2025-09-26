@@ -270,8 +270,9 @@ function clearTable(tableId) {
 
 // Get form data
 function getFormData(from) {
+	const correspondenceId = $('#correspondenceId').val();
 	if (from === 'Save as Draft') {
-		const correspondenceId = $('#correspondenceId').val();
+		
 		const ccValue = document.getElementById('ccField').value;
 		//const referenceLettersValue = $('#referenceLetters').val();
 		let referenceLettersValue = [];
@@ -302,6 +303,7 @@ function getFormData(from) {
 		const referenceLettersValue = $('#referenceLetters').val();
 
 		return {
+			correspondenceId: correspondenceId,
 			category: document.getElementById('category').value,
 			letterNumber: document.getElementById('letterNo').value,
 			letterDate: document.getElementById('letterDate').value,
