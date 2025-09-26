@@ -346,7 +346,7 @@ function openFolder(folderid, type, foldername) {
 		event.currentTarget.style.transform = 'translateY(-5px)';
 	}, 150);
 	if (type == "correspondence")
-		loadCorrespondenceInboundAndOutbound();
+		loadCorrespondenceInboundAndOutbound("Correspondence");
 	if (type == "folder")
 		loadSubFolders(folderid, foldername);
 	if (type == "subfolder") {
@@ -905,7 +905,8 @@ function loadCorrespondence() {
 		grid.appendChild(folderCard);
 	});
 }
-function loadCorrespondenceInboundAndOutbound() {
+function loadCorrespondenceInboundAndOutbound(foldername) {
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
 	const grid = document.querySelector(".folders-grid");
 	grid.innerHTML = ""; // clear existing folders
 	const folders = ["Incoming", "Outgoing"]
