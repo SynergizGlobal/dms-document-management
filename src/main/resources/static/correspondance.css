@@ -1736,3 +1736,21 @@ table.dataTable tbody td {
   cursor: default;           /* Change cursor to default arrow */
   user-select: none;         /* Prevent text selection */
 }
+/* Selection box background */
+/* Selection box background */
+#referenceLetters + .select2-container .select2-selection {
+  background-color: #a8b2bf !important; /* from your image */
+  border: 1px solid #888;
+}
+
+/* Selected option (tag text) */
+#referenceLetters + .select2-container .select2-selection__choice {
+  background-color: #a8b2bf !important; /* match the box */
+  color: #000 !important;               /* black text */
+  border: 1px solid #777;
+}
+
+/* Close "x" button on tag */
+#referenceLetters + .select2-container .select2-selection__choice__remove {
+  color: #000 !important;
+}
