@@ -1777,7 +1777,9 @@ function populateContractDropdown(contracts) {
 
 uploadBtn.addEventListener('click', function() {
 	removedExistingFiles = [];
-	attachmentInput.files = [];
+	if (attachmentInput) {
+	    attachmentInput.value = "";  // clears selected files
+	}
 	fetchProjects();
 	fetchContracts();
 	fetchDepartments();
