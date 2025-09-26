@@ -323,7 +323,7 @@ $(document).ready(function() {
 			for (let i = 0; i < files.length; i++) {
 				formData.append("files", files[i]); // key must match backend param
 			}
-
+			$("#loader").show();
 			// Send AJAX request
 			$.ajax({
 				url: '/dms/api/documents',  // Your Spring Boot endpoint
@@ -332,6 +332,7 @@ $(document).ready(function() {
 				processData: false,
 				contentType: false,
 				success: function(responseData, textStatus, jqXHR) {
+					$("#loader").hide();
 					if (responseData.errorMessage !== null) {
 						alert(responseData.errorMessage);
 					}
@@ -368,6 +369,7 @@ $(document).ready(function() {
 			const formData = new FormData();
 			formData.append('file', uploadedZipFile);
 			//const uploadId = localStorage.getItem("uploadedMetaDataId");
+			$("#loader").show();
 			$.ajax({
 				url: '/dms/api/bulkupload/metadata/get',
 				type: 'GET',
@@ -376,6 +378,7 @@ $(document).ready(function() {
 				//contentType: false,
 				async: false,
 				success: function(response) {
+					$("#loader").hide();
 					uploadId = response;
 				},
 				error: function(xhr) {
@@ -390,6 +393,7 @@ $(document).ready(function() {
 
 			try {
 				// Step 1: Upload metadata file and get response
+				$("#loader").show();
 				$.ajax({
 					url: '/dms/api/bulkupload/zipfile/save/' + uploadId,
 					type: 'POST',
@@ -397,7 +401,7 @@ $(document).ready(function() {
 					processData: false,
 					contentType: false,
 					success: function(response) {
-
+						$("#loader").hide();
 						if (response) {
 							alert(response);
 							return;
@@ -967,6 +971,7 @@ $(document).ready(function() {
 		formData.append('file', uploadedMetadataFile);
 
 		try {
+			$("#loader").show();
 			// Step 1: Upload metadata file and get response
 			const response = await $.ajax({
 				url: '/dms/api/bulkupload/metadata/upload',
@@ -975,7 +980,7 @@ $(document).ready(function() {
 				processData: false,
 				contentType: false,
 			});
-
+			$("#loader").hide();
 			// Step 2: Group rows
 			const groupedRows = [];
 			let currentGroup = [];
@@ -1354,12 +1359,14 @@ $(document).ready(function() {
 
 		if (!isValid) return;
 		// Send to backend
+		$("#loader").show();
 		$.ajax({
 			url: '/dms/api/bulkupload/metadata/save',
 			type: 'POST',
 			contentType: 'application/json',
 			data: JSON.stringify(inputRows), // 👈 Convert list to JSON string
 			success: function(response) {
+				$("#loader").hide();
 				//localStorage.setItem('uploadedMetaDataId', response);
 				$('#previewModal').css('display', 'none');
 				$('#previewModal input, #previewModal select').removeClass('error-field success-field');

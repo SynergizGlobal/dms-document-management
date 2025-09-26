@@ -2155,3 +2155,29 @@ table.dataTable tbody td {
   background-color: rgba(0, 0, 0, 0.1) !important;
   color: white !important;
 }
+#loader {
+  position: fixed;            /* stays in place */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.8); /* semi-transparent overlay */
+  z-index: 9999;              /* ensures it's on top */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}

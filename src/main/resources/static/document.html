@@ -19,11 +19,12 @@
 <script
 	src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <!-- CSS for Select2 -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link
+	href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+	rel="stylesheet" />
 <!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-
+<script
+	src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <body>
 	<div class="container">
 		<header class="header">
@@ -44,7 +45,10 @@
 			<div class="nav-item" onclick="location.href='filters_form.html'">Filter
 				Form</div>
 		</nav>
-
+		<div id="loader" style="display: none;">
+			<div class="spinner"></div>
+			Uploading...
+		</div>
 		<!-- Preview Metadata Modal -->
 		<div class="preview-modal" id="previewModal">
 			<div class="preview-modal-content">
