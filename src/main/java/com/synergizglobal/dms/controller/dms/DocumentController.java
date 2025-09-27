@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.DataTableRequest;
 import com.synergizglobal.dms.dto.DataTableResponse;
 import com.synergizglobal.dms.dto.DocumentDTO;
@@ -153,70 +154,70 @@ public class DocumentController {
 	public ResponseEntity<List<String>> filters(@PathVariable("columnIndex") Integer columnIndex, HttpSession session) {
 		User user = (User) session.getAttribute("user");
 		if (columnIndex == 1) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllFileTypes());
 			}
 			return ResponseEntity.ok(documentService.findGroupedFileTypes(user.getUserId()));
 		}
 		if (columnIndex == 2) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllFileNumbers());
 			}
 			return ResponseEntity.ok(documentService.findGroupedFileNumbers(user.getUserId()));
 		}
 		if (columnIndex == 3) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllFileNames());
 			}
 			return ResponseEntity.ok(documentService.findGroupedFileNames(user.getUserId()));
 		}
 		if (columnIndex == 4) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllRevisionNos());
 			}
 			return ResponseEntity.ok(documentService.findGroupedRevisionNos(user.getUserId()));
 		}
 		if (columnIndex == 5) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllStatus());
 			}
 			return ResponseEntity.ok(documentService.findGroupedStatus(user.getUserId()));
 		}
 		if (columnIndex == 6) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllProjectNamesByDocument());
 			}
 			return ResponseEntity.ok(documentService.findGroupedProjectNames(user.getUserId()));
 		}
 		if (columnIndex == 7) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllContractNamesByDocument());
 			}
 			return ResponseEntity.ok(documentService.findGroupedContractNames(user.getUserId()));
 		}
 		if (columnIndex == 8) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllFoldersByDocument());
 			}
 			return ResponseEntity.ok(documentService.findGroupedFolders(user.getUserId()));
 		}
 		if (columnIndex == 9) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllSubFoldersByDocument());
 			}
 			return ResponseEntity.ok(documentService.findGroupedSubFolders(user.getUserId()));
 		}
 		if (columnIndex == 10) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllCreatedByDocument());
 			}
@@ -226,14 +227,14 @@ public class DocumentController {
 			return null;// ResponseEntity.ok(documentService.findGroupedUploadedDate());
 		}
 		if (columnIndex == 12) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllRevisionDateByDocument());
 			}
 			return ResponseEntity.ok(documentService.findGroupedRevisionDate(user.getUserId()));
 		}
 		if (columnIndex == 13) {
-			if (user.getUserRoleNameFk().equals("IT Admin")) {
+			if (CommonUtil.isITAdminOrSuperUser(user)) {
 				// IT Admin
 				return ResponseEntity.ok(documentService.findAllDepartmentByDocument());
 			}
@@ -241,6 +242,8 @@ public class DocumentController {
 		}
 		return null;
 	}
+
+	
 
 	@GetMapping("/view")
 	public ResponseEntity<Resource> viewFile(@RequestParam("path") String path) throws IOException {

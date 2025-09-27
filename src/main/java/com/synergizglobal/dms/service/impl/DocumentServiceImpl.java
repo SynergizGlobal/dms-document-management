@@ -902,7 +902,7 @@ public class DocumentServiceImpl implements DocumentService {
 		String role = user.getUserRoleNameFk();
 
 		// 🔹 Restrict by creator or recipient if not IT Admin
-		if (!"IT Admin".equals(role)) {
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
 			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("createdBy"), user.getUserId());
 
 			jakarta.persistence.criteria.Predicate sentToUser = cb.and(
@@ -1035,7 +1035,7 @@ public class DocumentServiceImpl implements DocumentService {
 		String role = user.getUserRoleNameFk();
 
 		// 🔹 Apply user restrictions
-		if (!"IT Admin".equals(role)) {
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
 			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("createdBy"), user.getUserId());
 
 			jakarta.persistence.criteria.Predicate sentToUser = cb.and(

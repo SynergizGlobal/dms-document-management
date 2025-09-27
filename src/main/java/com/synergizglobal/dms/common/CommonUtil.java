@@ -1,5 +1,7 @@
 package com.synergizglobal.dms.common;
 
+import com.synergizglobal.dms.entity.pmis.User;
+
 public class CommonUtil {
 
 	public static String getExtensionFromContentType(String contentType) {
@@ -17,5 +19,9 @@ public class CommonUtil {
 	        // add more as needed
 	        default: return "bin"; // fallback
 	    }
+	}
+	
+	public static boolean isITAdminOrSuperUser(User user) {
+		return user.getUserRoleNameFk().equals("IT Admin") || user.getUserRoleNameFk().equals("Super user");
 	}
 }
