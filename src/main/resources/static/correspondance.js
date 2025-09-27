@@ -272,7 +272,7 @@ function clearTable(tableId) {
 function getFormData(from) {
 	const correspondenceId = $('#correspondenceId').val();
 	if (from === 'Save as Draft') {
-		
+
 		const ccValue = document.getElementById('ccField').value;
 		//const referenceLettersValue = $('#referenceLetters').val();
 		let referenceLettersValue = [];
@@ -975,8 +975,8 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 					alert("Failed to fetch correspondence details.");
 				}
 			});
-		
-			
+
+
 
 			console.log("API Response:", response);
 			// Open the modal (Bootstrap example)
@@ -1311,7 +1311,10 @@ function setupAutocomplete(inputId) {
 
 			if (lastCommaIndex === -1) {
 				// No existing emails - set the value to the selected email
-				input.val(ui.item.value + ', ');
+				if (inputId === "toField")
+					input.val(ui.item.value);
+				else
+					input.val(ui.item.value + ', ');
 			} else {
 				// Replace the text after the last comma with the selected email
 				var baseEmails = currentVal.substring(0, lastCommaIndex + 1);
@@ -1781,7 +1784,7 @@ function populateContractDropdown(contracts) {
 uploadBtn.addEventListener('click', function() {
 	removedExistingFiles = [];
 	if (attachmentInput) {
-	    attachmentInput.value = "";  // clears selected files
+		attachmentInput.value = "";  // clears selected files
 	}
 	fetchProjects();
 	fetchContracts();
