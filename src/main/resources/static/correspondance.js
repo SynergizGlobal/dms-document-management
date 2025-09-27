@@ -470,7 +470,7 @@ sendBtn.addEventListener('click', async function() {
 				alert('Letter uploaded successfully!');
 
 				closeUploadModal();
-
+				draftTable.ajax.reload();
 				// Refresh the table - fetch fresh data from server
 				//await loadCorrespondenceList('Send');
 
