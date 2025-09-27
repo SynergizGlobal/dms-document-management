@@ -2181,3 +2181,11 @@ table.dataTable tbody td {
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
+#bulkUploadDisplayMessage {
+    display: none;               /* hidden by default */
+    color: green;                /* text color */
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;          /* center text */
+    width: 100%;                 /* span full width of parent */
+}

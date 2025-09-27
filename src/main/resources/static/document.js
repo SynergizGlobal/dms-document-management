@@ -1,4 +1,5 @@
 $(document).ready(function() {
+	$("#bulkUploadDisplayMessage").hide();
 	const params = new URLSearchParams(window.location.search);
 	var token = params.get('token');
 
@@ -441,6 +442,7 @@ $(document).ready(function() {
 							'cursor': '',
 							'text-decoration': ''
 						});
+						$("#bulkUploadDisplayMessage").hide();
 						mainTableInstance.ajax.reload(null, false);
 					},
 					error: function(xhr) {
@@ -2495,6 +2497,7 @@ $(document).ready(function() {
 						'text-decoration': 'none'
 					});
 					$('#previewMetadata').prop('disabled', true);
+					$("#bulkUploadDisplayMessage").show();
 				}
 			},
 			error: function(xhr) {
