@@ -92,7 +92,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		Optional<CorrespondenceLetter> existingLetter = correspondenceRepo.findByLetterNumber(dto.getLetterNumber());
 		if (existingLetter.isPresent() && dto.getCorrespondenceId() != null) {
 			System.out.print("Allowed to update!!");
-		} else {
+		} else if(existingLetter.isPresent()) {
 			throw new IllegalArgumentException("Letter number " + dto.getLetterNumber() + " already exists");
 		}
 		CorrespondenceLetter entity = null;
