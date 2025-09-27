@@ -38,7 +38,7 @@ $(document).ready(function() {
 		data: { token: token }, // token as query param
 		success: function(response) {
 			//$("#userName").text(response);
-			if(response === 'Super user') {
+			if (response === 'Super user') {
 				$("#uploadBtn").hide();
 				$("#draftBtn").hide();
 				$("#contextMenu .context-menu-item[data-action='send']").hide();
@@ -735,7 +735,7 @@ $(document).ready(function() {
 					showNotification('Document sent successfully!', 'success');
 					$('#sendDocumentsModal').hide();
 					resetSendForm();
-					if(draftTableInstance)
+					if (draftTableInstance)
 						draftTableInstance.ajax.reload(null, false);
 				},
 				error: function(xhr) {
@@ -2475,6 +2475,33 @@ $(document).ready(function() {
 	});
 
 	$('#uploadBtn').on('click', function() {
+		// Disable metadata upload and preview metadat if already uploaded
+		$("#loader").show();
+		$.ajax({
+			url: '/dms/api/bulkupload/metadata/get',
+			type: 'GET',
+			//data: formData,
+			//processData: false,
+			//contentType: false,
+			async: false,
+			success: function(response) {
+				$("#loader").hide();
+				uploadId = response;
+				if (uploadId) {
+					$('#uploadMetadata').css({
+						'pointer-events': 'none',
+						'color': 'gray',
+						'cursor': 'not-allowed',
+						'text-decoration': 'none'
+					});
+					$('#previewMetadata').prop('disabled', true);
+				}
+			},
+			error: function(xhr) {
+				console.error("Upload failed:", xhr.responseText);
+				alert("Upload failed: " + xhr.responseText);
+			}
+		});
 		// inititialize department dropdown
 		$.ajax({
 			url: '/dms/api/departments/get',  // Replace with your actual API endpoint
