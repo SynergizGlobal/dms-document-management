@@ -895,7 +895,7 @@ $(document).ready(function() {
 						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
 						$('#updateDocumentsModal').removeClass('show');
 						$('#updateDocumentsModal').css('display', 'none');
-						initializeDataTables();
+						mainTableInstance.ajax.reload();
 					}
 				},
 				error: function(xhr, status, error) {
@@ -1446,7 +1446,7 @@ $(document).ready(function() {
 				};
 
 				selectedDocument = updateData;
-				showUpdateDocumentsModal();
+				showUpdateDocumentsModal(); 
 				break;
 			case 'view-old':
 				populateVersionTable(row);
