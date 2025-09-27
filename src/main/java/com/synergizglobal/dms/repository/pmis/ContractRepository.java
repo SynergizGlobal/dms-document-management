@@ -17,4 +17,13 @@ public interface ContractRepository extends JpaRepository<Contract, String>{
 			+ "where u.user_id = :userId", nativeQuery = true)
 	List<String> getContractsByUserId(@Param("userId") String userId);
 
+	@Query(value = """
+			SELECT distinct c.contract_short_name from project as p
+  join work as w on p.project_id = w.project_id_fk
+  join contract as c on c.work_id_fk = w.work_id
+  join contract_executive as scrp on scrp.contract_id_fk = c.contract_id
+  where scrp.executive_user_id_fk = :userId
+			""", nativeQuery = true)
+    List<String> getContractsForOtherUsersByUserId(@Param("userId") String userId);
+
 }

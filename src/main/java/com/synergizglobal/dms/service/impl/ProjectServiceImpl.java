@@ -49,9 +49,22 @@ public class ProjectServiceImpl implements ProjectService {
     	if(userRoleNameFk.equals("IT Admin")) {
     		//IT Admin
     		return this.getAllProjects();
-    	} else {
+    	} else if(userRoleNameFk.equals("Contractor")) {
     		return this.getProjectsByUserId(userId);
+    	} else {
+    		return this.getProjectsForOtherUsersByUserId(userId);
     	}
+	}
+
+	private List<ProjectDTO> getProjectsForOtherUsersByUserId(String userId) {
+		List<ProjectDTO> projectDTOs = new ArrayList<>();
+		for (String projectName : projectRepository.getProjectsForOtherUsersByUserId(userId)) {
+			projectDTOs.add(ProjectDTO.builder()
+					.id(projectName)
+					.name(projectName)		
+					.build());
+		}
+		return projectDTOs;
 	}
 
 }

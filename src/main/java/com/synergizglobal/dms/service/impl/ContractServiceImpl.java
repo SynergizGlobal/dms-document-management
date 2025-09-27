@@ -54,9 +54,23 @@ public class ContractServiceImpl implements ContractService {
 		if(userRole.equals("IT Admin")) {
     		//IT Admin
     		return this.getAllContracts();
-    	} else {
+    	} else if(userRole.equals("Contractor")) {
     		return this.getContractsByUserId(userId);
+    	} else {
+    		return this.getContractsForOtherUsersByUserId(userId);
     	}
+	}
+
+
+	private List<ContractDTO> getContractsForOtherUsersByUserId(String userId) {
+		List<ContractDTO> projectDTOs = new ArrayList<>();
+		for (String contract : contractRepository.getContractsForOtherUsersByUserId(userId)) {
+			projectDTOs.add(ContractDTO.builder()
+					.id(contract)
+					.name(contract)		
+					.build());
+		}
+		return projectDTOs;
 	}
 
 }
