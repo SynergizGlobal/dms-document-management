@@ -735,7 +735,8 @@ $(document).ready(function() {
 					showNotification('Document sent successfully!', 'success');
 					$('#sendDocumentsModal').hide();
 					resetSendForm();
-					draftTableInstance.ajax.reload(null, false);
+					if(draftTableInstance)
+						draftTableInstance.ajax.reload(null, false);
 				},
 				error: function(xhr) {
 					alert('Error sending document: ' + xhr.responseText);
