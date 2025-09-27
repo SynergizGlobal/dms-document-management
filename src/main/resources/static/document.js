@@ -8,7 +8,7 @@ $(document).ready(function() {
 		async: false,
 		data: { token: token }, // token as query param
 		success: function(response) {
-			
+
 			console.log("Session set successfully:", response);
 			// You can proceed with further logic here
 		},
@@ -18,19 +18,40 @@ $(document).ready(function() {
 	});
 
 	$.ajax({
-			url: `/dms/api/users/get/username`,
-			method: 'GET',
-			async: false,
-			data: { token: token }, // token as query param
-			success: function(response) {
-				$("#userName").text(response);
-				console.log("Session set successfully:", response);
-				// You can proceed with further logic here
-			},
-			error: function(xhr, status, error) {
-				console.error("Failed to set session:", error);
+		url: `/dms/api/users/get/username`,
+		method: 'GET',
+		async: false,
+		data: { token: token }, // token as query param
+		success: function(response) {
+			$("#userName").text(response);
+			console.log("Session set successfully:", response);
+			// You can proceed with further logic here
+		},
+		error: function(xhr, status, error) {
+			console.error("Failed to set session:", error);
+		}
+	});
+	$.ajax({
+		url: `/dms/api/users/get/userRole`,
+		method: 'GET',
+		async: false,
+		data: { token: token }, // token as query param
+		success: function(response) {
+			//$("#userName").text(response);
+			if(response === 'Super user') {
+				$("#uploadBtn").hide();
+				$("#draftBtn").hide();
+				$("#contextMenu .context-menu-item[data-action='send']").hide();
+				$("#contextMenu .context-menu-item[data-action='update']").hide();
+				$("#contextMenu .context-menu-item[data-action='not-required']").hide();
 			}
-		});
+			console.log("Session set successfully:", response);
+			// You can proceed with further logic here
+		},
+		error: function(xhr, status, error) {
+			console.error("Failed to set session:", error);
+		}
+	});
 	// Global variables
 	let selectedDocumentId = null;
 	let selectedDocument = null;
@@ -342,7 +363,7 @@ $(document).ready(function() {
 						$('#successMessage').fadeIn(200).delay(2000).fadeOut(200);
 
 						//initializeDataTables();
-						mainTableInstance.ajax.reload(null, false); 
+						mainTableInstance.ajax.reload(null, false);
 					}
 				},
 				error: function(xhr, status, error) {
@@ -420,7 +441,7 @@ $(document).ready(function() {
 							'cursor': '',
 							'text-decoration': ''
 						});
-						mainTableInstance.ajax.reload(null, false); 
+						mainTableInstance.ajax.reload(null, false);
 					},
 					error: function(xhr) {
 						console.error("Upload failed:", xhr.responseText);
@@ -1446,14 +1467,14 @@ $(document).ready(function() {
 				};
 
 				selectedDocument = updateData;
-				showUpdateDocumentsModal(); 
+				showUpdateDocumentsModal();
 				break;
 			case 'view-old':
 				populateVersionTable(row);
 				$('#versionModal').css('display', 'flex');
 				//showNotification('Viewing old versions: ' + fileName, 'info');
 				break;
-			case 'not-required':						
+			case 'not-required':
 				const dto = {
 					documentId: selectedDocumentId,  // must match your DTO field
 					folder: row.find('td:nth-child(8)').text(),
@@ -1467,7 +1488,7 @@ $(document).ready(function() {
 					contentType: "application/json",
 					success: function(response) {
 						console.log("Marked as not required, response ID:", response);
-						mainTableInstance.ajax.reload(null, false); 
+						mainTableInstance.ajax.reload(null, false);
 					},
 					error: function(xhr) {
 						console.error("Error:", xhr.responseText);

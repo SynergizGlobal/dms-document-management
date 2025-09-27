@@ -42,4 +42,11 @@ public class UserController {
     	User user = (User) session.getAttribute("user");
     	return user.getUserName();
     }
+    
+    @GetMapping("/get/userRole")
+    public String getUserRole(HttpSession session) {
+    	//String userId = JwtUtil.validateToken(token);
+    	User user = (User) session.getAttribute("user");
+    	return user.getUserRoleNameFk();
+    }
 }
