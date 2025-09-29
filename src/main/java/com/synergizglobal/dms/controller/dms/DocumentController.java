@@ -273,7 +273,7 @@ public class DocumentController {
 	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId,
 			@RequestBody FolderGridDTO folderGridDto, HttpSession session) throws IOException {
 		User user = (User) session.getAttribute("user");
-		if (user.getUserRoleNameFk().equals("IT Admin")) {
+		if (CommonUtil.isITAdminOrSuperUser(user)) {
 			// IT Admin
 			return documentService.getArvhivedFilesForFolderGrid(subfolderId, folderGridDto.getProjects(), folderGridDto.getContracts());
 		}
