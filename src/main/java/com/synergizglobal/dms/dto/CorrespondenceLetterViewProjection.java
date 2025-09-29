@@ -4,9 +4,12 @@ public interface CorrespondenceLetterViewProjection {
     String getCategory();
     String getLetterNumber();
     java.time.LocalDate getLetterDate();
+    
     String getSender();
     String getCopiedTo();
     String getCcRecipient();
+    Integer getIsCc();  
+    
     String getDepartment();
     String getSubject();
     String getKeyInformation();
@@ -14,6 +17,9 @@ public interface CorrespondenceLetterViewProjection {
     java.time.LocalDate getDueDate();
     String getCurrentStatus();
 
+    String getOriginalRecipient();
+    String getOriginalCcRecipient();
+    
     String getFileName();
     String getFilePath();
     String getFileType();

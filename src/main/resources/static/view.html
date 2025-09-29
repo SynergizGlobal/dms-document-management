@@ -358,20 +358,25 @@
 
 <script>
     const HOST = window.location.origin;
-    const CANDIDATES = [ HOST + '/dms/api/correspondence', HOST + '/api/correspondence' ];
+    const CANDIDATES = [
+        HOST + '/dms/api/correspondence'  // keep as fallback
+    ];
     let SELECTED_BASE = null;
     let initialLetterId = null;
     let initialLetterNumber = null;
     let navigationHistory = [];
 
     function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
+
     function toDateInput(v){
         if (!v) return '';
         if (Array.isArray(v)) return `${v[0]}-${String(v[1]).padStart(2,'0')}-${String(v[2]).padStart(2,'0')}`;
         const d = new Date(v); if (!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         return v;
     }
+
     function isImageFile(file){ return /\.(png|jpe?g|gif|webp|svg|bmp|tiff?)$/i.test((file.fileName||'').toLowerCase()); }
+
     function setValueIfExists(id,val){ const el = document.getElementById(id); if (!el) return; el.value = val ?? ''; }
 
     async function tryFetchFromCandidates(suffix){
@@ -379,31 +384,43 @@
             const url = base + suffix;
             try {
                 const resp = await fetch(url, { headers:{ 'Accept':'application/json' }});
-                if (resp.ok){ SELECTED_BASE = base; return resp; }
-            } catch(e){ /* try next */ }
+                if (resp.ok){
+                    SELECTED_BASE = base;
+                    console.log('Selected base URL:', SELECTED_BASE);
+                    return resp;
+                }
+            } catch(e){
+                console.log('Failed to fetch from:', url, e);
+            }
         }
         return null;
     }
 
-    function normalizeDownloadUrl(file){
-        if (!file || !file.downloadUrl || !SELECTED_BASE) return;
-        try{
-            const url = new URL(file.downloadUrl, window.location.origin);
-            const selHasDms = SELECTED_BASE.includes('/dms/');
-            if (selHasDms && !url.pathname.startsWith('/dms/')){
-                const newPath = url.pathname.startsWith('/api/') ? '/dms' + url.pathname : '/dms' + url.pathname;
-                file.downloadUrl = window.location.origin + newPath + (url.search || '');
-            }
-        } catch(_) {}
-    }
-
     function ensureFileDownloadUrl(file){
         if (!file) return;
-        if (file.downloadUrl && file.downloadUrl.trim()){ normalizeDownloadUrl(file); return; }
-        if (!SELECTED_BASE) return;
-        const built = SELECTED_BASE.replace(/\/$/,'') + '/files/' + encodeURIComponent(file.fileName || '');
-        file.downloadUrl = built;
-        normalizeDownloadUrl(file);
+
+        console.log('Processing file:', file.fileName);
+        console.log('Original download URL:', file.downloadUrl);
+
+        // If download URL is already provided and looks valid, use it
+        if (file.downloadUrl && file.downloadUrl.trim() &&
+            (file.downloadUrl.startsWith('http://') || file.downloadUrl.startsWith('https://'))) {
+            console.log('Using existing valid download URL:', file.downloadUrl);
+            return;
+        }
+
+        // Construct URL if needed
+        if (!SELECTED_BASE) {
+            console.log('No SELECTED_BASE available, cannot construct download URL');
+            return;
+        }
+
+        if (file.filePath) {
+            file.downloadUrl = SELECTED_BASE + '/files?path=' + encodeURIComponent(file.filePath);
+        } else if (file.fileName) {
+            file.downloadUrl = SELECTED_BASE + '/files/' + encodeURIComponent(file.fileName);
+        }
+        console.log('Constructed download URL:', file.downloadUrl);
     }
 
     function populateReferences(dto){
@@ -417,11 +434,14 @@
             const li = document.createElement('li');
             const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';
 
-            // Direct link for new tab
             const link = document.createElement('a');
-            link.href = window.location.pathname + '?letterNumber=' + encodeURIComponent(r);
+            link.href = '#';
             link.textContent = String(r);
-            link.target = '_blank';  // Open in new tab
+            link.target='_blank';
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                loadReferencedLetter(r);
+            });
 
             li.appendChild(num); li.appendChild(link);
             container.appendChild(li);
@@ -442,7 +462,7 @@
         });
 
         // Update breadcrumb
-        updateBreadcrumb(letterNumber);
+        //updateBreadcrumb(letterNumber);
 
         const suffix = '/view/letter/' + encodeURIComponent(letterNumber);
         const resp = await tryFetchFromCandidates(suffix);
@@ -455,8 +475,38 @@
 
         try {
             const dto = await resp.json();
-            if (dto && dto.files) dto.files.forEach(f=>{ if (f.filePath && f.filePath.includes('\\')) f.filePath = null; });
-            if (dto && dto.files && SELECTED_BASE) dto.files.forEach(f => ensureFileDownloadUrl(f));
+            console.log('Loaded referenced letter data:', dto);
+
+            // Process files - ensure SELECTED_BASE is available
+            if (dto && dto.files) {
+                dto.files.forEach(f => {
+                    if (f.filePath && f.filePath.includes('\\')) f.filePath = null;
+                });
+
+                // Ensure SELECTED_BASE is set before processing file URLs
+                if (!SELECTED_BASE) {
+                    console.warn('SELECTED_BASE not set, trying to determine base URL');
+                    // Try to extract base URL from the response URL
+                    const responseUrl = resp.url;
+                    if (responseUrl) {
+                        const urlObj = new URL(responseUrl);
+                        SELECTED_BASE = urlObj.origin + urlObj.pathname.replace(/\/view\/letter\/.*$/, '');
+                        console.log('Extracted SELECTED_BASE from response:', SELECTED_BASE);
+                    }
+                }
+
+                if (SELECTED_BASE) {
+                    dto.files.forEach(f => ensureFileDownloadUrl(f));
+                } else {
+                    console.warn('SELECTED_BASE still not available for file URL processing');
+                    // Trust backend URLs if they exist
+                    dto.files.forEach(f => {
+                        if (!f.downloadUrl) {
+                            console.error('No download URL available for file:', f.fileName);
+                        }
+                    });
+                }
+            }
 
             fillForm(dto);
             makeSelectReadonly('detailCategory', dto.category || '');
@@ -494,6 +544,9 @@
             const dlBtn = document.createElement('button'); dlBtn.type='button'; dlBtn.className='btn btn-reply'; dlBtn.textContent='Download';
             dlBtn.addEventListener('click', ()=> downloadByUrl(f));
             actions.appendChild(openBtn); actions.appendChild(dlBtn);
+        } else {
+            const noUrlMsg = document.createElement('span'); noUrlMsg.textContent = 'No download URL'; noUrlMsg.style.color = 'var(--muted)';
+            actions.appendChild(noUrlMsg);
         }
         name.appendChild(actions);
         card.appendChild(name);
@@ -501,8 +554,18 @@
     }
 
     function downloadByUrl(f){
-        if (!f || !f.downloadUrl){ alert('No download URL'); return; }
-        const a = document.createElement('a'); a.href = f.downloadUrl; a.download = f.fileName || 'file'; document.body.appendChild(a); a.click(); a.remove();
+        if (!f || !f.downloadUrl){
+            alert('No download URL available for this file');
+            return;
+        }
+        console.log('Downloading file from URL:', f.downloadUrl);
+        const a = document.createElement('a');
+        a.href = f.downloadUrl;
+        a.download = f.fileName || 'file';
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
     }
 
     // modal controls
@@ -519,6 +582,8 @@
     (function attachModal(){ if (modalClose) modalClose.addEventListener('click', closeModal); modal.addEventListener('click', e=>{ if (e.target === modal) closeModal(); }); })();
 
     function fillForm(dto){
+        console.log('Filling form with data:', dto);
+
         document.getElementById('pageTitle').textContent = `Letter Details - ${dto.letterNumber || ''}`;
         setValueIfExists('detailCategory', dto.category || '');
         setValueIfExists('detailLetterNo', dto.letterNumber || '');
@@ -538,6 +603,7 @@
         const grid = document.getElementById('attachmentGrid');
         grid.innerHTML = '';
         if (dto.files && dto.files.length){
+            console.log('Processing files:', dto.files);
             dto.files.forEach(f => createAttachmentCard(f));
         } else {
             const no = document.createElement('div'); no.className='muted'; no.textContent = 'No attachments';
@@ -599,20 +665,17 @@
         });
 
         if (cancel) {
-            // Fixed cancel button functionality
             cancel.addEventListener('click', function(e) {
                 e.preventDefault();
-
-                // Simple approach: go back in browser history or to a default page
                 if (window.history.length > 1) {
                     window.history.back();
                 } else {
-                    // If no history, redirect to the main letters page
                     window.location.href = 'correspondance.html';
                 }
             });
         }
     }
+
     function updateBreadcrumb(letterNumber) {
         const breadcrumb = document.getElementById('breadcrumb');
         const currentLetterSpan = document.getElementById('currentLetter');
@@ -624,7 +687,6 @@
     function setupBreadcrumb() {
         const backLink = document.getElementById('backToInitial');
         backLink.addEventListener('click', () => {
-            // Go to the main letters page
             window.location.href = 'correspondance.html';
         });
     }
@@ -647,9 +709,10 @@
             suffix = '/view/' + encodeURIComponent(id);
         } else {
             suffix = '/view/letter/' + encodeURIComponent(letterNumber);
-            updateBreadcrumb(letterNumber);
+            //updateBreadcrumb(letterNumber);
         }
 
+        console.log('Loading data with suffix:', suffix);
         const resp = await tryFetchFromCandidates(suffix);
         if (!resp){
             alert('Failed to reach backend. Check console/network');
@@ -658,8 +721,19 @@
 
         try {
             const dto = await resp.json();
-            if (dto && dto.files) dto.files.forEach(f=>{ if (f.filePath && f.filePath.includes('\\')) f.filePath = null; });
-            if (dto && dto.files && SELECTED_BASE) dto.files.forEach(f => ensureFileDownloadUrl(f));
+            console.log('Loaded letter data:', dto);
+
+            // Process files
+            if (dto && dto.files) {
+                dto.files.forEach(f => {
+                    if (f.filePath && f.filePath.includes('\\')) f.filePath = null;
+                });
+                if (SELECTED_BASE) {
+                    dto.files.forEach(f => ensureFileDownloadUrl(f));
+                } else {
+                    console.warn('SELECTED_BASE not available in loadData');
+                }
+            }
 
             fillForm(dto);
             makeSelectReadonly('detailCategory', dto.category || '');

@@ -54,9 +54,6 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                             	        c.category,
                                             	        c.letter_number AS letterNumber,
                                             	        c.letter_date AS letterDate,
-                                            	        c.recipient AS sender,
-                                            	        c.recipient AS copiedTo,
-                                            	        c.cc_recipient AS ccRecipient,
                                             	        c.department,
                                             	        c.subject,
                                             	        c.key_information AS keyInformation,
@@ -66,7 +63,11 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                             	        f.file_name AS fileName,
                                             	        f.file_path AS filePath,
                                             	        f.file_type AS fileType,
-                                                        rf.ref_letters AS refLetter
+                                                        rf.ref_letters AS refLetter,
+                                                          sc.from_user_name      AS sender,
+                                                        CASE WHEN sc.is_cc = 0 OR sc.is_cc IS NULL THEN sc.to_user_name END AS copiedTo,
+                                                        CASE WHEN sc.is_cc = 1 THEN sc.to_user_name END AS ccRecipient,
+                                                           sc.is_cc       AS isCc
                                             	    FROM correspondence_letter c
                                             	    LEFT JOIN correspondence_file f\s
                                             	        ON c.correspondence_id = f.correspondence_id
@@ -74,12 +75,14 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                         				ON c.correspondence_id = cr.correspondence_letter_id
                                         			LEFT JOIN  reference_letter as rf\s
                                                         ON cr.reference_letter_id = rf.ref_id
+                                                        LEFT JOIN send_correspondence_letter sc
+                                                      ON c.correspondence_id = sc.correspondence_id   
                                             	    WHERE c.correspondence_id = :id
     	    """, nativeQuery = true)
     	List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesView(@Param("id") Long id);
     
-    @Query("SELECT c FROM CorrespondenceLetter c WHERE c.letterNumber = :letterNumber")
-    Optional<CorrespondenceLetter> findByLetterNumber(@Param("letterNumber") String letterNumber);
+    Optional<CorrespondenceLetter> findByLetterNumber(String letterNumber);
+    
 
 
 
@@ -88,9 +91,6 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         c.category,
         c.letter_number AS letterNumber,
         c.letter_date AS letterDate,
-        c.recipient AS sender,
-        c.recipient AS copiedTo,
-        c.cc_recipient AS ccRecipient,
         c.department,
         c.subject,
         c.key_information AS keyInformation,
@@ -100,7 +100,11 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         f.file_name AS fileName,
         f.file_path AS filePath,
         f.file_type AS fileType,
-        rf.ref_letters AS refLetter
+        rf.ref_letters AS refLetter,
+        sc.from_user_name      AS sender,
+        CASE WHEN sc.is_cc = 0 OR sc.is_cc IS NULL THEN sc.to_user_name END AS copiedTo,
+    CASE WHEN sc.is_cc = 1 THEN sc.to_user_name END AS ccRecipient,
+    sc.is_cc       AS isCc
     FROM correspondence_letter c
     LEFT JOIN correspondence_file f
         ON c.correspondence_id = f.correspondence_id
@@ -108,6 +112,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         ON c.correspondence_id = cr.correspondence_letter_id
     LEFT JOIN reference_letter rf
         ON cr.reference_letter_id = rf.ref_id
+    LEFT JOIN send_correspondence_letter sc
+        ON c.correspondence_id = sc.correspondence_id
     WHERE c.letter_number = :letterNumber
     """, nativeQuery = true)
     List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesViewByLetterNumber(@Param("letterNumber") String letterNumber);

@@ -3,7 +3,7 @@ package com.synergizglobal.dms.controller.dms;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
@@ -32,11 +31,20 @@ import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.entity.dms.SendCorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+
 
 @RestController
 @RequestMapping("/api/correspondence")
@@ -44,10 +52,85 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CorrespondenceController {
 
-
+    @Value("${file.upload-dir}") 
+	private String uploadDir;
     private final ICorrespondenceService correspondenceService;
     private final ObjectMapper objectMapper;
 
+
+    @GetMapping("/files")
+    public ResponseEntity<Resource> serveFileByPath(@RequestParam("path") String path,
+                                                    HttpServletRequest request) {
+        try {
+            // Spring already decodes query params, so 'path' is safe to use directly
+            // Normalize and prevent path traversal
+            Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Path resolved = base.resolve(path).normalize();
+
+            // Security check: ensure resolved path is inside uploadDir
+            if (!resolved.startsWith(base)) {
+                log.warn("Attempt to access file outside upload dir: {}", path);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            log.info("Serving file by path. uploadDir='{}', resolved='{}'", base, resolved);
+
+            if (!Files.exists(resolved) || !Files.isReadable(resolved)) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Resource resource = new UrlResource(resolved.toUri());
+            String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+            if (contentType == null) contentType = "application/octet-stream";
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+
+        } catch (MalformedURLException e) {
+            log.error("Malformed URL for path: {}", path, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception e) {
+            log.error("Error serving file by path: {}", path, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/filess/name/{filename:.+}")
+    public ResponseEntity<Resource> serveFileByName(@PathVariable String filename,
+                                                    HttpServletRequest request) {
+        try {
+            Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Path resolved = base.resolve("Correspondence").resolve(filename).normalize();
+
+            if (!resolved.startsWith(base)) {
+                log.warn("Attempt to access file outside upload dir by name: {}", filename);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            log.info("Serving file by name. resolved='{}'", resolved);
+
+            if (!Files.exists(resolved) || !Files.isReadable(resolved)) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Resource resource = new UrlResource(resolved.toUri());
+            String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+            if (contentType == null) contentType = "application/octet-stream";
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (MalformedURLException e) {
+            log.error("Malformed URL for filename: {}", filename, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (IOException e) {
+            log.error("IO error serving filename: {}", filename, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @PostMapping(value = "/uploadLetter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadLetter(
@@ -139,11 +222,19 @@ public class CorrespondenceController {
 
         if (dto.getFiles() != null) {
             dto.getFiles().forEach(f -> {
-                if (f.getFileName() != null && !f.getFileName().isBlank()) {
+                if (f.getFilePath() != null && !f.getFilePath().isBlank()) {
+                    // DON'T pre-encode
                     String url = ServletUriComponentsBuilder
-                            .fromCurrentContextPath()                       // includes context path e.g. http://host:port/dms
-                            .path("/api/correspondence/files/")            // controller mapping
-                            .pathSegment(f.getFileName())                  // encodes filename safely
+                            .fromCurrentContextPath()
+                            .path("/api/correspondence/files")
+                            .queryParam("path", f.getFilePath())
+                            .toUriString();
+                    f.setDownloadUrl(url);
+                } else if (f.getFileName() != null && !f.getFileName().isBlank()) {
+                    String url = ServletUriComponentsBuilder
+                            .fromCurrentContextPath()
+                            .path("/api/correspondence/files/")
+                            .pathSegment(f.getFileName())
                             .toUriString();
                     f.setDownloadUrl(url);
                 }
@@ -183,11 +274,11 @@ public class CorrespondenceController {
     }
 
     @GetMapping("/view/letter/{letterNumber}")
-
     public ResponseEntity<CorrespondenceLetterViewDto> getCorrespondenceWithFilesByLetterNumber(
             @PathVariable String letterNumber,
             HttpServletRequest request) {
 
+        System.out.print("View letter called");
         CorrespondenceLetterViewDto dto = correspondenceService.getCorrespondenceWithFilesByLetterNumber(letterNumber);
         if (dto == null) {
             return ResponseEntity.notFound().build();
@@ -198,9 +289,18 @@ public class CorrespondenceController {
                 .build()
                 .toUriString();
 
+     // inside getCorrespondenceWithFilesByLetterNumber(...)
         if (dto.getFiles() != null) {
             dto.getFiles().forEach(f -> {
-                if (f.getFileName() != null && !f.getFileName().isBlank()) {
+                if (f.getFilePath() != null && !f.getFilePath().isBlank()) {
+                    // DON'T pre-encode
+                    String url = ServletUriComponentsBuilder
+                            .fromCurrentContextPath()
+                            .path("/api/correspondence/files")
+                            .queryParam("path", f.getFilePath())
+                            .toUriString();
+                    f.setDownloadUrl(url);
+                } else if (f.getFileName() != null && !f.getFileName().isBlank()) {
                     String url = ServletUriComponentsBuilder
                             .fromCurrentContextPath()
                             .path("/api/correspondence/files/")
@@ -210,6 +310,7 @@ public class CorrespondenceController {
                 }
             });
         }
+
         return ResponseEntity.ok(dto);
     }
 

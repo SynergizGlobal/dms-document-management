@@ -86,11 +86,7 @@ public class FileStorageService {
         return storedRelativePaths;
     }
 
-    /**
-     * Sanitizes filenames by removing path separators, collapsing spaces,
-     * replacing non-alphanumeric (except . _ -) with underscores, and preventing
-     * multiple consecutive dots.
-     */
+  
     private String sanitizeFileName(String filename) {
         String name = filename.replaceAll("[\\\\/]+", "_")           // remove slashes/backslashes
                 .replaceAll("[\\s]+", "_")             // collapse whitespace

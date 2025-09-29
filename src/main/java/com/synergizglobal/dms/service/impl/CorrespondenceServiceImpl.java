@@ -365,12 +365,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		// Take first row for correspondence details
 		CorrespondenceLetterViewProjection first = flatList.get(0);
 
-		// Map files
-//        List<FileViewDto> files = flatList.stream()
-//                .filter(f -> f.getFileName() != null)
-//                .map(f -> new FileViewDto(f.getFileName(), f.getFilePath(), f.getFileType(),null))
-//                .toList();
-
+		
 		List<FileViewDto> files = flatList.stream().filter(f -> f.getFileName() != null && !f.getFileName().isBlank())
 				.collect(Collectors.toMap(
 						// key: filename + path (safer than just filename)
@@ -386,14 +381,47 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 		List<String> refLetters = flatList.stream().map(CorrespondenceLetterViewProjection::getRefLetter)
 				.filter(Objects::nonNull).distinct().toList();
+		
+		  List<String> senders = flatList.stream()
+		            .map(CorrespondenceLetterViewProjection::getSender)
+		            .filter(Objects::nonNull)
+		            .map(String::trim)
+		            .filter(s -> !s.isEmpty())
+		            .distinct()
+		            .toList();
+		  
+		    // toRecipients: collected from copiedTo CASE column
+		    List<String> toRecipients = flatList.stream()
+		            .map(CorrespondenceLetterViewProjection::getCopiedTo)
+		            .filter(Objects::nonNull)
+		            .map(String::trim)
+		            .filter(s -> !s.isEmpty())
+		            .distinct()
+		            .toList();
+		    
+		    // ccRecipients: collected from ccRecipient CASE column
+		    List<String> ccRecipients = flatList.stream()
+		            .map(CorrespondenceLetterViewProjection::getCcRecipient)
+		            .filter(Objects::nonNull)
+		            .map(String::trim)
+		            .filter(s -> !s.isEmpty())
+		            .distinct()
+		            .toList();
+		    // Fallbacks if nothing in send_correspondence rows
+		    String senderStr = senders.isEmpty() ? first.getOriginalRecipient() : String.join(", ", senders);
+		    String copiedToStr = toRecipients.isEmpty() ? first.getOriginalRecipient() : String.join(", ", toRecipients);
+		    String ccRecipientStr = ccRecipients.isEmpty() ? first.getOriginalCcRecipient() : String.join(", ", ccRecipients);
 
+
+		
+		
 		CorrespondenceLetterViewDto dto = new CorrespondenceLetterViewDto();
 		dto.setCategory(first.getCategory());
 		dto.setLetterNumber(first.getLetterNumber());
 		dto.setLetterDate(first.getLetterDate());
-		dto.setSender(first.getSender());
-		dto.setCopiedTo(first.getCopiedTo());
-		dto.setCcRecipient(first.getCcRecipient());
+		dto.setSender(senderStr);
+		dto.setCopiedTo( copiedToStr);
+		dto.setCcRecipient( ccRecipientStr);
 		dto.setDepartment(first.getDepartment());
 		dto.setSubject(first.getSubject());
 		dto.setKeyInformation(first.getKeyInformation());
@@ -433,14 +461,45 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 		List<String> refLetters = flatList.stream().map(CorrespondenceLetterViewProjection::getRefLetter)
 				.filter(Objects::nonNull).distinct().toList();
+		
+		  List<String> senders = flatList.stream()
+		            .map(CorrespondenceLetterViewProjection::getSender)
+		            .filter(Objects::nonNull)
+		            .map(String::trim)
+		            .filter(s -> !s.isEmpty())
+		            .distinct()
+		            .toList();
+		  
+		    // toRecipients: collected from copiedTo CASE column
+		    List<String> toRecipients = flatList.stream()
+		            .map(CorrespondenceLetterViewProjection::getCopiedTo)
+		            .filter(Objects::nonNull)
+		            .map(String::trim)
+		            .filter(s -> !s.isEmpty())
+		            .distinct()
+		            .toList();
+		    
+		    // ccRecipients: collected from ccRecipient CASE column
+		    List<String> ccRecipients = flatList.stream()
+		            .map(CorrespondenceLetterViewProjection::getCcRecipient)
+		            .filter(Objects::nonNull)
+		            .map(String::trim)
+		            .filter(s -> !s.isEmpty())
+		            .distinct()
+		            .toList();
+		    // Fallbacks if nothing in send_correspondence rows
+		    String senderStr = senders.isEmpty() ? first.getOriginalRecipient() : String.join(", ", senders);
+		    String copiedToStr = toRecipients.isEmpty() ? first.getOriginalRecipient() : String.join(", ", toRecipients);
+		    String ccRecipientStr = ccRecipients.isEmpty() ? first.getOriginalCcRecipient() : String.join(", ", ccRecipients);
+
 
 		CorrespondenceLetterViewDto dto = new CorrespondenceLetterViewDto();
 		dto.setCategory(first.getCategory());
 		dto.setLetterNumber(first.getLetterNumber());
 		dto.setLetterDate(first.getLetterDate());
-		dto.setSender(first.getSender());
-		dto.setCopiedTo(first.getCopiedTo());
-		dto.setCcRecipient(first.getCcRecipient());
+		dto.setSender(senderStr);
+		dto.setCopiedTo( copiedToStr);
+		dto.setCcRecipient( ccRecipientStr);
 		dto.setDepartment(first.getDepartment());
 		dto.setSubject(first.getSubject());
 		dto.setKeyInformation(first.getKeyInformation());
