@@ -77,6 +77,7 @@ import com.synergizglobal.dms.service.pmis.ProjectService;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -829,124 +830,107 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, // offset
-																											// (zero-based)
-			int length, User user// max number of records to return
-	) {
-		jakarta.persistence.criteria.CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		jakarta.persistence.criteria.CriteriaQuery<jakarta.persistence.Tuple> cq = cb.createTupleQuery();
-		jakarta.persistence.criteria.Root<Document> root = cq.from(Document.class);
+	public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, int length, User user) {
 
-		// Joins
-		jakarta.persistence.criteria.Join<Document, Folder> folderJoin =
-		        root.join("folder", jakarta.persistence.criteria.JoinType.LEFT);
-		jakarta.persistence.criteria.Join<Document, SubFolder> subFolderJoin =
-		        root.join("subFolder", jakarta.persistence.criteria.JoinType.LEFT);
-		jakarta.persistence.criteria.Join<Document, Department> departmentJoin =
-		        root.join("department", jakarta.persistence.criteria.JoinType.LEFT);
-		jakarta.persistence.criteria.Join<Document, Status> statusJoin =
-		        root.join("currentStatus", jakarta.persistence.criteria.JoinType.LEFT);
-		jakarta.persistence.criteria.Join<Document, DocumentFile> docFileJoin =
-		        root.join("documentFiles", jakarta.persistence.criteria.JoinType.LEFT);
-		
-		// 🔹 New LEFT JOIN with SendDocument
-		jakarta.persistence.criteria.Join<Document, SendDocument> sendDocJoin =
-		        root.join("sendDocument", jakarta.persistence.criteria.JoinType.LEFT);
-		
-		// Restrict the join to only rows where status = 'Send'
-		sendDocJoin.on(cb.equal(sendDocJoin.get("status"), "Send"));
-		
-		List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+	    StringBuilder sql = new StringBuilder();
+	    sql.append("""
+	    	    SELECT 			d.id AS id,
+					df.file_type AS fileType,
+                    d.file_name AS fileName, 
+                    d.file_number AS fileNumber,
+                    d.revision_no AS revisionNo,
+                    d.revision_date AS revisionDate,
+	    	        d.project_name AS projectName, 
+                    d.contract_name AS contractName, 
+					f.name AS folder,
+                    s.name AS subFolder,
+                    dpt.name AS department,
+                    statuses.name AS `status`,
+                    d.created_at AS createdAt,
+                    d.updated_at AS updatedAt,
+                    '' AS documentType,
+                    '' AS viewedOrDownloaded,
+                    d.created_by_user as createdBy,
+                    d.created_at as dateUploaded
+	    	    FROM dms.documents d
+	    	    LEFT JOIN dms.document_file df 
+	    	        ON d.id = df.document_id
+	    	    LEFT JOIN dms.send_documents sd 
+	    	        ON d.id = sd.document_id AND sd.status = 'Send'
+	    	    LEFT JOIN dms.documents_revision dr 
+	    	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
+	    	    LEFT JOIN dms.folders f on f.id = d.folder_id
+                LEFT JOIN dms.sub_folders s on s.id = d.sub_folder_id
+                LEFT JOIN dms.departments dpt on dpt.id = d.department_id
+                LEFT JOIN dms.statuses statuses on statuses.id = d.status_id 
+	    	    """);
+	    // WHERE conditions
+	    List<String> whereClauses = new ArrayList<>();
+	    List<Object> params = new ArrayList<>();
+	    
+	    // Example: restrict by creator or recipient if not admin
+	    if (!CommonUtil.isITAdminOrSuperUser(user)) {
+	        whereClauses.add("(d.created_by = ? OR (sd.to_user_id = ? AND sd.status = 'Send') OR (dr.created_by = ?))");
+	        params.add(user.getUserId());
+	        params.add(user.getUserId());
+	        params.add(user.getUserId());
+	    }
+	
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    // Filter not_required
+	    whereClauses.add("(d.not_required IS NULL OR d.not_required = FALSE)");
 
-		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
-		    Integer columnIndex = entry.getKey();
-		    List<String> values = entry.getValue();
+	    // Dynamic column filters
+	    filteringLogic(columnFilters, whereClauses);
 
-		    if (values == null || values.isEmpty()) continue;
+	    if (!whereClauses.isEmpty()) {
+	        sql.append(" WHERE ").append(String.join(" AND ", whereClauses));
+	    }
 
-		    String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
-		    if (path == null || path.isBlank()) continue;
+	    // GROUP BY and ORDER
+	    sql.append(" GROUP BY d.id, d.file_name, d.file_number, df.id ")
+	       .append(" ORDER BY d.updated_at DESC ")
+	       .append(" LIMIT ? OFFSET ?");
 
-		    jakarta.persistence.criteria.Path<?> fieldPath;
-		    switch (path) {
-		        case "folder.name" -> fieldPath = folderJoin.get("name");
-		        case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
-		        case "department.name" -> fieldPath = departmentJoin.get("name");
-		        case "currentStatus.name" -> fieldPath = statusJoin.get("name");
-		        case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
-		        case "sendDocument.sendTo" -> fieldPath = sendDocJoin.get("sendTo");
-		        case "sendDocument.sendToUserId" -> fieldPath = sendDocJoin.get("sendToUserId");
-		        default -> fieldPath = root.get(path);
-		    }
+	    params.add(length);
+	    params.add(start);
 
-		    if ("revisionDate".equals(path) || "createdAt".equals(path)) {
-		        List<LocalDate> dates = new ArrayList<>();
-		        for (String dateStr : values) {
-		            try {
-		                LocalDate date = LocalDate.parse(dateStr, formatter);
-		                dates.add(date);
-		            } catch (DateTimeParseException e) {
-		                // skip invalid
-		            }
-		        }
-		        if (!dates.isEmpty()) {
-		            predicates.add(fieldPath.in(dates));
-		        }
-		    } else {
-		        predicates.add(fieldPath.in(values));
-		    }
-		}
+	    Query query = entityManager.createNativeQuery(sql.toString(), "DocumentGridDTOMapping"); 
+	    // "DocumentGridDTOMapping" is a SqlResultSetMapping you define to map to DocumentGridDTO
 
-		String role = user.getUserRoleNameFk();
+	    // set parameters
+	    int i = 1;
+	    for (Object param : params) {
+	        query.setParameter(i++, param);
+	    }
 
-		// 🔹 Restrict by creator or recipient if not IT Admin
-		if (!CommonUtil.isITAdminOrSuperUser(user)) {
-			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("createdBy"), user.getUserId());
-
-			jakarta.persistence.criteria.Predicate sentToUser = cb.and(
-		        cb.equal(sendDocJoin.get("sendToUserId"), user.getUserId()),
-		        cb.equal(sendDocJoin.get("status"), "Send")
-		    );
-
-		    // Wrap OR in parentheses
-		    predicates.add(cb.or(createdByUser, sentToUser));
-		}
-		predicates.add(
-			    cb.or(
-			        cb.isNull(root.get("notRequired")),
-			        cb.isFalse(root.get("notRequired"))
-			    )
-			); 
-		// 🔹 DISTINCT by fileName, fileNumber, and docFile.id using GROUP BY
-		cq.multiselect(
-		        root,                // Full Document
-		        docFileJoin          // DocumentFile
-		    )
-		    .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])))
-		    .groupBy(
-		        root.get("id"),
-		        root.get("fileName"),
-		        root.get("fileNumber")
-		    )
-		    .orderBy(cb.desc(root.get("updatedAt")));
-
-		var query = entityManager.createQuery(cq);
-		query.setFirstResult(start);  // pagination offset
-		query.setMaxResults(length);  // pagination limit
-
-		List<jakarta.persistence.Tuple> tuples = query.getResultList();
-
-		return tuples.stream()
-		    .map(tuple -> {
-		        Document doc = tuple.get(root);
-		        DocumentFile file = tuple.get(docFileJoin);
-		        return convertToDTOWithSingleFile(doc, file);
-		    })
-		    .collect(Collectors.toList());
+	    return query.getResultList();
 	}
 
+	private void filteringLogic(Map<Integer, List<String>> columnFilters, List<String> whereClauses) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
+	        Integer idx = entry.getKey();
+	        List<String> values = entry.getValue();
+	        if (values == null || values.isEmpty()) continue;
+
+	        String column = Constant.COLUMN_INDEX_FIELD_MAP.get(idx);
+	        if (column == null || column.isBlank()) continue;
+
+	        if ("revisionDate".equals(column) || "createdAt".equals(column)) {
+	            List<String> dateStrs = values.stream().map(v -> "'" + v + "'").toList();
+	            whereClauses.add(column + " IN (" + String.join(",", dateStrs) + ")");
+	        } else {
+	        	whereClauses.add(
+	        		    column + " IN (" +
+	        		    values.stream()
+	        		          .map(v -> "'" + v.replace("'", "''") + "'") // escape single quotes
+	        		          .collect(Collectors.joining(",")) + 
+	        		    ")"
+	        		);
+	        }
+	    }
+	}
 	private jakarta.persistence.criteria.Predicate filterExactDateTimeField(
 			jakarta.persistence.criteria.CriteriaBuilder cb, jakarta.persistence.criteria.Path<LocalDateTime> path,
 			List<String> dateTimeStrings) {
@@ -975,96 +959,59 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public long countFilteredDocuments(Map<Integer, List<String>> columnFilters, User user) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-		Root<Document> root = countQuery.from(Document.class);
 
-		// Joins
-		Join<Document, DocumentFile> docFileJoin = root.join("documentFiles", JoinType.LEFT);
-		Join<Document, Folder> folderJoin = root.join("folder", JoinType.LEFT);
-		Join<Document, SubFolder> subFolderJoin = root.join("subFolder", JoinType.LEFT);
-		Join<Document, Department> departmentJoin = root.join("department", JoinType.LEFT);
-		Join<Document, Status> statusJoin = root.join("currentStatus", JoinType.LEFT);
+	    StringBuilder sql = new StringBuilder();
+	    sql.append("""
+	        SELECT COUNT(DISTINCT CONCAT(d.file_name, '-', d.file_number, '-', df.id))
+	        FROM dms.documents d
+	        LEFT JOIN dms.document_file df 
+	            ON d.id = df.document_id
+	        LEFT JOIN dms.send_documents sd 
+	            ON d.id = sd.document_id AND sd.status = 'Send'
+	        LEFT JOIN dms.documents_revision dr 
+	            ON dr.file_name = d.file_name AND dr.file_number = d.file_number
+	        LEFT JOIN dms.folders f on f.id = d.folder_id
+	        LEFT JOIN dms.sub_folders s on s.id = d.sub_folder_id
+	        LEFT JOIN dms.departments dpt on dpt.id = d.department_id
+	        LEFT JOIN dms.statuses statuses on statuses.id = d.status_id
+	        """);
 
-		// 🔹 New LEFT JOIN with SendDocument
-		Join<Document, SendDocument> sendDocJoin = root.join("sendDocument", JoinType.LEFT);
-		// Restrict the join to only rows where status = 'Send'
-		sendDocJoin.on(cb.equal(sendDocJoin.get("status"), "Send"));
-		List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    // WHERE clauses
+	    List<String> whereClauses = new ArrayList<>();
+	    List<Object> params = new ArrayList<>();
 
-		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
-		    Integer columnIndex = entry.getKey();
-		    List<String> values = entry.getValue();
+	    // Role-based filter
+	    if (!CommonUtil.isITAdminOrSuperUser(user)) {
+	        whereClauses.add("(d.created_by = ? OR (sd.to_user_id = ? AND sd.status = 'Send') OR dr.created_by = ?)");
+	        params.add(user.getUserId());
+	        params.add(user.getUserId());
+	        params.add(user.getUserId());
+	    }
 
-		    if (values == null || values.isEmpty()) continue;
+	    // Filter not_required
+	    whereClauses.add("(d.not_required IS NULL OR d.not_required = FALSE)");
 
-		    String path = Constant.COLUMN_INDEX_FIELD_MAP.get(columnIndex);
-		    if (path == null || path.isBlank()) continue;
+	    // Dynamic column filters
+	    filteringLogic(columnFilters, whereClauses);
 
-		    jakarta.persistence.criteria.Path<?> fieldPath;
-		    switch (path) {
-		        case "folder.name" -> fieldPath = folderJoin.get("name");
-		        case "subFolder.name" -> fieldPath = subFolderJoin.get("name");
-		        case "department.name" -> fieldPath = departmentJoin.get("name");
-		        case "currentStatus.name" -> fieldPath = statusJoin.get("name");
-		        case "documentFiles.fileType" -> fieldPath = docFileJoin.get("fileType");
-		        case "sendDocument.sendTo" -> fieldPath = sendDocJoin.get("sendTo");
-		        case "sendDocument.sendToUserId" -> fieldPath = sendDocJoin.get("sendToUserId");
-		        default -> fieldPath = root.get(path);
-		    }
+	    if (!whereClauses.isEmpty()) {
+	        sql.append(" WHERE ").append(String.join(" AND ", whereClauses));
+	    }
 
-		    if ("revisionDate".equals(path) || "createdAt".equals(path)) {
-		        List<LocalDate> dates = new ArrayList<>();
-		        for (String dateStr : values) {
-		            try {
-		                LocalDate date = LocalDate.parse(dateStr, formatter);
-		                dates.add(date);
-		            } catch (DateTimeParseException e) {
-		                // ignore invalid dates
-		            }
-		        }
-		        if (!dates.isEmpty()) {
-		            predicates.add(fieldPath.in(dates));
-		        }
-		    } else {
-		        predicates.add(fieldPath.in(values));
-		    }
-		}
+	    Query query = entityManager.createNativeQuery(sql.toString());
 
-		String role = user.getUserRoleNameFk();
+	    // set parameters
+	    int i = 1;
+	    for (Object param : params) {
+	        query.setParameter(i++, param);
+	    }
 
-		// 🔹 Apply user restrictions
-		if (!CommonUtil.isITAdminOrSuperUser(user)) {
-			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("createdBy"), user.getUserId());
-
-			jakarta.persistence.criteria.Predicate sentToUser = cb.and(
-		        cb.equal(sendDocJoin.get("sendToUserId"), user.getUserId()),
-		        cb.equal(sendDocJoin.get("status"), "Send")
-		    );
-
-		    // Wrap OR in parentheses
-		    predicates.add(cb.or(createdByUser, sentToUser));
-		}
-		predicates.add(
-			    cb.or(
-			        cb.isNull(root.get("notRequired")),
-			        cb.isFalse(root.get("notRequired"))
-			    )
-			);
-		// 🔹 Count DISTINCT by fileName, fileNumber, docFile.id
-		countQuery.select(
-		        cb.countDistinct(
-		            cb.concat(
-		                cb.concat(root.get("fileName"), "-"),
-		                cb.concat(root.get("fileNumber"), "-")
-		            )
-		        )
-		    )
-		    .where(cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
-
-		return entityManager.createQuery(countQuery).getSingleResult();
-
+	    Object result = query.getSingleResult();
+	    if (result instanceof Number) {
+	        return ((Number) result).longValue();
+	    } else {
+	        return 0L;
+	    }
 	}
 
 	private DocumentGridDTO convertToDTOWithSingleFile(Document doc, DocumentFile file) {

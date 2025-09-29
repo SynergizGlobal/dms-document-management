@@ -24,7 +24,27 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import com.synergizglobal.dms.dto.*;
+@jakarta.persistence.SqlResultSetMapping(name = "DocumentGridDTOMapping", classes = @jakarta.persistence.ConstructorResult(targetClass = DocumentGridDTO.class, columns = {
+		@jakarta.persistence.ColumnResult(name = "id", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "fileType", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "fileName", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "fileNumber", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "revisionNo", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "revisionDate", type = String.class)
+		,@jakarta.persistence.ColumnResult(name = "projectName", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "contractName", type = String.class)
+		,@jakarta.persistence.ColumnResult(name = "folder", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "subFolder", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "department", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "status", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "createdAt", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "updatedAt", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "documentType", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "viewedOrDownloaded", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "createdBy", type = String.class),
+		@jakarta.persistence.ColumnResult(name = "dateUploaded", type = String.class)
+}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -70,7 +90,7 @@ public class Document {
 
 	@Column(name = "created_by")
 	private String createdBy;
-	
+
 	@Column(name = "created_by_user")
 	private String createdByUser;
 
@@ -82,13 +102,13 @@ public class Document {
 
 	@Column(name = "reason_for_update")
 	private String reasonForUpdate;
-	
+
 	@Column(name = "not_required")
 	private Boolean notRequired;
-	
+
 	@Column(name = "not_required_by")
 	private String notRequiredBy;
-	
+
 	@OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private List<DocumentFile> documentFiles;
 

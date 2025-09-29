@@ -174,8 +174,10 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.departments dpt on dpt.id = d.department_id
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId) 
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId)) 
 and files.file_type is not null
 and d.not_required is null
 		    """, nativeQuery = true)

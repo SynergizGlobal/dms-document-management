@@ -22,20 +22,20 @@ public class Constant {
 	    put(FILE_NAME,"validateFileName");put(FILE_NUMBER,"validateFileNumber");put(REVISION_NUMBER,"validateRevisionNumber");put(REVISION_DATE,"validateRevisionDate");put(FOLDER,"validateFolder");put(SUB_FOLDER,"validateSubFolder");put(DEPARTMENT,"validateDepartment");put(STATUS,"validateStatus");put(UPLOAD_DOCUMENT,"validateUploadDocument");}};
 
 	public static final Map<Integer, String> COLUMN_INDEX_FIELD_MAP = new HashMap<>() {{
-			put(0, "id");
-			put(1, "documentFiles.fileType");
-		    put(2, "fileNumber");
-		    put(3, "fileName");
-		    put(4, "revisionNo");
-		    put(5, "currentStatus.name");
-		    put(6, "projectName");
-		    put(7, "contractName");
-		    put(8, "folder.name");
-		    put(9, "subFolder.name");
-		    put(10, "createdBy");
-		    put(11, "createdAt");
-		    put(12, "revisionDate");
-		    put(13, "department.name");
+			put(0, "d.id");
+			put(1, "df.file_type");
+		    put(2, "d.file_Number");
+		    put(3, "d.file_Name");
+		    put(4, "d.revision_No");
+		    put(5, "statuses.name");
+		    put(6, "d.project_Name");
+		    put(7, "d.contract_Name");
+		    put(8, "f.name");
+		    put(9, "s.name");
+		    put(10, "d.created_By_user");
+		    put(11, "d.created_At");
+		    put(12, "d.revision_Date");
+		    put(13, "dpt.name");
 		    put(14, "documentFiles.viewedOrDownloaded");
 	}};
 	public static final Map<Integer, String> CORESSPONDENCE_COLUMN_INDEX_FIELD_MAP = new HashMap<>() {{
