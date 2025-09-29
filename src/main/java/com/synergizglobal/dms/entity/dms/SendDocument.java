@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -70,7 +71,7 @@ public class SendDocument {
 	@Column(name = "created_at", updatable = false)
 	private LocalDateTime createdAt;
 	
-	@CreationTimestamp
+	@UpdateTimestamp
 	@Column(name = "updated_at", updatable = true)
 	private LocalDateTime updatedAt;
 }
