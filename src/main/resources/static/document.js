@@ -737,7 +737,7 @@ $(document).ready(function() {
 					showNotification('Document sent successfully!', 'success');
 					$('#sendDocumentsModal').hide();
 					resetSendForm();
-					if (draftTableInstance)
+					if($('#draftTable').is(':visible'))
 						draftTableInstance.ajax.reload(null, false);
 				},
 				error: function(xhr) {
@@ -777,7 +777,8 @@ $(document).ready(function() {
 					showNotification('Document saved successfully!', 'success');
 					$('#sendDocumentsModal').hide();
 					resetSendForm();
-					draftTableInstance.ajax.reload(null, false);
+					if($('#draftTable').is(':visible'))
+						draftTableInstance.ajax.reload(null, false);
 				},
 				error: function(xhr) {
 					alert('Error sending document: ' + xhr.responseText);
