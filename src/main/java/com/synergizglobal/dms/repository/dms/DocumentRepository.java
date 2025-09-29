@@ -267,8 +267,10 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id
 join dms.sub_folders sub on d.sub_folder_id = sub.id
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and d.not_required is null
 and sub.id = :subfolderId
 and d.project_name in (:projects)
