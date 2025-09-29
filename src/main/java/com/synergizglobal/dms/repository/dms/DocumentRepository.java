@@ -27,8 +27,10 @@ distinct d.file_name
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -40,8 +42,10 @@ distinct files.file_type
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -53,8 +57,10 @@ distinct d.file_number
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -66,8 +72,10 @@ distinct d.revision_no
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -80,8 +88,10 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.statuses st on st.id = d.status_id
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -94,8 +104,10 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.folders f on f.id = d.folder_id
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -108,9 +120,10 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.sub_folders sub on sub.id = d.sub_folder_id
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(s.to_user_id = :userId or s.to_user_id is null)
-and d.created_by = :userId
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -122,8 +135,10 @@ distinct DATE_FORMAT(d.created_at, '%Y-%m-%d')
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -135,8 +150,10 @@ distinct DATE_FORMAT(d.revision_date, '%Y-%m-%d')
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -149,8 +166,10 @@ from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
 left join dms.departments dpt on dpt.id = d.department_id
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -189,8 +208,10 @@ distinct d.created_by_user
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -202,8 +223,10 @@ distinct d.project_name
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
@@ -215,8 +238,10 @@ distinct d.contract_name
 from dms.documents d
 left join dms.document_file files on files.document_id = d.id 
 left join dms.send_documents s on s.document_id = d.id and s.status = 'Send'
+left join dms.documents_revision dr
+	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
-(d.created_by = :userId or s.to_user_id = :userId)
+(d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId))
 and files.file_type is not null
 and d.not_required is null
 			""", nativeQuery = true)
