@@ -280,6 +280,22 @@ and (d.created_by = :userId)
 and sub.id = :subfolderId
 and d.project_name in (:projects)
 and d.contract_name in (:contracts)
+union
+select 
+distinct d.file_name as fileName,
+f.file_path as filePath,
+f.file_type as fileType,
+d.revision_no as revisionNo
+from dms.documents_revision d
+join dms.documents dd on d.file_name = dd.file_name and d.file_number = dd.file_number
+join dms.document_file f on f.document_revision_id = d.id
+join dms.sub_folders sub on sub.id = d.sub_folder_id
+left join dms.send_documents send on send.document_id = dd.id
+where send.to_user_id = :userId
+and (dd.not_required is null or dd.not_required = 0)
+and sub.id = :subfolderId
+and d.project_name in (:projects)
+and d.contract_name in (:contracts)
 			"""
 			, nativeQuery = true)
 	List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(@Param("subfolderId") String subfolderId,@Param("userId") String userId, @Param("projects") List<String> projects,@Param("contracts")  List<String> contracts);
