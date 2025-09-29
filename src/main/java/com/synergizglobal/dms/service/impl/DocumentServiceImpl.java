@@ -116,10 +116,10 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Autowired
 	private SendDocumentRepository sendDocumentRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Value("${file.upload-dir}")
 	private String basePath;
 
@@ -128,14 +128,13 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Value("${spring.mail.host}")
 	private String emailHost;
-	
+
 	@Value("${spring.mail.username}")
 	private String emailUserName;
-	
+
 	@Value("${spring.mail.password}")
 	private String emailPassword;
-	
-	
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -224,7 +223,7 @@ public class DocumentServiceImpl implements DocumentService {
 			} catch (IOException e) {
 				return DocumentDTO.builder().errorMessage("Error saving files to the filesystem").build();
 			}
-
+			List<SendDocument> sendDocuments = documentInDB.getSendDocument();
 			Document document = Document.builder().fileName(documentDto.getFileName())
 					.fileNumber(documentDto.getFileNumber()).revisionNo(documentDto.getRevisionNo())
 					.revisionDate(documentDto.getRevisionDate()).folder(folder).subFolder(subFolder)
@@ -233,7 +232,25 @@ public class DocumentServiceImpl implements DocumentService {
 					.contractName(documentDto.getContractName()).reasonForUpdate(documentDto.getReasonForUpdate())
 					.createdBy(userId)
 					.createdByUser(user.getUserName()).build();
-
+			List<SendDocument> newSendDocuments = new ArrayList<>();
+			for(SendDocument sendDocument : sendDocuments) {
+				SendDocument newSendDocument  = SendDocument.builder()
+						.attachmentName(sendDocument.getAttachmentName())
+						.createdBy(sendDocument.getCreatedBy())
+						.createdAt(sendDocument.getCreatedAt())
+						.document(document)
+						.responseExpected(sendDocument.getResponseExpected())
+						.sendReason(sendDocument.getSendReason())
+						.sendSubject(sendDocument.getSendSubject())
+						.sendTo(sendDocument.getSendTo())
+						.sendToUserId(sendDocument.getSendToUserId())
+						.status(sendDocument.getStatus())
+						.targetResponseDate(sendDocument.getTargetResponseDate())
+						.updatedAt(sendDocument.getUpdatedAt())
+						.build();
+				newSendDocuments.add(newSendDocument);
+			}
+			document.setSendDocument(newSendDocuments);
 			// Save the new Document first
 			Document savedNewDocument = documentRepository.save(document);
 			documentRepository.flush();
@@ -296,8 +313,7 @@ public class DocumentServiceImpl implements DocumentService {
 				.folder(folder).subFolder(subFolder).department(department).currentStatus(status)
 				.fileDBNumber(UUID.randomUUID().toString()).projectName(documentDto.getProjectName())
 				.contractName(documentDto.getContractName()).reasonForUpdate(documentDto.getReasonForUpdate())
-				.createdBy(userId)
-				.createdByUser(user.getUserName()).build();
+				.createdBy(userId).createdByUser(user.getUserName()).build();
 		Document savedDocument = documentRepository.save(document);
 		for (DocumentFile documentFile : newDocumentFiles) {
 			documentFile.setDocument(savedDocument);
@@ -830,107 +846,107 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, int length, User user) {
+	public List<DocumentGridDTO> getFilteredDocuments(Map<Integer, List<String>> columnFilters, int start, int length,
+			User user) {
 
-	    StringBuilder sql = new StringBuilder();
-	    sql.append("""
-	    	    SELECT 			d.id AS id,
-					df.file_type AS fileType,
-                    d.file_name AS fileName, 
-                    d.file_number AS fileNumber,
-                    d.revision_no AS revisionNo,
-                    d.revision_date AS revisionDate,
-	    	        d.project_name AS projectName, 
-                    d.contract_name AS contractName, 
-					f.name AS folder,
-                    s.name AS subFolder,
-                    dpt.name AS department,
-                    statuses.name AS `status`,
-                    d.created_at AS createdAt,
-                    d.updated_at AS updatedAt,
-                    '' AS documentType,
-                    '' AS viewedOrDownloaded,
-                    d.created_by_user as createdBy,
-                    d.created_at as dateUploaded
-	    	    FROM dms.documents d
-	    	    LEFT JOIN dms.document_file df 
-	    	        ON d.id = df.document_id
-	    	    LEFT JOIN dms.send_documents sd 
-	    	        ON d.id = sd.document_id AND sd.status = 'Send'
-	    	    LEFT JOIN dms.documents_revision dr 
-	    	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
-	    	    LEFT JOIN dms.folders f on f.id = d.folder_id
-                LEFT JOIN dms.sub_folders s on s.id = d.sub_folder_id
-                LEFT JOIN dms.departments dpt on dpt.id = d.department_id
-                LEFT JOIN dms.statuses statuses on statuses.id = d.status_id 
-	    	    """);
-	    // WHERE conditions
-	    List<String> whereClauses = new ArrayList<>();
-	    List<Object> params = new ArrayList<>();
-	    
-	    // Example: restrict by creator or recipient if not admin
-	    if (!CommonUtil.isITAdminOrSuperUser(user)) {
-	        whereClauses.add("(d.created_by = ? OR (sd.to_user_id = ? AND sd.status = 'Send') OR (dr.created_by = ?))");
-	        params.add(user.getUserId());
-	        params.add(user.getUserId());
-	        params.add(user.getUserId());
-	    }
-	
+		StringBuilder sql = new StringBuilder();
+		sql.append("""
+					    SELECT 			d.id AS id,
+				df.file_type AS fileType,
+				               d.file_name AS fileName,
+				               d.file_number AS fileNumber,
+				               d.revision_no AS revisionNo,
+				               d.revision_date AS revisionDate,
+					        d.project_name AS projectName,
+				               d.contract_name AS contractName,
+				f.name AS folder,
+				               s.name AS subFolder,
+				               dpt.name AS department,
+				               statuses.name AS `status`,
+				               d.created_at AS createdAt,
+				               d.updated_at AS updatedAt,
+				               '' AS documentType,
+				               '' AS viewedOrDownloaded,
+				               d.created_by_user as createdBy,
+				               d.created_at as dateUploaded
+					    FROM dms.documents d
+					    LEFT JOIN dms.document_file df
+					        ON d.id = df.document_id
+					    LEFT JOIN dms.send_documents sd
+					        ON d.id = sd.document_id AND sd.status = 'Send'
+					    LEFT JOIN dms.documents_revision dr
+					        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
+					    LEFT JOIN dms.folders f on f.id = d.folder_id
+				           LEFT JOIN dms.sub_folders s on s.id = d.sub_folder_id
+				           LEFT JOIN dms.departments dpt on dpt.id = d.department_id
+				           LEFT JOIN dms.statuses statuses on statuses.id = d.status_id
+					    """);
+		// WHERE conditions
+		List<String> whereClauses = new ArrayList<>();
+		List<Object> params = new ArrayList<>();
 
-	    // Filter not_required
-	    whereClauses.add("(d.not_required IS NULL OR d.not_required = FALSE)");
+		// Example: restrict by creator or recipient if not admin
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
+			whereClauses.add("(d.created_by = ? OR (sd.to_user_id = ? AND sd.status = 'Send') OR (dr.created_by = ?))");
+			params.add(user.getUserId());
+			params.add(user.getUserId());
+			params.add(user.getUserId());
+		}
 
-	    // Dynamic column filters
-	    filteringLogic(columnFilters, whereClauses);
+		// Filter not_required
+		whereClauses.add("(d.not_required IS NULL OR d.not_required = FALSE)");
 
-	    if (!whereClauses.isEmpty()) {
-	        sql.append(" WHERE ").append(String.join(" AND ", whereClauses));
-	    }
+		// Dynamic column filters
+		filteringLogic(columnFilters, whereClauses);
 
-	    // GROUP BY and ORDER
-	    sql.append(" GROUP BY d.id, d.file_name, d.file_number, df.id ")
-	       .append(" ORDER BY d.updated_at DESC ")
-	       .append(" LIMIT ? OFFSET ?");
+		if (!whereClauses.isEmpty()) {
+			sql.append(" WHERE ").append(String.join(" AND ", whereClauses));
+		}
 
-	    params.add(length);
-	    params.add(start);
+		// GROUP BY and ORDER
+		sql.append(" GROUP BY d.id, d.file_name, d.file_number, df.id ").append(" ORDER BY d.updated_at DESC ")
+				.append(" LIMIT ? OFFSET ?");
 
-	    Query query = entityManager.createNativeQuery(sql.toString(), "DocumentGridDTOMapping"); 
-	    // "DocumentGridDTOMapping" is a SqlResultSetMapping you define to map to DocumentGridDTO
+		params.add(length);
+		params.add(start);
 
-	    // set parameters
-	    int i = 1;
-	    for (Object param : params) {
-	        query.setParameter(i++, param);
-	    }
+		Query query = entityManager.createNativeQuery(sql.toString(), "DocumentGridDTOMapping");
+		// "DocumentGridDTOMapping" is a SqlResultSetMapping you define to map to
+		// DocumentGridDTO
 
-	    return query.getResultList();
+		// set parameters
+		int i = 1;
+		for (Object param : params) {
+			query.setParameter(i++, param);
+		}
+
+		return query.getResultList();
 	}
 
 	private void filteringLogic(Map<Integer, List<String>> columnFilters, List<String> whereClauses) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	    for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
-	        Integer idx = entry.getKey();
-	        List<String> values = entry.getValue();
-	        if (values == null || values.isEmpty()) continue;
+		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
+			Integer idx = entry.getKey();
+			List<String> values = entry.getValue();
+			if (values == null || values.isEmpty())
+				continue;
 
-	        String column = Constant.COLUMN_INDEX_FIELD_MAP.get(idx);
-	        if (column == null || column.isBlank()) continue;
+			String column = Constant.COLUMN_INDEX_FIELD_MAP.get(idx);
+			if (column == null || column.isBlank())
+				continue;
 
-	        if ("revisionDate".equals(column) || "createdAt".equals(column)) {
-	            List<String> dateStrs = values.stream().map(v -> "'" + v + "'").toList();
-	            whereClauses.add(column + " IN (" + String.join(",", dateStrs) + ")");
-	        } else {
-	        	whereClauses.add(
-	        		    column + " IN (" +
-	        		    values.stream()
-	        		          .map(v -> "'" + v.replace("'", "''") + "'") // escape single quotes
-	        		          .collect(Collectors.joining(",")) + 
-	        		    ")"
-	        		);
-	        }
-	    }
+			if ("revisionDate".equals(column) || "createdAt".equals(column)) {
+				List<String> dateStrs = values.stream().map(v -> "'" + v + "'").toList();
+				whereClauses.add(column + " IN (" + String.join(",", dateStrs) + ")");
+			} else {
+				whereClauses.add(column + " IN (" + values.stream().map(v -> "'" + v.replace("'", "''") + "'") // escape
+																												// single
+																												// quotes
+						.collect(Collectors.joining(",")) + ")");
+			}
+		}
 	}
+
 	private jakarta.persistence.criteria.Predicate filterExactDateTimeField(
 			jakarta.persistence.criteria.CriteriaBuilder cb, jakarta.persistence.criteria.Path<LocalDateTime> path,
 			List<String> dateTimeStrings) {
@@ -960,58 +976,58 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public long countFilteredDocuments(Map<Integer, List<String>> columnFilters, User user) {
 
-	    StringBuilder sql = new StringBuilder();
-	    sql.append("""
-	        SELECT COUNT(DISTINCT CONCAT(d.file_name, '-', d.file_number, '-', df.id))
-	        FROM dms.documents d
-	        LEFT JOIN dms.document_file df 
-	            ON d.id = df.document_id
-	        LEFT JOIN dms.send_documents sd 
-	            ON d.id = sd.document_id AND sd.status = 'Send'
-	        LEFT JOIN dms.documents_revision dr 
-	            ON dr.file_name = d.file_name AND dr.file_number = d.file_number
-	        LEFT JOIN dms.folders f on f.id = d.folder_id
-	        LEFT JOIN dms.sub_folders s on s.id = d.sub_folder_id
-	        LEFT JOIN dms.departments dpt on dpt.id = d.department_id
-	        LEFT JOIN dms.statuses statuses on statuses.id = d.status_id
-	        """);
+		StringBuilder sql = new StringBuilder();
+		sql.append("""
+				SELECT COUNT(DISTINCT CONCAT(d.file_name, '-', d.file_number, '-', df.id))
+				FROM dms.documents d
+				LEFT JOIN dms.document_file df
+				    ON d.id = df.document_id
+				LEFT JOIN dms.send_documents sd
+				    ON d.id = sd.document_id AND sd.status = 'Send'
+				LEFT JOIN dms.documents_revision dr
+				    ON dr.file_name = d.file_name AND dr.file_number = d.file_number
+				LEFT JOIN dms.folders f on f.id = d.folder_id
+				LEFT JOIN dms.sub_folders s on s.id = d.sub_folder_id
+				LEFT JOIN dms.departments dpt on dpt.id = d.department_id
+				LEFT JOIN dms.statuses statuses on statuses.id = d.status_id
+				""");
 
-	    // WHERE clauses
-	    List<String> whereClauses = new ArrayList<>();
-	    List<Object> params = new ArrayList<>();
+		// WHERE clauses
+		List<String> whereClauses = new ArrayList<>();
+		List<Object> params = new ArrayList<>();
 
-	    // Role-based filter
-	    if (!CommonUtil.isITAdminOrSuperUser(user)) {
-	        whereClauses.add("(d.created_by = ? OR (sd.to_user_id = ? AND sd.status = 'Send') OR dr.created_by = ?)");
-	        params.add(user.getUserId());
-	        params.add(user.getUserId());
-	        params.add(user.getUserId());
-	    }
+		// Role-based filter
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
+			whereClauses.add("(d.created_by = ? OR (sd.to_user_id = ? AND sd.status = 'Send') OR dr.created_by = ?)");
+			params.add(user.getUserId());
+			params.add(user.getUserId());
+			params.add(user.getUserId());
+		}
 
-	    // Filter not_required
-	    whereClauses.add("(d.not_required IS NULL OR d.not_required = FALSE)");
+		// Filter not_required
+		whereClauses.add("(d.not_required IS NULL OR d.not_required = FALSE)");
 
-	    // Dynamic column filters
-	    filteringLogic(columnFilters, whereClauses);
+		// Dynamic column filters
+		filteringLogic(columnFilters, whereClauses);
 
-	    if (!whereClauses.isEmpty()) {
-	        sql.append(" WHERE ").append(String.join(" AND ", whereClauses));
-	    }
+		if (!whereClauses.isEmpty()) {
+			sql.append(" WHERE ").append(String.join(" AND ", whereClauses));
+		}
 
-	    Query query = entityManager.createNativeQuery(sql.toString());
+		Query query = entityManager.createNativeQuery(sql.toString());
 
-	    // set parameters
-	    int i = 1;
-	    for (Object param : params) {
-	        query.setParameter(i++, param);
-	    }
+		// set parameters
+		int i = 1;
+		for (Object param : params) {
+			query.setParameter(i++, param);
+		}
 
-	    Object result = query.getSingleResult();
-	    if (result instanceof Number) {
-	        return ((Number) result).longValue();
-	    } else {
-	        return 0L;
-	    }
+		Object result = query.getSingleResult();
+		if (result instanceof Number) {
+			return ((Number) result).longValue();
+		} else {
+			return 0L;
+		}
 	}
 
 	private DocumentGridDTO convertToDTOWithSingleFile(Document doc, DocumentFile file) {
@@ -1099,45 +1115,41 @@ public class DocumentServiceImpl implements DocumentService {
 				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dto.getSendTo()));
 
 				// ✅ Set CC recipients
-				message.setRecipients(Message.RecipientType.CC,
-						InternetAddress.parse(dto.getSendCc()));
+				message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(dto.getSendCc()));
 				message.setSubject(dto.getSendSubject());
 				User userTo = userRepository.findByEmailId(sendDocument.getSendTo()).get();
 				User sendBy = userRepository.findById(sendDocument.getCreatedBy()).get();
 				// HTML content (from your screenshot)
-				String htmlContent = String.format("""
-					    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd;">
-				        <div style="background-color: #004B87; color: white; padding: 15px; font-size: 20px; font-weight: bold;">
-				            New Document Notification
-				        </div>
-				        <div style="padding: 20px; color: #333;">
-				            <p>Dear %s,</p>
-				            <p><strong>%s</strong> has sent a document.</p>
+				String htmlContent = String.format(
+						"""
+								 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd;">
+								    <div style="background-color: #004B87; color: white; padding: 15px; font-size: 20px; font-weight: bold;">
+								        New Document Notification
+								    </div>
+								    <div style="padding: 20px; color: #333;">
+								        <p>Dear %s,</p>
+								        <p><strong>%s</strong> has sent a document.</p>
 
-				            <table style="width: 100%%; margin-top: 15px; font-size: 14px;">
-				                <tr><td><strong>Reason</strong></td><td>: %s</td></tr>
-				                <tr><td><strong>Response Expected</strong></td><td>: %s</td></tr>
-				                <tr><td><strong>Target Date</strong></td><td>: %s</td></tr>
-				                <tr><td><strong>Attachments</strong></td><td>: %s</td></tr>
-				            </table>
+								        <table style="width: 100%%; margin-top: 15px; font-size: 14px;">
+								            <tr><td><strong>Reason</strong></td><td>: %s</td></tr>
+								            <tr><td><strong>Response Expected</strong></td><td>: %s</td></tr>
+								            <tr><td><strong>Target Date</strong></td><td>: %s</td></tr>
+								            <tr><td><strong>Attachments</strong></td><td>: %s</td></tr>
+								        </table>
 
-				            <p style="margin-top: 30px;">Regards,<br/>%s</p>
-				        </div>
-				        <div style="background-color: green; padding: 15px; text-align: center;">
-				            <a href="%s" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-right: 10px;">Document Location</a>
-				        </div>
-				    </div>
-				    """,
-				    userTo.getUserName(),      // %s → Dear <name>
-				    sendBy.getUserName(),
-				    sendDocument.getSendReason(),
-				    sendDocument.getResponseExpected(),
-				    sendDocument.getTargetResponseDate(),
-				    sendDocument.getAttachmentName(),
-				    sendBy.getUserName(),
-				    baseUrl + "/document.html"
-				    
-				    // %s → <sender> has sent a document
+								        <p style="margin-top: 30px;">Regards,<br/>%s</p>
+								    </div>
+								    <div style="background-color: green; padding: 15px; text-align: center;">
+								        <a href="%s" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-right: 10px;">Document Location</a>
+								    </div>
+								</div>
+								""",
+						userTo.getUserName(), // %s → Dear <name>
+						sendBy.getUserName(), sendDocument.getSendReason(), sendDocument.getResponseExpected(),
+						sendDocument.getTargetResponseDate(), sendDocument.getAttachmentName(), sendBy.getUserName(),
+						baseUrl + "/document.html"
+
+				// %s → <sender> has sent a document
 				);
 				message.setContent(htmlContent, "text/html");
 
@@ -1175,11 +1187,12 @@ public class DocumentServiceImpl implements DocumentService {
 		// ⚡ Fix: update existing collection in place
 		document.getDocumentFiles().clear();
 		for (int i = 0; i < archivedFiles.size(); i++) {
-		    DocumentFile archivedFile = archivedFiles.get(i);
-		    archivedFile.setDocument(document);
-		    documentFileRepository.save(archivedFile);
-		    //archivedFile.setId(document.getDocumentFiles().get(i).getId()); // keep same IDs
-		    document.getDocumentFiles().add(archivedFile);
+			DocumentFile archivedFile = archivedFiles.get(i);
+			archivedFile.setDocument(document);
+			documentFileRepository.save(archivedFile);
+			// archivedFile.setId(document.getDocumentFiles().get(i).getId()); // keep same
+			// IDs
+			document.getDocumentFiles().add(archivedFile);
 		}
 
 		// Update document flags
@@ -1191,12 +1204,14 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId, List<String> projects, List<String> contracts) {
+	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, String userId, List<String> projects,
+			List<String> contracts) {
 		return documentRepository.getFilesForFolderGrid(subfolderId, userId, projects, contracts);
 	}
 
 	@Override
-	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, String userId, List<String> projects, List<String> contracts) {
+	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, String userId,
+			List<String> projects, List<String> contracts) {
 		// TODO Auto-generated method stub
 		return documentRepository.getArvhivedFilesForFolderGrid(subfolderId, userId, projects, contracts);
 	}
@@ -1274,13 +1289,15 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, List<String> projects, List<String> contracts) {
+	public List<DocumentFolderGridDTO> getFilesForFolderGrid(String subfolderId, List<String> projects,
+			List<String> contracts) {
 		// TODO Auto-generated method stub
 		return documentRepository.getFilesForFolderGrid(subfolderId, projects, contracts);
 	}
 
 	@Override
-	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, List<String> projects, List<String> contracts) {
+	public List<DocumentFolderGridDTO> getArvhivedFilesForFolderGrid(String subfolderId, List<String> projects,
+			List<String> contracts) {
 		// TODO Auto-generated method stub
 		return documentRepository.getArvhivedFilesForFolderGrid(subfolderId, projects, contracts);
 	}
