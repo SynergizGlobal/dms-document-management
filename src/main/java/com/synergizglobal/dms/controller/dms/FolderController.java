@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.FolderDTO;
 import com.synergizglobal.dms.dto.FolderGridDTO;
 import com.synergizglobal.dms.entity.pmis.User;
@@ -34,7 +35,7 @@ public class FolderController {
 	@PostMapping("/grid")
 	public ResponseEntity<List<FolderDTO>> getAllFolders(@RequestBody FolderGridDTO folderGridDto, HttpSession session) {
 		User user = (User) session.getAttribute("user");
-		if(user.getUserRoleNameFk().equals("IT Admin")) {
+		if(CommonUtil.isITAdminOrSuperUser(user)) {
     		//IT Admin
     		return ResponseEntity.ok(folderService.getAllFoldersByProjectsAndContracts(folderGridDto.getProjects(), folderGridDto.getContracts()));
     	}

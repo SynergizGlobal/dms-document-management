@@ -262,7 +262,7 @@ public class DocumentController {
 	public List<DocumentFolderGridDTO> getFilesForFolderGrid(@PathVariable("subfolderId") String subfolderId,
 			@RequestBody FolderGridDTO folderGridDto, HttpSession session) throws IOException {
 		User user = (User) session.getAttribute("user");
-		if (user.getUserRoleNameFk().equals("IT Admin")) {
+		if (CommonUtil.isITAdminOrSuperUser(user)) {
 			// IT Admin
 			return documentService.getFilesForFolderGrid(subfolderId, folderGridDto.getProjects(), folderGridDto.getContracts());
 		}

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.FolderGridDTO;
 import com.synergizglobal.dms.entity.dms.SubFolder;
 import com.synergizglobal.dms.entity.pmis.User;
@@ -33,7 +34,7 @@ public class SubFolderController {
 	@PostMapping("/grid/{folderId}")
     public ResponseEntity<List<SubFolder>> getsubfolderGridByFolderId(@PathVariable("folderId") Long folderId,@RequestBody FolderGridDTO folderGridDto, HttpSession session) {
         User user = (User) session.getAttribute("user");
-        if(user.getUserRoleNameFk().equals("IT Admin")) {
+        if(CommonUtil.isITAdminOrSuperUser(user)) {
     		//IT Admin
     		return ResponseEntity.ok(subFolderService.getAllSubfolderGridByFolderId(folderId, folderGridDto.getProjects(), folderGridDto.getContracts()));
     	}
