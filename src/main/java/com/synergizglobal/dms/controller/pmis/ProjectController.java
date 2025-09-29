@@ -1,6 +1,7 @@
 package com.synergizglobal.dms.controller.pmis;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,12 +46,14 @@ public class ProjectController {
     		projectNames.addAll(correspondenceService.findAllProjectNames());
     		projectNames.addAll(documentService.findAllProjectNamesByDocument());
     		projectNames = projectNames.stream().distinct().collect(Collectors.toList());
+    		Collections.sort(projectNames);
     		return ResponseEntity.ok(projectNames);
     	}
     	List<String> projectNames = new ArrayList<>();
     	projectNames.addAll(correspondenceService.findGroupedProjectNames(user.getUserId()));
     	projectNames.addAll(documentService.findGroupedProjectNames(user.getUserId()));
     	projectNames = projectNames.stream().distinct().collect(Collectors.toList());
+    	Collections.sort(projectNames);
     	return ResponseEntity.ok(projectNames);
     }
 }
