@@ -435,13 +435,9 @@
             const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';
 
             const link = document.createElement('a');
-            link.href = '#';
-            link.textContent = String(r);
+            link.href = window.location.pathname + '?letterNumber=' + encodeURIComponent(r);
             link.target='_blank';
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                loadReferencedLetter(r);
-            });
+            link.textContent = String(r);
 
             li.appendChild(num); li.appendChild(link);
             container.appendChild(li);
@@ -461,8 +457,6 @@
             letterNumber: document.getElementById('detailLetterNo').value
         });
 
-        // Update breadcrumb
-        //updateBreadcrumb(letterNumber);
 
         const suffix = '/view/letter/' + encodeURIComponent(letterNumber);
         const resp = await tryFetchFromCandidates(suffix);
