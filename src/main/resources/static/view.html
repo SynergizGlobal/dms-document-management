@@ -349,7 +349,6 @@
     <div class="box" role="dialog" aria-modal="true">
         <img id="modalImg" src="" alt="preview">
         <div class="controls">
-            <a id="modalOpen" class="btn btn-attach" target="_blank" rel="noopener">Open</a>
             <button id="modalDownload" class="btn btn-reply">Download</button>
             <button id="modalClose" class="btn btn-cancel">Close</button>
         </div>
@@ -533,11 +532,10 @@
         name.appendChild(title);
         const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
         if (f.downloadUrl){
-            const openBtn = document.createElement('button'); openBtn.type='button'; openBtn.className='btn btn-attach'; openBtn.textContent='Open';
-            openBtn.addEventListener('click', ()=> window.open(f.downloadUrl,'_blank'));
+            // Only show Download button, removed Open button
             const dlBtn = document.createElement('button'); dlBtn.type='button'; dlBtn.className='btn btn-reply'; dlBtn.textContent='Download';
             dlBtn.addEventListener('click', ()=> downloadByUrl(f));
-            actions.appendChild(openBtn); actions.appendChild(dlBtn);
+            actions.appendChild(dlBtn);
         } else {
             const noUrlMsg = document.createElement('span'); noUrlMsg.textContent = 'No download URL'; noUrlMsg.style.color = 'var(--muted)';
             actions.appendChild(noUrlMsg);
@@ -565,12 +563,13 @@
     // modal controls
     const modal = document.getElementById('imgModal');
     const modalImg = document.getElementById('modalImg');
-    const modalOpen = document.getElementById('modalOpen');
     const modalDownload = document.getElementById('modalDownload');
     const modalClose = document.getElementById('modalClose');
     function openModal(url, filename){
-        modalImg.src = url; modalOpen.href = url; modalDownload.onclick = ()=> downloadByUrl({downloadUrl:url, fileName:filename});
-        modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+        modalImg.src = url;
+        modalDownload.onclick = ()=> downloadByUrl({downloadUrl:url, fileName:filename});
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden','false');
     }
     function closeModal(){ modalImg.src = ''; modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
     (function attachModal(){ if (modalClose) modalClose.addEventListener('click', closeModal); modal.addEventListener('click', e=>{ if (e.target === modal) closeModal(); }); })();
