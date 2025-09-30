@@ -866,7 +866,7 @@ public class DocumentServiceImpl implements DocumentService {
 				               d.created_at AS createdAt,
 				               d.updated_at AS updatedAt,
 				               '' AS documentType,
-				               '' AS viewedOrDownloaded,
+				               df.file_path AS viewedOrDownloaded,
 				               d.created_by_user as createdBy,
 				               d.created_at as dateUploaded
 					    FROM dms.documents d
