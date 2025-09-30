@@ -1858,7 +1858,7 @@ $(document).ready(function() {
 			const attachmentItem = `
 	                    <div class="attachment-item">
 	                        <span>${selectedDocument.fileName} (${selectedDocument.fileType})</span>
-	                        <button type="button" onclick="removeAttachment(this)" style="background: #e53e3e; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;">×</button>
+	                        <button type="button" onclick="removeAttachment(this)" style="background: #e53e3e; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;" disabled>×</button>
 	                    </div>
 	                `;
 			$('#attachmentsList').html(attachmentItem);
