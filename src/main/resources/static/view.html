@@ -364,6 +364,7 @@
     let initialLetterId = null;
     let initialLetterNumber = null;
     let navigationHistory = [];
+    let isReferenceLetter = false;
 
     function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
 
@@ -434,9 +435,14 @@
             const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';
 
             const link = document.createElement('a');
-            link.href = window.location.pathname + '?letterNumber=' + encodeURIComponent(r);
-            link.target='_blank';
+            link.href = '#';
             link.textContent = String(r);
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Set flag to indicate this is a reference letter view
+                isReferenceLetter = true;
+                loadReferencedLetter(r);
+            });
 
             li.appendChild(num); li.appendChild(link);
             container.appendChild(li);
@@ -456,6 +462,8 @@
             letterNumber: document.getElementById('detailLetterNo').value
         });
 
+        // Update breadcrumb
+        updateBreadcrumb(letterNumber);
 
         const suffix = '/view/letter/' + encodeURIComponent(letterNumber);
         const resp = await tryFetchFromCandidates(suffix);
@@ -504,6 +512,9 @@
             fillForm(dto);
             makeSelectReadonly('detailCategory', dto.category || '');
             makeSelectReadonly('detailRequiredResponse', dto.requiredResponse || '');
+
+            // Hide Reply button for reference letters
+            hideReplyButton();
 
             // Update URL without reloading the page
             const newUrl = new URL(window.location);
@@ -604,6 +615,22 @@
         }
     }
 
+    // Hide reply button for reference letters
+    function hideReplyButton() {
+        const replyBtn = document.getElementById('replyBtn');
+        if (replyBtn) {
+            replyBtn.style.display = 'none';
+        }
+    }
+
+    // Show reply button for main letters
+    function showReplyButton() {
+        const replyBtn = document.getElementById('replyBtn');
+        if (replyBtn) {
+            replyBtn.style.display = 'block';
+        }
+    }
+
     // set select to visually readonly (keep value visible but non-interactive)
     function makeSelectReadonly(selectId, desiredValue){
         const sel = document.getElementById(selectId);
@@ -625,10 +652,17 @@
     }
 
     function setupButtons(){
-        const id = getQueryParam('id') || '';
-        const letterNumber = document.getElementById('detailLetterNo').value || '';
+        const id = getQueryParam('id');
+        const letterNumber = getQueryParam('letterNumber');
         const reply = document.getElementById('replyBtn');
         const cancel = document.getElementById('cancelBtn');
+
+        // Show reply button only for main letters (not reference letters)
+        if (isReferenceLetter) {
+            hideReplyButton();
+        } else {
+            showReplyButton();
+        }
 
         if (reply) reply.addEventListener('click', function(e){
             e.preventDefault();
@@ -680,6 +714,8 @@
     function setupBreadcrumb() {
         const backLink = document.getElementById('backToInitial');
         backLink.addEventListener('click', () => {
+            // Reset the reference letter flag when going back to main view
+            isReferenceLetter = false;
             window.location.href = 'correspondance.html';
         });
     }
@@ -692,6 +728,9 @@
         if (id) initialLetterId = id;
         if (letterNumber) initialLetterNumber = letterNumber;
 
+        // Check if this is a reference letter view
+        isReferenceLetter = navigationHistory.length > 0;
+
         if (!id && !letterNumber){
             alert('No id or letterNumber provided');
             return;
@@ -702,7 +741,7 @@
             suffix = '/view/' + encodeURIComponent(id);
         } else {
             suffix = '/view/letter/' + encodeURIComponent(letterNumber);
-            //updateBreadcrumb(letterNumber);
+        
         }
 
         console.log('Loading data with suffix:', suffix);
@@ -741,6 +780,13 @@
 
     // Handle browser back/forward buttons
     window.addEventListener('popstate', function(event) {
+        // Check if we're going back to the original letter
+        if (navigationHistory.length > 0) {
+            const previousState = navigationHistory[navigationHistory.length - 1];
+            if (previousState && previousState.id) {
+                isReferenceLetter = false;
+            }
+        }
         loadData();
     });
 
