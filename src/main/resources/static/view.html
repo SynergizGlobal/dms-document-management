@@ -668,8 +668,12 @@
             e.preventDefault();
             const params = new URLSearchParams();
 
+            // Get the CURRENT letter number from the form field, not just from URL params
+            const currentLetterNo = document.getElementById('detailLetterNo').value;
+
             if (id) params.set('replyTo', id);
             else if (letterNumber) params.set('replyToLetter', letterNumber);
+            else if (currentLetterNo) params.set('replyToLetter', currentLetterNo); // Fallback to form field
 
             // Get all reference letters from the current view
             const referenceLetters = [];
@@ -678,9 +682,9 @@
                 referenceLetters.push(item.textContent.trim());
             });
 
-            // Add the current letter number as a reference (most important)
-            if (letterNumber) {
-                referenceLetters.push(letterNumber);
+            // Add the CURRENT letter number as a reference (most important)
+            if (currentLetterNo) {
+                referenceLetters.push(currentLetterNo);
             }
 
             // Add reference letters to the parameters
@@ -688,6 +692,7 @@
                 params.set('refLetters', referenceLetters.join(';'));
             }
 
+            console.log('Reply parameters:', params.toString());
             window.location.href = 'correspondance.html?' + params.toString();
         });
 
@@ -741,7 +746,6 @@
             suffix = '/view/' + encodeURIComponent(id);
         } else {
             suffix = '/view/letter/' + encodeURIComponent(letterNumber);
-        
         }
 
         console.log('Loading data with suffix:', suffix);
@@ -770,6 +774,12 @@
             fillForm(dto);
             makeSelectReadonly('detailCategory', dto.category || '');
             makeSelectReadonly('detailRequiredResponse', dto.requiredResponse || '');
+
+            // Store the letter number for reply functionality
+            if (dto.letterNumber) {
+                initialLetterNumber = dto.letterNumber;
+            }
+
             setupButtons();
             setupBreadcrumb();
         } catch (e){
