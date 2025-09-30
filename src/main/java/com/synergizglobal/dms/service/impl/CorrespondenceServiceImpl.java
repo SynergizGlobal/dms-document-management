@@ -65,8 +65,6 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	private final CorrespondenceLetterRepository correspondenceRepo;
 
-//    private final correspondencef
-
 	private final CorrespondenceReferenceRepository correspondenceReferenceRepository;
 
 	private final FileStorageService fileStorageService;
@@ -239,7 +237,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			}
 			List<SendCorrespondenceLetter> sendCorLetters = savedEntity.getSendCorLetters();
 			log.info("sendCorLetters: " + sendCorLetters);
-			emailService.sendCorrespondenceEmail(savedEntity, baseUrl);
+			emailService.sendCorrespondenceEmail(savedEntity, baseUrl,loggedUserName );
 
 		} else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
 			// draft handling
@@ -250,9 +248,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		return savedEntity;
 	}
 
-	/**
-	 * Utility to resolve user by email or username
-	 */
+
 	private User findUserByEmailOrUsername(String value) {
 		return userRepository.findByEmailId(value).or(() -> userRepository.findByUserName(value))
 				.orElseThrow(() -> new IllegalArgumentException("User not found: " + value));
@@ -265,22 +261,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		if (documents != null && !documents.isEmpty()) {
 			entity.setFileCount(documents.size());
 
-			// // Determine target user id for storing files:
-			// // OUTGOING -> store under sender (entity.getUserId())
-			// // INCOMING -> store under recipient if known, otherwise under sender
-			// String direction = entity.getMailDirection() != null ?
-			// entity.getMailDirection().toUpperCase() : "UNKNOWN";
 
-			// String targetUserId;
-			// if ("OUTGOING".equals(direction)) {
-			// targetUserId = entity.getUserId();
-			// } else if ("INCOMING".equals(direction)) {
-			// targetUserId = entity.getToUserId() != null &&
-			// !entity.getToUserId().isBlank() ? entity.getToUserId()
-			// : entity.getUserId();
-			// } else {
-			// targetUserId = entity.getUserId() != null ? entity.getUserId() : "anonymous";
-			// }
 
 			// call new file storage method (returns relative paths)
 			List<String> fileRelativePaths = fileStorageService.saveFiles(documents);

@@ -2,6 +2,7 @@ package com.synergizglobal.dms.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -45,39 +46,41 @@ public class EmailServiceImpl {
 
     @Async
     public void sendCorrespondenceEmail(CorrespondenceLetter letter,
-                                        String baseUrl)
-            throws IOException, MessagingException {
+                                        String baseUrl, String loggedUserName)
+            throws IOException, MessagingException, UnsupportedEncodingException {
 
         // Subject and body content
-        String subject = "New Correspondence Notification - Related to Contract from (Your Organisation)";
+        String subject = "New Correspondence Notification - Related to Contract";
 
         String body = String.format("""
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd;">
                             <div style="background-color: #004B87; color: white; padding: 15px; font-size: 20px; font-weight: bold;">
-                                New Correspondence Notification - Related to Contract from (Your Organisation)
+                                Correspondence Letter Details
                             </div>
                             <div style="padding: 20px; color: #333;">
                                 <table style="width: 100%%; margin-top: 15px; font-size: 14px;">
                                     <tr><td><strong>Category:</strong></td><td>: %s</td></tr>
                                     <tr><td><strong>Letter Number:</strong></td><td>: %s</td></tr>
-                                    <tr><td><strong>From: Project Team</strong></td><td></td></tr>
+                                    <tr><td><strong>From:</strong></td><td>: %s</td></tr>
                                     <tr><td><strong>Subject: </strong></td><td>: %s</td></tr>
                                     <tr><td><strong>Due Date: </strong></td><td>: %s</td></tr>
                                     <tr><td><strong>Status: </strong></td><td>: %s</td></tr>
                                 </table>
                             </div>
                             <div style="background-color: green; padding: 15px; text-align: center;">
-                                <a href="%s" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-right: 10px;">Correspondence Location</a>
+                                <a href="%s" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-right: 10px;">Click Here To Open Correspondence Letter</a>
                             </div>
                         </div>
                         """,
                 letter.getCategory(),
                 letter.getLetterNumber(),
+                loggedUserName,
                 letter.getSubject(),
                 (letter.getDueDate() != null ? letter.getDueDate().format(fmt) : "N/A"),
                 letter.getCurrentStatus(),
                 baseUrl + "/view.html?id=" + letter.getCorrespondenceId()
         );
+
         // Create the MimeMessage
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);  // 'true' for multipart (attachments)
@@ -107,7 +110,8 @@ public class EmailServiceImpl {
             helper.setCc(ccEmails.toArray(new String[0]));
         }
 
-        helper.setFrom(this.fromEmail);
+        helper.setFrom(this.fromEmail, loggedUserName);
+
         helper.setSubject(subject);
         helper.setText(body, true);
 
@@ -118,7 +122,7 @@ public class EmailServiceImpl {
             log.info("Email sent successfully ");
         } catch (Exception e) {
             log.error("Error while sending email", e);
-            throw e;  // rethrow or handle accordingly
+            throw e;
         }
     }
 }
