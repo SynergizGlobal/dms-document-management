@@ -2016,7 +2016,7 @@ function populateContractDropdown(contracts) {
 }
 
 uploadBtn.addEventListener('click', function() {
-
+	$('#referenceLetters').val([]).trigger('change');
 	existingFilesCount = 0;
 	removedExistingFiles = [];
 	if (attachmentInput) {
