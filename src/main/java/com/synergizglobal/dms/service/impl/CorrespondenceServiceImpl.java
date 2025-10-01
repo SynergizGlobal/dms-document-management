@@ -14,36 +14,27 @@ import com.synergizglobal.dms.dto.FileViewDto;
 import com.synergizglobal.dms.entity.dms.CorrespondenceFile;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.entity.dms.CorrespondenceReference;
-import com.synergizglobal.dms.entity.dms.Document;
-import com.synergizglobal.dms.entity.dms.DocumentFile;
 import com.synergizglobal.dms.entity.dms.ReferenceLetter;
 import com.synergizglobal.dms.entity.dms.SendCorrespondenceLetter;
 import com.synergizglobal.dms.entity.pmis.User;
-import com.synergizglobal.dms.repository.dms.CorrespondenceFileRepository;
 import com.synergizglobal.dms.repository.dms.CorrespondenceLetterRepository;
 import com.synergizglobal.dms.repository.dms.CorrespondenceReferenceRepository;
 import com.synergizglobal.dms.repository.dms.ReferenceLetterRepository;
 import com.synergizglobal.dms.repository.dms.SendCorrespondenceLetterRepository;
 import com.synergizglobal.dms.repository.pmis.UserRepository;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
-
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -57,7 +48,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 @Service
@@ -77,8 +68,6 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	private final UserRepository userRepository;
 
 	private final SendCorrespondenceLetterRepository sendCorrespondenceLetterRepository;
-
-	private final CorrespondenceFileRepository correspondenceFileRepository;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -232,12 +221,13 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		if (Constant.SEND.equalsIgnoreCase(dto.getAction())) {
 			// Get TO email (first recipient)
 			// String toEmail = dto.getTo();
-			if (dto.getTo() != null && !dto.getTo().isBlank()) {
-				User userTo = findUserByEmailOrUsername(dto.getTo());
-				// toEmail = userTo.getEmailId();
-			}
+//			if (dto.getTo() != null && !dto.getTo().isBlank()) {
+//				User userTo = findUserByEmailOrUsername(dto.getTo());
+//				// toEmail = userTo.getEmailId();
+//			}
 			List<SendCorrespondenceLetter> sendCorLetters = savedEntity.getSendCorLetters();
 			log.info("sendCorLetters: " + sendCorLetters);
+			correspondenceRepo.saveAndFlush(entity);
 			emailService.sendCorrespondenceEmail(savedEntity, baseUrl,loggedUserName );
 
 		} else if (Constant.SAVE_AS_DRAFT.equalsIgnoreCase(dto.getAction())) {
@@ -502,7 +492,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	@Override
 	public List<CorrespondenceLetter> search(CorrespondenceLetter letter) {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -548,7 +538,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				predicates.add(fieldPath.in(values));
 			}
 		}
-		String role = user.getUserRoleNameFk();
+	//	String role = user.getUserRoleNameFk();
 
 		// 🔹 Restrict by creator or recipient if not IT Admin
 		if (!CommonUtil.isITAdminOrSuperUser(user)) {
@@ -628,7 +618,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			}
 		}
 		predicates.add(cb.equal(root.get("action"), "send"));
-		String role = user.getUserRoleNameFk();
+	//	String role = user.getUserRoleNameFk();
 
 		// 🔹 Apply user restrictions
 		if (!CommonUtil.isITAdminOrSuperUser(user)) {
@@ -645,10 +635,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	@Override
 	public long countAllCorrespondence(User user) {
-		String role = user.getUserRoleNameFk();
+	//	String role = user.getUserRoleNameFk();
 
 		if (!CommonUtil.isITAdminOrSuperUser(user)) {
-			// TODO Auto-generated method stub
+	
 			return correspondenceRepo.countAllFiles(user.getUserId());
 		} else {
 			return correspondenceRepo.countAllFiles();
@@ -839,7 +829,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				+ " c.file_count as attachment, " + " sl.type as `type` , c.UPDATED_AT "
 				+ " FROM dms.correspondence_letter c "
 				+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id ";
-		String role = user.getUserRoleNameFk();
+	//	String role = user.getUserRoleNameFk();
 
 		// 🔹 Restrict by creator or recipient if not IT Admin
 
@@ -929,7 +919,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
 				+ " c.current_status as currentStatus, " + " c.department as department, "
 				+ " c.file_count as attachment, " + " sl.type as `type` " + " FROM dms.correspondence_letter c ";
-		String role = user.getUserRoleNameFk();
+		//String role = user.getUserRoleNameFk();
 		String outgoing = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
 				+ " ON c.correspondence_id = sl.correspondence_id AND sl.from_user_id = ? AND sl.is_cc = 0 "
 				+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
@@ -1012,7 +1002,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	@Override
 	public List<SendCorrespondenceLetter> getSendCorrespondeneceById(Long correspondenceId) {
-		// TODO Auto-generated method stub
+	
 		return sendCorrespondenceLetterRepository.findAllByCorrespondenceId(correspondenceId);
 	}
 }
