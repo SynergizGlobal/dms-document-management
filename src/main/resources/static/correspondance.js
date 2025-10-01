@@ -657,6 +657,11 @@ sendBtn.addEventListener('click', async function() {
 		if (!validateUIForm('#uploadModal')) {
 			return;
 		}
+		const hasAttachments = $('#attachmentsList').children().length > 0;
+		if (!hasAttachments) {
+			alert('Please upload a file.')
+			return;
+		}
 		const formData = getFormData();
 		if (validateForm(formData)) {
 
@@ -694,7 +699,11 @@ sendBtn.addEventListener('click', async function() {
 saveAsDraftBtn.addEventListener('click', async function() {
 	if (!validateUIForm('#uploadModal'))
 		return;
-
+	const hasAttachments = $('#attachmentsList').children().length > 0;
+	if (!hasAttachments) {
+		alert('Please upload a file.')
+		return;
+	}
 	const formData = getFormData("Save as Draft");
 
 	if (!formData.letterNumber) {
