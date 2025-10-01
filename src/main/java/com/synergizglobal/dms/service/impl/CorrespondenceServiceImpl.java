@@ -1,5 +1,6 @@
 package com.synergizglobal.dms.service.impl;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.constant.Constant;
 import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
@@ -550,7 +551,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		String role = user.getUserRoleNameFk();
 
 		// 🔹 Restrict by creator or recipient if not IT Admin
-		if (!"IT Admin".equals(role)) {
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
 			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("userId"), user.getUserId());
 
 			// Wrap OR in parentheses
@@ -630,7 +631,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		String role = user.getUserRoleNameFk();
 
 		// 🔹 Apply user restrictions
-		if (!"IT Admin".equals(role)) {
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
 			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("userId"), user.getUserId());
 
 			// Wrap OR in parentheses
@@ -646,7 +647,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	public long countAllCorrespondence(User user) {
 		String role = user.getUserRoleNameFk();
 
-		if (!"IT Admin".equals(role)) {
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
 			// TODO Auto-generated method stub
 			return correspondenceRepo.countAllFiles(user.getUserId());
 		} else {
@@ -845,14 +846,14 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		// outgoing
 		String outgoing = baseSelect + " AND sl.from_user_id = ?1 AND sl.is_cc = 0 "
 				+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
-		if ("IT Admin".equals(role)) {
+		if (CommonUtil.isITAdminOrSuperUser(user)) {
 			outgoing = baseSelect + " AND sl.is_cc = 0 " + " WHERE sl.type = 'Outgoing' AND c.action = 'send' "
 					+ " GROUP BY c.correspondence_id ";
 		}
 		// incoming
 		String incoming = baseSelect + " AND sl.to_user_id = ?2 " + " WHERE sl.type = 'Incoming' AND c.action = 'send' "
 				+ " GROUP BY c.correspondence_id ";
-		if ("IT Admin".equals(role)) {
+		if (CommonUtil.isITAdminOrSuperUser(user)) {
 			incoming = baseSelect + " AND sl.is_cc = 0 " + " WHERE sl.type = 'Incoming' AND c.action = 'send' "
 					+ " GROUP BY c.correspondence_id ";
 		}
@@ -861,7 +862,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 		// 🔹 dynamic filters
 		List<Object> params = new ArrayList<>();
-		if (!"IT Admin".equals(role)) {
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
 			params.add(userId);
 			params.add(userId);
 		}
@@ -932,7 +933,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		String outgoing = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
 				+ " ON c.correspondence_id = sl.correspondence_id AND sl.from_user_id = ? AND sl.is_cc = 0 "
 				+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
-		if ("IT Admin".equals(role)) {
+		if (CommonUtil.isITAdminOrSuperUser(user)) {
 			outgoing = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
 					+ " ON c.correspondence_id = sl.correspondence_id AND sl.is_cc = 0 "
 					+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
@@ -940,7 +941,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		String incoming = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
 				+ " ON c.correspondence_id = sl.correspondence_id AND sl.to_user_id = ? "
 				+ " WHERE sl.type = 'Incoming' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
-		if ("IT Admin".equals(role)) {
+		if (CommonUtil.isITAdminOrSuperUser(user)) {
 			incoming = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
 					+ " ON c.correspondence_id = sl.correspondence_id AND sl.is_cc = 0  "
 					+ " WHERE sl.type = 'Incoming' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
@@ -953,7 +954,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		sql.append(" ) x WHERE 1 = 1 ");
 
 		java.util.List<java.lang.Object> params = new java.util.ArrayList<>();
-		if (!"IT Admin".equals(role)) {
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
 			params.add(userId);
 			params.add(userId);
 		} // incoming ?2

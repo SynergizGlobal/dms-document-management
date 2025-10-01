@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.ProjectDTO;
 import com.synergizglobal.dms.entity.pmis.Project;
+import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.repository.pmis.ProjectRepository;
+import com.synergizglobal.dms.repository.pmis.UserRepository;
 import com.synergizglobal.dms.service.pmis.ProjectService;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class ProjectServiceImpl implements ProjectService {
 
 	private final ProjectRepository projectRepository;
-	
+	private final UserRepository userRepository;
 	
 	@Override
 	public List<ProjectDTO> getAllProjects() {
@@ -46,7 +49,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public List<ProjectDTO> getProjects(String userId, String userRoleNameFk) {
-    	if(userRoleNameFk.equals("IT Admin")) {
+		User user = userRepository.findById(userId).get();
+    	if(CommonUtil.isITAdminOrSuperUser(user)) {
     		//IT Admin
     		return this.getAllProjects();
     	} else if(userRoleNameFk.equals("Contractor")) {

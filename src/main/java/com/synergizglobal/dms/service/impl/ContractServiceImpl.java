@@ -5,12 +5,15 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.ContractDTO;
 import com.synergizglobal.dms.dto.ProjectDTO;
 import com.synergizglobal.dms.entity.pmis.Contract;
 import com.synergizglobal.dms.entity.pmis.Project;
+import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.repository.pmis.ContractRepository;
 import com.synergizglobal.dms.repository.pmis.ProjectRepository;
+import com.synergizglobal.dms.repository.pmis.UserRepository;
 import com.synergizglobal.dms.service.pmis.ContractService;
 import com.synergizglobal.dms.service.pmis.ProjectService;
 
@@ -21,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class ContractServiceImpl implements ContractService {
 
 	private final ContractRepository contractRepository;
-	
+	private final UserRepository userRepository;
 
 	@Override
 	public List<ContractDTO> getAllContracts() {
@@ -51,7 +54,8 @@ public class ContractServiceImpl implements ContractService {
 
 	@Override
 	public List<ContractDTO> getContracts(String userId, String userRole) {
-		if(userRole.equals("IT Admin")) {
+		User user = userRepository.findById(userId).get();
+		if(CommonUtil.isITAdminOrSuperUser(user)) {
     		//IT Admin
     		return this.getAllContracts();
     	} else if(userRole.equals("Contractor")) {

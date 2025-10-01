@@ -1055,7 +1055,7 @@ public class DocumentServiceImpl implements DocumentService {
 	public long countAllFiles(User user) {
 		String role = user.getUserRoleNameFk();
 
-		if (!"IT Admin".equals(role)) {
+		if (!CommonUtil.isITAdminOrSuperUser(user)) {
 			// TODO Auto-generated method stub
 			return documentRepository.countAllFiles(user.getUserId());
 		} else {

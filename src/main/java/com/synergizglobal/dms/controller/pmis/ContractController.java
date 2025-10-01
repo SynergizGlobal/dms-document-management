@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.ContractDTO;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.DocumentService;
@@ -39,7 +40,7 @@ public class ContractController {
     @GetMapping("/get/for-folder-grid")
     public ResponseEntity<List<String>> findGroupedContractNames(HttpSession session) {
     	User user = (User) session.getAttribute("user");
-    	if(user.getUserRoleNameFk().equals("IT Admin")) {
+    	if(CommonUtil.isITAdminOrSuperUser(user)) {
     		//IT Admin
     		List<String> projectNames = new ArrayList<>();
     		projectNames.addAll(correspondenceService.findAllContractNames());

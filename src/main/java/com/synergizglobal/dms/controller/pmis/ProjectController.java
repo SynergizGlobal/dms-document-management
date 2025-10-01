@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.ProjectDTO;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.DocumentService;
@@ -40,7 +41,7 @@ public class ProjectController {
     @GetMapping("/get/for-folder-grid")
     public ResponseEntity<List<String>> findGroupedProjectNames(HttpSession session) {
     	User user = (User) session.getAttribute("user");
-    	if(user.getUserRoleNameFk().equals("IT Admin")) {
+    	if(CommonUtil.isITAdminOrSuperUser(user)) {
     		//IT Admin
     		List<String> projectNames = new ArrayList<>();
     		projectNames.addAll(correspondenceService.findAllProjectNames());

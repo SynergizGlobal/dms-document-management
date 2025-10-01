@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.CorrespondenceFileDTO;
 import com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO;
 import com.synergizglobal.dms.dto.FolderGridDTO;
@@ -77,7 +78,7 @@ public class CorrespondenceFileController {
 		//HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
 		List<CorrespondenceFolderFileDTO> files = new ArrayList<>();
-		if ("IT Admin".equals(user.getUserRoleNameFk())) {
+		if (CommonUtil.isITAdminOrSuperUser(user)) {
 			if (type.equals("Incoming"))
 				files = fileService.getFilesForAdminIncoming(folderGridDto.getProjects(), folderGridDto.getContracts(), type, baseUrl);
 			else

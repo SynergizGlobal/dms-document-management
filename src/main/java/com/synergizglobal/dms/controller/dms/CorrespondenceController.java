@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.CorrespondenceDraftGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceGridDTO;
 import com.synergizglobal.dms.dto.CorrespondenceLetterProjection;
@@ -350,91 +351,91 @@ public DraftDataTableResponse<CorrespondenceDraftGridDTO> getDrafts(@RequestBody
     public ResponseEntity<List<String>> filters(@PathVariable("columnIndex") Integer columnIndex, HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (columnIndex == 1) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllCategory());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedCategory(user.getUserId()));
         }
         if (columnIndex == 2) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllLetterNumbers());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedLetterNumbers(user.getUserId()));
         }
         if (columnIndex == 3) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllFrom());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedFrom(user.getUserId()));
         }
         if (columnIndex == 4) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllToSend());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedToSend(user.getUserId()));
         }
         if (columnIndex == 5) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllSubject());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedSubject(user.getUserId()));
         }
         if (columnIndex == 6) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllRequiredResponse());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedRequiredResponse(user.getUserId()));
         }
         if (columnIndex == 7) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllDueDates());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedDueDates(user.getUserId()));
         }
         if (columnIndex == 8) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllProjectNames());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedProjectNames(user.getUserId()));
         }
         if (columnIndex == 9) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllContractNames());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedContractNames(user.getUserId()));
         }
         if (columnIndex == 10) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllStatus());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedStatus(user.getUserId()));
         }
         if (columnIndex == 11) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllDepartment());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedDepartment(user.getUserId()));
         }
         if (columnIndex == 12) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllAttachment());
             }
             return ResponseEntity.ok(correspondenceService.findGroupedAttachment(user.getUserId()));
         }
         if (columnIndex == 13) {
-            if (user.getUserRoleNameFk().equals("IT Admin")) {
+            if (CommonUtil.isITAdminOrSuperUser(user)) {
                 // IT Admin
                 return ResponseEntity.ok(correspondenceService.findAllTypesOfMail());
             }
