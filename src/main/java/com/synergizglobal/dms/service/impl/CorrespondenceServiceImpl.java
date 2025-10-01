@@ -250,7 +250,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		List<MultipartFile> documents = dto.getDocuments();
 
 		if (documents != null && !documents.isEmpty()) {
-			entity.setFileCount(documents.size());
+			entity.setFileCount(documents.size() + dto.getExistingFilesCount());
 
 
 

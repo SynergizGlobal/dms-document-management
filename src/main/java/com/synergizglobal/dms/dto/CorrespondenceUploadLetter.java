@@ -32,4 +32,5 @@ public class CorrespondenceUploadLetter {
 	private String projectName;
 	private String contractName;
 	private List<String> removedExistingFiles;
+	private Integer existingFilesCount;
 }

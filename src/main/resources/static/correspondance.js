@@ -201,6 +201,7 @@ function isValidEmail(email) {
 	return emailRegex.test(email);
 }
 let removedExistingFiles = [];
+let existingFilesCount = 0;
 // Sidebar navigation
 document.querySelectorAll('.sidebar-item').forEach(item => {
 	item.addEventListener('click', function() {
@@ -273,6 +274,7 @@ function closeUploadModal() {
 	attachToLetterNo = null;
 	$('#correspondenceId').remove();
 	removedExistingFiles = [];
+	existingFilesCount = 0;
 }
 
 closeModal.addEventListener('click', closeUploadModal);
@@ -344,6 +346,7 @@ function addAttachmentToList(file, isExisting = false) {
 function removeAttachment(button, existing = false) {
 	const attachmentItem = button.parentElement;
 	if (existing) {
+		existingFilesCount = existingFilesCount - 1;
 		removedExistingFiles.push(attachmentItem.dataset.fileId);
 	}
 	button.parentElement.remove();
@@ -585,7 +588,8 @@ async function uploadLetterToServer(formData, files) {
 			projectName: formData.projectName,
 			contractName: formData.contractName,
 			action: formData.action,
-			removedExistingFiles: removedExistingFiles
+			removedExistingFiles: removedExistingFiles,
+			existingFilesCount: existingFilesCount
 		};
 
 		console.log('Sending DTO:', dto);
@@ -1074,6 +1078,9 @@ $(document).ready(function() {
 	});
 });
 $('#draftTable tbody').on('click', 'tr', async function() {
+	if (attachmentInput) {
+		attachmentInput.value = "";  // clears selected files
+	}
 	let rowData = $('#draftTable').DataTable().row(this).data();
 
 	if (!rowData) return; // skip if rowData is empty (like header row)
@@ -1170,7 +1177,11 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 				async: false,
 				contentType: "application/json",
 				success: function(existingFiles) {
-					existingFiles.forEach(file => addAttachmentToList(file, true));
+					existingFiles.forEach(
+						file => {
+							addAttachmentToList(file, true);
+							existingFilesCount = existingFilesCount + 1;
+						});
 				},
 				error: function(xhr, status, error) {
 					console.error("Error fetching correspondence:", error);
@@ -1194,7 +1205,7 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 			let day = String(letterDateArray[2]).padStart(2, '0');
 
 			let isoDate = `${year}-${month}-${day}`;
-			
+
 			$('#letterDate').val(isoDate);
 			//$('#toField').val(response.to);
 			$('#requiredResponse').val(response.requiredResponse);
@@ -1202,7 +1213,7 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 			const dueDateArray = response.dueDate;
 
 			// Ensure month and day are 2 digits
-		    year = dueDateArray[0];
+			year = dueDateArray[0];
 			month = String(dueDateArray[1]).padStart(2, '0');
 			day = String(dueDateArray[2]).padStart(2, '0');
 
@@ -2006,7 +2017,7 @@ function populateContractDropdown(contracts) {
 
 uploadBtn.addEventListener('click', function() {
 
-
+	existingFilesCount = 0;
 	removedExistingFiles = [];
 	if (attachmentInput) {
 		attachmentInput.value = "";  // clears selected files
