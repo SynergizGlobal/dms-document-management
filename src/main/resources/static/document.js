@@ -312,6 +312,9 @@ $(document).ready(function() {
 		e.preventDefault();
 		const activeTab = $('#uploadModal .upload-tab.active').data('tab');
 		if (activeTab === 'single') {
+			if (!validateForm('#uploadModal')) {
+				return;	
+			}
 			var fileName = $('#fileName').val();
 			var fileNumber = $('#fileNumber').val();
 			var revisionNo = $('#revisionNo').val();
@@ -2479,6 +2482,7 @@ $(document).ready(function() {
 	});
 
 	$('#uploadBtn').on('click', function() {
+		resetUploadForm();
 		// Disable metadata upload and preview metadat if already uploaded
 		$("#loader").show();
 		$.ajax({
