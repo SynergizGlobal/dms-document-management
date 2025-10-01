@@ -13,7 +13,23 @@ $(document).ready(function() {
 		}
 	});
 });
-
+$.ajax({
+		url: `/dms/api/users/get/userRole`,
+		method: 'GET',
+		async: false,
+		success: function(response) {
+			//$("#userName").text(response);
+			if (response === 'Super user') {
+				$("#navFilterForm").hide();
+				
+			}
+			console.log("Session set successfully:", response);
+			// You can proceed with further logic here
+		},
+		error: function(xhr, status, error) {
+			console.error("Failed to set session:", error);
+		}
+	});
 let currentView = 'folders';
 let searchVisible = false;
 let navigationStack = [];

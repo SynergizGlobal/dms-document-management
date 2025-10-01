@@ -42,6 +42,7 @@ $(document).ready(function() {
 			if (response === 'Super user') {
 				$("#uploadBtn").hide();
 				$("#draftBtn").hide();
+				$("#navFilterForm").hide();
 				$("#contextMenu .context-menu-item[data-action='send']").hide();
 				$("#contextMenu .context-menu-item[data-action='update']").hide();
 				$("#contextMenu .context-menu-item[data-action='not-required']").hide();

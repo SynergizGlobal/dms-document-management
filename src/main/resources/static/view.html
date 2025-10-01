@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <title>Letter Details</title>
     <style>
         :root{
@@ -661,7 +663,26 @@
         if (isReferenceLetter) {
             hideReplyButton();
         } else {
-            showReplyButton();
+        	$.ajax({
+        		url: `/dms/api/users/get/userRole`,
+        		method: 'GET',
+        		async: false,
+        		success: function(response) {
+        			//$("#userName").text(response);
+        			if (response === 'Super user') {
+        				$("#replyBtn").hide();
+        				
+        			} else {
+        				showReplyButton();
+        			}
+        			console.log("Session set successfully:", response);
+        			// You can proceed with further logic here
+        		},
+        		error: function(xhr, status, error) {
+        			console.error("Failed to set session:", error);
+        		}
+        	});
+            
         }
 
         if (reply) reply.addEventListener('click', function(e){

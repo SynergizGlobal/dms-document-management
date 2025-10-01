@@ -2,6 +2,26 @@
 const API_BASE_URL = '/dms/api/correspondence';
 let draftTable = null;
 let mainTableInstance = null;
+
+$.ajax({
+		url: `/dms/api/users/get/userRole`,
+		method: 'GET',
+		async: false,
+		success: function(response) {
+			//$("#userName").text(response);
+			if (response === 'Super user') {
+				$("#uploadBtn").hide();
+				$("#draftBtn").hide();
+				$("#navFilterForm").hide();
+				
+			}
+			console.log("Session set successfully:", response);
+			// You can proceed with further logic here
+		},
+		error: function(xhr, status, error) {
+			console.error("Failed to set session:", error);
+		}
+	});
 // Email validation function
 function isValidEmail(email) {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
