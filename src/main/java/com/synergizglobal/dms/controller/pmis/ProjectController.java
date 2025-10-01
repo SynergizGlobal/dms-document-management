@@ -1,7 +1,9 @@
 package com.synergizglobal.dms.controller.pmis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,8 +35,9 @@ public class ProjectController {
     @GetMapping("/get")
     public ResponseEntity<List<ProjectDTO>> getAllProjects(HttpSession session) {
     	User user = (User) session.getAttribute("user");
-
-    	return ResponseEntity.ok(projectService.getProjects(user.getUserId(), user.getUserRoleNameFk()));
+    	List<ProjectDTO> dtos =  projectService.getProjects(user.getUserId(), user.getUserRoleNameFk());
+    	dtos.sort(Comparator.comparing(ProjectDTO::getName));
+    	return ResponseEntity.ok(dtos);
     }
     
     

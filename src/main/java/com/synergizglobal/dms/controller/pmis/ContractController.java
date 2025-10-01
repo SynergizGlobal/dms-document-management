@@ -2,6 +2,7 @@ package com.synergizglobal.dms.controller.pmis;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.synergizglobal.dms.common.CommonUtil;
 import com.synergizglobal.dms.dto.ContractDTO;
+import com.synergizglobal.dms.dto.ProjectDTO;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.service.dms.DocumentService;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
@@ -34,7 +36,9 @@ public class ContractController {
     @GetMapping("/get")
     public ResponseEntity<List<ContractDTO>> getAllContracts(HttpSession session) {
     	User user = (User) session.getAttribute("user");
-    	return ResponseEntity.ok(contractService.getContracts(user.getUserId(), user.getUserRoleNameFk()));
+    	List<ContractDTO> dtos = contractService.getContracts(user.getUserId(), user.getUserRoleNameFk());
+    	dtos.sort(Comparator.comparing(ContractDTO::getName));
+    	return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/get/for-folder-grid")
