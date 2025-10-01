@@ -3,9 +3,6 @@ const API_BASE_URL = '/dms/api/correspondence';
 let draftTable = null;
 let mainTableInstance = null;
 
-// Bind events for native inputs and textareas
-// Bind events for native inputs and textareas
-// Bind events for native inputs and textareas
 $(document).on('input change blur', 'input, textarea, select', function() {
 	validateField(this);
 });
@@ -657,7 +654,7 @@ sendBtn.addEventListener('click', async function() {
 		if (!validateUIForm('#uploadModal')) {
 			return;
 		}
-		const hasAttachments = $('#attachmentsList').children().length > 0;
+			const hasAttachments = $('#attachmentsList').children().length > 0;
 		if (!hasAttachments) {
 			alert('Please upload a file.')
 			return;
@@ -704,7 +701,7 @@ saveAsDraftBtn.addEventListener('click', async function() {
 		alert('Please upload a file.')
 		return;
 	}
-	const formData = getFormData("Save as Draft");
+    const formData = getFormData("Save as Draft");
 
 	if (!formData.letterNumber) {
 		alert('Please enter at least a Letter Number');
@@ -1092,20 +1089,12 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 	}
 	let rowData = $('#draftTable').DataTable().row(this).data();
 
-	if (!rowData) return; // skip if rowData is empty (like header row)
+	if (!rowData) return;
 
-	// Debug: see what values are available
+
 	console.log("Row clicked:", rowData);
 
-	// Example: populate modal fields
-	/* $('#modalCategory').text(rowData.category);
-	 $('#modalLetterNo').text(rowData.letterNo);
-	 $('#modalFrom').text(rowData.from);
-	 $('#modalTo').text(rowData.to);
-	 $('#modalSubject').text(rowData.subject);
-	 $('#modalDueDate').text(rowData.dueDate);
-	 $('#modalStatus').text(rowData.status);
-	 $('#modalDepartment').text(rowData.department);*/
+
 	uploadModal.style.display = 'block';
 	$("#loader").show();
 	await fetchProjects();
@@ -1618,17 +1607,23 @@ $(function() {
 	});
 });
 
-
-// Function to fetch statuses from API
 async function fetchStatuses() {
 	try {
+		const statusSelect = document.getElementById('currentStatus');
+		statusSelect.innerHTML = '<option value="">Loading statuses...</option>';
+
 		const response = await fetch('/dms/api/statuses/get');
 
 		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
+			throw new Error(`Server returned ${response.status}`);
 		}
 
 		const statuses = await response.json();
+
+		if (!Array.isArray(statuses)) {
+			throw new Error('Invalid response format: expected array');
+		}
+
 		populateStatusDropdown(statuses);
 
 	} catch (error) {
@@ -1638,22 +1633,25 @@ async function fetchStatuses() {
 	}
 }
 
-// Function to populate dropdown with statuses
 function populateStatusDropdown(statuses) {
-	const dropdown = document.getElementById('currentStatus');
+	const statusSelect = document.getElementById('currentStatus');
+	statusSelect.innerHTML = '';
 
-	// Clear loading message
-	dropdown.innerHTML = '';
+	// Default option - same as department
+	const defaultOption = document.createElement('option');
+	defaultOption.value = '';
+	defaultOption.textContent = 'Select Status';
+	statusSelect.appendChild(defaultOption);
 
-	// Check if the API returns strings or objects
-	const isObjectArray = typeof statuses[0] === 'object';
-
+	// Add each status as an option (use name as value)
 	statuses.forEach(status => {
-		const statusName = status.name; // 👈 Use name
+		const statusName = status.name || status.label || status.value;
+
 		const option = document.createElement('option');
-		option.value = statusName;      // 👈 send name to backend
+		option.value = statusName;        // 👈 use name instead of ID
 		option.textContent = statusName;
-		dropdown.appendChild(option);
+
+		statusSelect.appendChild(option);
 	});
 }
 
