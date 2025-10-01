@@ -240,6 +240,7 @@ uploadBtn.addEventListener('click', function() {
 	attachToLetterNo = null;
 	updateModalForMode();
 	uploadModal.style.display = 'block';
+	setMinDates();
 });
 
 // Function to update modal based on mode (normal upload vs attach)
@@ -1101,6 +1102,9 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 	await fetchContracts();
 	await fetchDepartments();
 	await fetchStatuses();
+	setTimeout(() => {
+	        setMinDates();
+	    }, 100);
 	$.ajax({
 		url: `/dms/api/correspondence/get/${rowData.correspondenceId}`,
 		type: "GET",
@@ -1710,12 +1714,9 @@ function populateDepartmentDropdown(departments) {
 // Call this when the page loads
 fetchDepartments();
 
-
-
-
 // Also call when opening letter details
 function openLetterDetails(letterNo) {
-	// Your existing code
+	
 	fetchDepartments(); // Add this to load departments when opening letter details
 }
 
@@ -1723,21 +1724,7 @@ function openLetterDetails(letterNo) {
 $("#closeLetterModal, #cancelDetailBtn").on("click", function() {
 	$("#letterDetailsModal").hide();
 });
-// ---------- Auto-trigger uploadBtn flow when arriving with ?replyTo=... ----------
 
-// function checkAndOpen() {
-//     try {
-//         const qp = new URLSearchParams(window.location.search);
-//         if (qp.has('replyTo') || qp.has('openUpload')) {
-//             triggerUploadFlow({
-//                 replyTo: qp.get('replyTo') || qp.get('id') || '',
-//               //  from: qp.get('from') || '',
-//               //  subject: qp.get('subject') || '',
-//                 refLetter: qp.get('refLetter') || ''
-//             });
-//         }
-//     } catch(e){ console.error('AutoOpen parse error', e); }
-// }
 (function() {
 	function $id(id) { try { return document.getElementById(id); } catch (e) { return null; } }
 
@@ -1786,10 +1773,12 @@ $("#closeLetterModal, #cancelDetailBtn").on("click", function() {
 							const newOption = new Option(val, val, true, true);
 							$('#referenceLetters').append(newOption).trigger('change');
 						}
+						
 					});
 
 					// Finally set them
 					$('#referenceLetters').val(valuesToSet).trigger('change');
+					setMinDates();
 
 					console.log('Reference letters set to:', decodedRefLetters);
 				}
@@ -2034,3 +2023,20 @@ uploadBtn.addEventListener('click', function() {
 	fetchDepartments();
 	fetchStatuses();
 });
+
+// Function to set minimum dates to today
+function setMinDates() {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Set min date for letter date and due date
+    const letterDateInput = document.getElementById('letterDate');
+    const dueDateInput = document.getElementById('dueDate');
+    
+    if (letterDateInput) {
+        letterDateInput.min = today;
+    }
+    
+    if (dueDateInput) {
+        dueDateInput.min = today;
+    }
+}
