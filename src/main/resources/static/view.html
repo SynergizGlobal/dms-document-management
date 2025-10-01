@@ -3,8 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <script
-	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <title>Letter Details</title>
     <style>
         :root{
@@ -437,13 +436,23 @@
             const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';
 
             const link = document.createElement('a');
-            link.href = '#';
+            // add ref=true so new tab knows it's a reference view
+            link.href = window.location.pathname + '?letterNumber=' + encodeURIComponent(r) + '&ref=true';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer'; // security + performance
             link.textContent = String(r);
+
+            // open new tab and do NOT change the current tab
             link.addEventListener('click', (e) => {
-                e.preventDefault();
-                // Set flag to indicate this is a reference letter view
-                isReferenceLetter = true;
-                loadReferencedLetter(r);
+                e.preventDefault(); // prevent default navigation in current tab
+                try {
+                    window.open(link.href, '_blank');
+                } catch (err) {
+                    // fallback: let browser follow the href (rare)
+                    window.location.href = link.href;
+                }
+                // NOTE: we intentionally do NOT call loadReferencedLetter(r) here,
+                // so the original tab remains unchanged.
             });
 
             li.appendChild(num); li.appendChild(link);
@@ -518,9 +527,10 @@
             // Hide Reply button for reference letters
             hideReplyButton();
 
-            // Update URL without reloading the page
+            // Update URL without reloading the page, include ref=true
             const newUrl = new URL(window.location);
             newUrl.searchParams.set('letterNumber', letterNumber);
+            newUrl.searchParams.set('ref', 'true');
             newUrl.searchParams.delete('id');
             window.history.pushState({letterNumber}, '', newUrl);
 
@@ -663,26 +673,22 @@
         if (isReferenceLetter) {
             hideReplyButton();
         } else {
-        	$.ajax({
-        		url: `/dms/api/users/get/userRole`,
-        		method: 'GET',
-        		async: false,
-        		success: function(response) {
-        			//$("#userName").text(response);
-        			if (response === 'Super user') {
-        				$("#replyBtn").hide();
-        				
-        			} else {
-        				showReplyButton();
-        			}
-        			console.log("Session set successfully:", response);
-        			// You can proceed with further logic here
-        		},
-        		error: function(xhr, status, error) {
-        			console.error("Failed to set session:", error);
-        		}
-        	});
-            
+            $.ajax({
+                url: `/dms/api/users/get/userRole`,
+                method: 'GET',
+                async: false,
+                success: function(response) {
+                    if (response === 'Super user') {
+                        $("#replyBtn").hide();
+                    } else {
+                        showReplyButton();
+                    }
+                    console.log("Session set successfully:", response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Failed to set session:", error);
+                }
+            });
         }
 
         if (reply) reply.addEventListener('click', function(e){
@@ -749,13 +755,19 @@
     async function loadData(){
         let id = getQueryParam('id');
         let letterNumber = getQueryParam('letterNumber');
+        const refParam = getQueryParam('ref'); // check if opened as reference in new tab
 
         // Store initial values for navigation
         if (id) initialLetterId = id;
         if (letterNumber) initialLetterNumber = letterNumber;
 
-        // Check if this is a reference letter view
-        isReferenceLetter = navigationHistory.length > 0;
+        // If the page was opened with ref=true, treat it as reference letter view (new tab)
+        if (refParam && (refParam === 'true' || refParam === '1')) {
+            isReferenceLetter = true;
+        } else {
+            // otherwise infer from navigation history
+            isReferenceLetter = navigationHistory.length > 0;
+        }
 
         if (!id && !letterNumber){
             alert('No id or letterNumber provided');
