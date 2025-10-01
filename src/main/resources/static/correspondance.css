@@ -1781,3 +1781,28 @@ table.dataTable tbody td {
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
+
+/* Error highlighting styles */
+.error-field {
+    border: 1px solid #e53e3e !important;
+    background-color: #fed7d7 !important;
+    color: #6c757d !important;
+}
+
+.error-message {
+    color: #e53e3e;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+.select2-container .select2-selection.error-field {
+  border: 2px solid #dc3545 !important;
+  box-shadow: none !important;
+}
+.select2-container .select2-selection.success-field {
+  border: 2px solid #28a745 !important;
+}

@@ -3,25 +3,198 @@ const API_BASE_URL = '/dms/api/correspondence';
 let draftTable = null;
 let mainTableInstance = null;
 
-$.ajax({
-		url: `/dms/api/users/get/userRole`,
-		method: 'GET',
-		async: false,
-		success: function(response) {
-			//$("#userName").text(response);
-			if (response === 'Super user') {
-				$("#uploadBtn").hide();
-				$("#draftBtn").hide();
-				$("#navFilterForm").hide();
-				
-			}
-			console.log("Session set successfully:", response);
-			// You can proceed with further logic here
-		},
-		error: function(xhr, status, error) {
-			console.error("Failed to set session:", error);
+// Bind events for native inputs and textareas
+// Bind events for native inputs and textareas
+// Bind events for native inputs and textareas
+$(document).on('input change blur', 'input, textarea, select', function() {
+	validateField(this);
+});
+
+// Bind events for Select2 fields (including AJAX multi-select)
+$(document).on('select2:select select2:unselect select2:close change', 'select', function() {
+	validateField(this);
+});
+
+function validateField(field) {
+	const $field = $(field);
+
+	// Ignore internal Select2 search inputs
+	if ($field.hasClass('select2-search__field')) return true;
+
+	const rawVal = $field.val();
+	const fieldType = $field.attr('type') || $field.prop('tagName').toLowerCase();
+	const isSelect2 = !!$field.data('select2') || $field.hasClass('select2-hidden-accessible');
+	const $select2Container = isSelect2 && $field.data('select2') ? $field.data('select2').$container : null;
+
+	// Locate or create error-message element
+	let $errorEl = $field.siblings('.error-message');
+	if ($errorEl.length === 0) {
+		$errorEl = $field.closest('.form-group, .upload-form-section, .preview-form-section').find('.error-message').first();
+	}
+	if ($errorEl.length === 0) {
+		let $anchor = isSelect2 && $select2Container ? $select2Container : $field;
+		if ($anchor.next('.error-message').length === 0) {
+			$anchor.after('<div class="error-message" style="display:none;color:#dc3545;font-size:11px;margin-top:4px;"></div>');
+		}
+		$errorEl = $anchor.siblings('.error-message').first();
+	}
+
+	// Check visibility
+	const isVisible = $select2Container ? $select2Container.is(':visible') : $field.is(':visible');
+
+	// Determine if field is required (native attribute or label *)
+	const labelHasStar = $field.closest('.form-group, .upload-form-section, .preview-form-section').find('label').first().text().includes('*');
+	const isRequired = $field.prop('required') || $field.attr('aria-required') === 'true' || labelHasStar;
+
+	// Normalize value
+	let valueArray = [];
+	let value = '';
+	if (Array.isArray(rawVal)) {
+		valueArray = rawVal.filter(v => v != null && String(v).trim() !== '');
+		value = valueArray.join(',');
+	} else if (rawVal == null) {
+		valueArray = [];
+		value = '';
+	} else {
+		valueArray = [String(rawVal).trim()];
+		value = valueArray[0];
+	}
+
+	// Helper: check if field has value
+	function hasValue($field, value, valueArray, isSelect2) {
+		if (isSelect2) {
+			return Array.isArray(valueArray) && valueArray.length > 0;
+		} else {
+			return value != null && String(value).trim() !== '';
+		}
+	}
+
+	// Helper: show error
+	function addErrorDisplay(msg) {
+		removeDisplay();
+		if (isSelect2 && $select2Container) {
+			$select2Container.find('.select2-selection').addClass('error-field');
+		} else {
+			$field.addClass('error-field');
+		}
+		if (msg) $errorEl.text(msg);
+		$errorEl.addClass('show').show();
+	}
+
+	// Helper: show success
+	function addSuccessDisplay() {
+		removeDisplay();
+		if (isSelect2 && $select2Container) {
+			$select2Container.find('.select2-selection').addClass('success-field');
+		} else {
+			$field.addClass('success-field');
+		}
+		$errorEl.removeClass('show').hide();
+	}
+
+	// Helper: remove error/success
+	function removeDisplay() {
+		if (isSelect2 && $select2Container) {
+			$select2Container.find('.select2-selection').removeClass('error-field success-field');
+		}
+		$field.removeClass('error-field success-field');
+		$errorEl.removeClass('show').hide();
+	}
+
+	removeDisplay();
+
+	// Skip validation if not visible
+	if (!isVisible) return true;
+
+	// Required validation
+	if (isRequired && !hasValue($field, value, valueArray, isSelect2)) {
+		const msg = $field.data('error') || 'This field is required';
+		addErrorDisplay(msg);
+		return false;
+	}
+
+	// Email validation
+	if (fieldType === 'email' && valueArray.length) {
+		const invalid = valueArray.some(v => !isValidEmail(v));
+		if (invalid) {
+			const msg = $field.data('error') || 'Please enter a valid email address';
+			addErrorDisplay(msg);
+			return false;
+		}
+	}
+
+	// Optional: custom validations (pattern, min/max length, etc.)
+	const pattern = $field.attr('pattern');
+	if (pattern && value && !(new RegExp(pattern).test(value))) {
+		const msg = $field.data('error') || 'Invalid format';
+		addErrorDisplay(msg);
+		return false;
+	}
+
+	const minLength = $field.attr('minlength');
+	if (minLength && value.length < parseInt(minLength)) {
+		const msg = $field.data('error') || `Must be at least ${minLength} characters`;
+		addErrorDisplay(msg);
+		return false;
+	}
+
+	// If value exists, show success
+	if (hasValue($field, value, valueArray, isSelect2)) {
+		addSuccessDisplay();
+		return true;
+	}
+
+	removeDisplay();
+	return true;
+}
+
+// Simple email validator
+function isValidEmail(email) {
+	const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	return re.test(String(email).toLowerCase());
+}
+
+
+function resetUploadForm() {
+	$('#uploadModal .error-field').removeClass('error-field success-field');
+	$('#uploadModal .error-message').removeClass('show');
+}
+// Field validation functions
+
+
+function validateUIForm(formSelector) {
+	let isValid = true;
+	const $form = $(formSelector);
+
+	$form.find('input, select, textarea').each(function() {
+		if (!validateField(this)) {
+			isValid = false;
 		}
 	});
+
+	return isValid;
+}
+
+
+$.ajax({
+	url: `/dms/api/users/get/userRole`,
+	method: 'GET',
+	async: false,
+	success: function(response) {
+		//$("#userName").text(response);
+		if (response === 'Super user') {
+			$("#uploadBtn").hide();
+			$("#draftBtn").hide();
+			$("#navFilterForm").hide();
+
+		}
+		console.log("Session set successfully:", response);
+		// You can proceed with further logic here
+	},
+	error: function(xhr, status, error) {
+		console.error("Failed to set session:", error);
+	}
+});
 // Email validation function
 function isValidEmail(email) {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -64,6 +237,7 @@ const cancelDetailBtn = document.getElementById('cancelDetailBtn');
 
 // Open upload modal
 uploadBtn.addEventListener('click', function() {
+	resetUploadForm();
 	currentAttachMode = false;
 	attachToLetterNo = null;
 	updateModalForMode();
@@ -385,6 +559,8 @@ function validateForm(formData) {
 	return true;
 }
 
+
+
 // API call to upload letter
 async function uploadLetterToServer(formData, files) {
 	try {
@@ -474,6 +650,9 @@ sendBtn.addEventListener('click', async function() {
 		draftTable.ajax.reload();
 	} else {
 		// Handle normal send mode
+		if (!validateUIForm('#uploadModal')) {
+			return;
+		}
 		const formData = getFormData();
 		if (validateForm(formData)) {
 
@@ -509,6 +688,9 @@ sendBtn.addEventListener('click', async function() {
 
 // Save as Draft button functionality
 saveAsDraftBtn.addEventListener('click', async function() {
+	if (!validateUIForm('#uploadModal'))
+		return;
+
 	const formData = getFormData("Save as Draft");
 
 	if (!formData.letterNumber) {
@@ -1004,10 +1186,31 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 			$('#projectName').val(response.projectName).trigger('change');
 			$('#contractName').val(response.contractName).trigger('change');
 			$('#letterNo').val(response.letterNumber);
-			//$('#letterDate').text(rowData.letterDate);
+			const letterDateArray = response.letterDate;
+
+			// Ensure month and day are 2 digits
+			let year = letterDateArray[0];
+			let month = String(letterDateArray[1]).padStart(2, '0');
+			let day = String(letterDateArray[2]).padStart(2, '0');
+
+			let isoDate = `${year}-${month}-${day}`;
+			
+			$('#letterDate').val(isoDate);
 			//$('#toField').val(response.to);
 			$('#requiredResponse').val(response.requiredResponse);
-			$('#dueDate').val(response.dueDate);
+
+			const dueDateArray = response.dueDate;
+
+			// Ensure month and day are 2 digits
+		    year = dueDateArray[0];
+			month = String(dueDateArray[1]).padStart(2, '0');
+			day = String(dueDateArray[2]).padStart(2, '0');
+
+			isoDate = `${year}-${month}-${day}`;
+
+			// Set the value
+			$('#dueDate').val(isoDate);
+			//$('#dueDate').val(response.dueDate.join('-'));
 			$('#subject').val(response.subject);
 			$('#currentStatus').val(response.currentStatus);
 			$('#department').val(response.department);
@@ -1802,6 +2005,8 @@ function populateContractDropdown(contracts) {
 }
 
 uploadBtn.addEventListener('click', function() {
+
+
 	removedExistingFiles = [];
 	if (attachmentInput) {
 		attachmentInput.value = "";  // clears selected files
