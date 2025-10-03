@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.synergizglobal.dms.common.CommonUtil;
@@ -592,6 +593,9 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	public String validateFileNumber(String... args) {
+		if(StringUtils.isEmpty(args[0])) {
+			return "File number can not be blank.";
+		}
 		Optional<Document> documentInDBOptional = documentRepository.findByFileNumber(args[0]);
 		// 2. If file number is same but file name is different
 		if (documentInDBOptional.isPresent()) {
@@ -605,6 +609,9 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	public String validateFileName(String... args) {
+		if(StringUtils.isEmpty(args[0])) {
+			return "File name can not be blank.";
+		}
 		Optional<Document> documentInDBOptional = documentRepository.findByFileName(args[0]);
 		// 1. If file name is same but file number is different
 		if (documentInDBOptional.isPresent()) {
