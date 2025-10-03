@@ -64,59 +64,83 @@ public class BulkUploadController {
 	}
 
 	@PostMapping("/metadata/upload")
-	public ResponseEntity<List<Map<String, MetaDataDto>>> uploadMetadataFile(@RequestParam("file") MultipartFile file, HttpSession session)
-			throws Exception {
-		User user = (User) session.getAttribute("user");
-		if (file.isEmpty()) {
-			throw new Exception("File is Empty");
-		}
+	public ResponseEntity<List<Map<String, MetaDataDto>>> uploadMetadataFile(
+	        @RequestParam("file") MultipartFile file,
+	        HttpSession session) throws Exception {
 
-		String fileName = file.getOriginalFilename();
-		if (fileName == null || !(fileName.endsWith(".xlsx") || fileName.endsWith(".xls"))) {
-			throw new Exception("Invalid file type. Only .xlsx and .xls are supported.");
-		}
+	    User user = (User) session.getAttribute("user");
 
-		try (InputStream inputStream = file.getInputStream();
-				Workbook workbook = fileName.endsWith(".xlsx") ? new XSSFWorkbook(inputStream)
-						: new HSSFWorkbook(inputStream)) {
+	    if (file.isEmpty()) {
+	        throw new Exception("File is Empty");
+	    }
 
-			Sheet sheet = workbook.getSheetAt(0); // First sheet
-			List<List<String>> rows = new ArrayList<>();
+	    String fileName = file.getOriginalFilename();
+	    if (fileName == null || !(fileName.endsWith(".xlsx") || fileName.endsWith(".xls"))) {
+	        throw new Exception("Invalid file type. Only .xlsx and .xls are supported.");
+	    }
 
-			for (Row row : sheet) {
-				List<String> cellValues = new ArrayList<>();
-				int lastCellNum = row.getLastCellNum(); // gets the total number of cells (including blanks)
-				for (int i = 0; i < lastCellNum; i++) {
-					Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-					FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper()
-							.createFormulaEvaluator();
-					CellValue evaluated = evaluator.evaluate(cell);
-					if (cell.getCellType().equals(CellType.STRING)) {
-						cell.setCellType(CellType.STRING); // convert to String for simplicity
-						cellValues.add(cell.getStringCellValue().trim());
-					} else if (cell.getCellType().equals(CellType.NUMERIC)) {
-						String cellValue = "";
-						if (DateUtil.isCellDateFormatted(cell)) {
-							cellValue = new SimpleDateFormat("yyyy-MM-dd").format(cell.getDateCellValue());
-						} else {
-							double numericValue = evaluated.getNumberValue();
-							if (numericValue == Math.floor(numericValue)) {
-								cellValue = String.valueOf((long) numericValue); // No decimal part
-							} else {
-								cellValue = String.valueOf(numericValue); // Keep decimal
-							}
-						}
-						cellValues.add(cellValue);
-					}
-				}
-				rows.add(cellValues);
-			}
-			List<Map<String, MetaDataDto>> map = documentservice.validateMetadata(rows, user.getUserId(), user.getUserRoleNameFk());
-			return ResponseEntity.ok(map);
+	    try (InputStream inputStream = file.getInputStream();
+	         Workbook workbook = fileName.endsWith(".xlsx") ? new XSSFWorkbook(inputStream)
+	                                                       : new HSSFWorkbook(inputStream)) {
 
-		} catch (Exception e) {
-			throw e;
-		}
+	        Sheet sheet = workbook.getSheetAt(0); // First sheet
+	        List<List<String>> rows = new ArrayList<>();
+
+	        // 🔹 Decide column count from the header row
+	        Row headerRow = sheet.getRow(0);
+	        if (headerRow == null) {
+	            throw new Exception("Sheet is empty");
+	        }
+	        int totalColumns = headerRow.getLastCellNum(); // includes blanks
+
+	        for (Row row : sheet) {
+	            List<String> cellValues = new ArrayList<>();
+
+	            for (int i = 0; i < totalColumns; i++) { // use <, not <=
+	                Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+	                String cellValue = "";
+
+	                if (cell != null) {
+	                    switch (cell.getCellType()) {
+	                        case STRING:
+	                            cellValue = cell.getStringCellValue().trim();
+	                            break;
+	                        case NUMERIC:
+	                            if (DateUtil.isCellDateFormatted(cell)) {
+	                                cellValue = new SimpleDateFormat("yyyy-MM-dd").format(cell.getDateCellValue());
+	                            } else {
+	                                double numericValue = cell.getNumericCellValue();
+	                                if (numericValue == Math.floor(numericValue)) {
+	                                    cellValue = String.valueOf((long) numericValue); // integer
+	                                } else {
+	                                    cellValue = String.valueOf(numericValue); // decimal
+	                                }
+	                            }
+	                            break;
+	                        case BOOLEAN:
+	                            cellValue = String.valueOf(cell.getBooleanCellValue());
+	                            break;
+	                        case BLANK:
+	                            cellValue = ""; // keep as empty string
+	                            break;
+	                        default:
+	                            cellValue = cell.toString().trim();
+	                    }
+	                }
+
+	                cellValues.add(cellValue);
+	            }
+	            rows.add(cellValues);
+	        }
+
+	        List<Map<String, MetaDataDto>> map =
+	                documentservice.validateMetadata(rows, user.getUserId(), user.getUserRoleNameFk());
+
+	        return ResponseEntity.ok(map);
+
+	    } catch (Exception e) {
+	        throw e;
+	    }
 	}
 
 	@PostMapping("/metadata/validate")
