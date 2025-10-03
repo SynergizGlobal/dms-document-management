@@ -22,6 +22,6 @@ public class CommonUtil {
 	}
 	
 	public static boolean isITAdminOrSuperUser(User user) {
-		return user.getUserRoleNameFk().equals("IT Admin") || user.getUserRoleNameFk().equals("Super user");
+		return user.getUserRoleNameFk().equalsIgnoreCase("IT Admin") || user.getUserRoleNameFk().equalsIgnoreCase("Super user");
 	}
 }
