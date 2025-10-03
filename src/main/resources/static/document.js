@@ -313,7 +313,7 @@ $(document).ready(function() {
 		const activeTab = $('#uploadModal .upload-tab.active').data('tab');
 		if (activeTab === 'single') {
 			if (!validateForm('#uploadModal')) {
-				return;	
+				return;
 			}
 			var fileName = $('#fileName').val();
 			var fileNumber = $('#fileNumber').val();
@@ -741,7 +741,7 @@ $(document).ready(function() {
 					showNotification('Document sent successfully!', 'success');
 					$('#sendDocumentsModal').hide();
 					resetSendForm();
-					if($('#draftTable').is(':visible'))
+					if ($('#draftTable').is(':visible'))
 						draftTableInstance.ajax.reload(null, false);
 				},
 				error: function(xhr) {
@@ -781,7 +781,7 @@ $(document).ready(function() {
 					showNotification('Document saved successfully!', 'success');
 					$('#sendDocumentsModal').hide();
 					resetSendForm();
-					if($('#draftTable').is(':visible'))
+					if ($('#draftTable').is(':visible'))
 						draftTableInstance.ajax.reload(null, false);
 				},
 				error: function(xhr) {
@@ -831,6 +831,9 @@ $(document).ready(function() {
 	$('#updateDocument').on('click', function() {
 		const activeTab = $('#updateDocumentsModal .upload-tab.active').data('tab');
 		if (activeTab === 'single') {
+			if (!validateForm('#updateDocumentsModal')) {
+				return;
+			}
 			var fileName = $('#updateFileName').val();
 			var fileNumber = $('#updateFileNumber').val();
 			var revisionNo = $('#updateRevisionNo').val();
