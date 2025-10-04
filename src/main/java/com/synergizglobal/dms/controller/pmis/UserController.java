@@ -36,6 +36,17 @@ public class UserController {
     	session.setAttribute("user", user);
     }
     
+    @GetMapping("/getsession")
+    public Boolean getsession(HttpSession session) {
+    	//String userId = JwtUtil.validateToken(token);
+    	//User user = userService.findById(userId).get();
+    	User user = (User) session.getAttribute("user");
+    	if(user != null) {
+    		return Boolean.TRUE;
+    	}
+    	return Boolean.FALSE;
+    }
+    
     @GetMapping("/get/username")
     public String getUserName(HttpSession session) {
     	//String userId = JwtUtil.validateToken(token);

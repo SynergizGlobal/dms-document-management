@@ -2,7 +2,21 @@
 const API_BASE_URL = '/dms/api/correspondence';
 let draftTable = null;
 let mainTableInstance = null;
+$.ajax({
+			url: `/dms/api/users/getsession`,
+			method: 'GET',
+			async: false, // token as query param
+			success: function(response) {
 
+				if(!response) {
+					window.location.href = '/dms/error.html';
+				}
+				// You can proceed with further logic here
+			},
+			error: function(xhr, status, error) {
+				console.error("Failed to set session:", error);
+			}
+		});
 $(document).on('input change blur', 'input, textarea, select', function() {
 	validateField(this);
 });

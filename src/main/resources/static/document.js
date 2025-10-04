@@ -17,7 +17,21 @@ $(document).ready(function() {
 			console.error("Failed to set session:", error);
 		}
 	});
+	$.ajax({
+			url: `/dms/api/users/getsession`,
+			method: 'GET',
+			async: false,
+			success: function(response) {
 
+				if(!response) {
+					window.location.href = '/dms/error.html';
+				}
+				// You can proceed with further logic here
+			},
+			error: function(xhr, status, error) {
+				console.error("Failed to set session:", error);
+			}
+		});
 	$.ajax({
 		url: `/dms/api/users/get/username`,
 		method: 'GET',
