@@ -1,12 +1,15 @@
+var fullPath = window.location.pathname; 
+var contextPath = "/" + fullPath.split("/")[1]; 
 $(document).ready(function() {
+
 	$.ajax({
-				url: `/dms/api/users/getsession`,
+				url: `${contextPath}/api/users/getsession`,
 				method: 'GET',
 				async: false,
 				success: function(response) {
 
 					if(!response) {
-						window.location.href = '/dms/error.html';
+						window.location.href = `${contextPath}/error.html`;
 					}
 					// You can proceed with further logic here
 				},
@@ -15,7 +18,7 @@ $(document).ready(function() {
 				}
 			});
 $.ajax({
-		url: `/dms/api/users/get/username`,
+		url: `${contextPath}/api/users/get/username`,
 		method: 'GET',
 		async: false, // token as query param
 		success: function(response) {
@@ -29,7 +32,7 @@ $.ajax({
 	});
 });
 // Base API URLs
-const API_BASE = "http://localhost:8000/dms/api"; // Change port if needed
+const API_BASE = `${contextPath}/api`; // Change port if needed
 const DEPARTMENT_API = `${API_BASE}/departments`;
 const STATUS_API = `${API_BASE}/statuses`;
 const FOLDER_API = `${API_BASE}/folders`;

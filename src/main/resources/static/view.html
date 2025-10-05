@@ -357,9 +357,11 @@
 </div>
 
 <script>
+var fullPath = window.location.pathname; 
+var contextPath = "/" + fullPath.split("/")[1]; 
     const HOST = window.location.origin;
     const CANDIDATES = [
-        HOST + '/dms/api/correspondence'  // keep as fallback
+        HOST + contextPath + '/api/correspondence'  // keep as fallback
     ];
     let SELECTED_BASE = null;
     let initialLetterId = null;
@@ -674,7 +676,7 @@
             hideReplyButton();
         } else {
             $.ajax({
-                url: `/dms/api/users/get/userRole`,
+                url: contextPath + `/api/users/get/userRole`,
                 method: 'GET',
                 async: false,
                 success: function(response) {

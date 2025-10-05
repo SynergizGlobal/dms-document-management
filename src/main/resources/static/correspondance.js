@@ -1,15 +1,17 @@
 // Base API configuration
-const API_BASE_URL = '/dms/api/correspondence';
+var fullPath = window.location.pathname; 
+var contextPath = "/" + fullPath.split("/")[1];
+const API_BASE_URL = `${contextPath}/api/correspondence`;
 let draftTable = null;
 let mainTableInstance = null;
 $.ajax({
-			url: `/dms/api/users/getsession`,
+			url: `${contextPath}/api/users/getsession`,
 			method: 'GET',
 			async: false, // token as query param
 			success: function(response) {
 
 				if(!response) {
-					window.location.href = '/dms/error.html';
+					window.location.href = `${contextPath}/error.html`;
 				}
 				// You can proceed with further logic here
 			},
@@ -188,7 +190,7 @@ function validateUIForm(formSelector) {
 
 
 $.ajax({
-	url: `/dms/api/users/get/userRole`,
+	url: `${contextPath}/api/users/get/userRole`,
 	method: 'GET',
 	async: false,
 	success: function(response) {
@@ -539,7 +541,7 @@ $(function() {
 		minimumInputLength: 1,
 
 		ajax: {
-			url: '/dms/api/correspondence/getReferenceLetters',
+			url: `${contextPath}/api/correspondence/getReferenceLetters`,
 			dataType: 'json',
 			delay: 250,
 			data: function(params) {
@@ -1015,7 +1017,7 @@ document.querySelectorAll('.sidebar-header[data-target]').forEach(item => {
 // Search and Filter functionality
 $(document).ready(function() {
 	$.ajax({
-		url: `/dms/api/users/get/username`,
+		url: `${contextPath}/api/users/get/username`,
 		method: 'GET',
 		async: false, // token as query param
 		success: function(response) {
@@ -1120,7 +1122,7 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 	        setMinDates();
 	    }, 100);
 	$.ajax({
-		url: `/dms/api/correspondence/get/${rowData.correspondenceId}`,
+		url: `${contextPath}/api/correspondence/get/${rowData.correspondenceId}`,
 		type: "GET",
 		contentType: "application/json",
 		success: function(response) {
@@ -1137,7 +1139,7 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 
 			let sendcorrespondence = [];
 			$.ajax({
-				url: `/dms/api/correspondence/get/sendcorrespondence/${rowData.correspondenceId}`,
+				url: `${contextPath}/api/correspondence/get/sendcorrespondence/${rowData.correspondenceId}`,
 				type: "GET",
 				async: false,
 				contentType: "application/json",
@@ -1164,7 +1166,7 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 				}
 			});
 			$.ajax({
-				url: `/dms/api/correspondence/references/${rowData.correspondenceId}`,
+				url: `${contextPath}/api/correspondence/references/${rowData.correspondenceId}`,
 				type: "GET",
 				async: false,
 				contentType: "application/json",
@@ -1188,7 +1190,7 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 				}
 			});
 			$.ajax({
-				url: `/dms/api/correspondence/files-id/${rowData.correspondenceId}`,
+				url: `${contextPath}/api/correspondence/files-id/${rowData.correspondenceId}`,
 				type: "GET",
 				async: false,
 				contentType: "application/json",
@@ -1278,7 +1280,7 @@ $(document).ready(function() {
 		serverSide: true,
 		processing: true,
 		ajax: {
-			url: '/dms/api/correspondence/drafts',
+			url: `${contextPath}/api/correspondence/drafts`,
 			type: 'POST',
 			contentType: 'application/json',
 			data: function(d) {
@@ -1322,7 +1324,7 @@ function initializeDataTables() {
 		serverSide: true,
 		processing: true,
 		ajax: {
-			url: '/dms/api/correspondence/filter-data',
+			url: `${contextPath}/api/correspondence/filter-data`,
 			type: 'POST',
 			contentType: 'application/json',
 			data: function(d) {
@@ -1348,7 +1350,7 @@ function initializeDataTables() {
 				data: 'letterNumber',
 				render: function(data, type, row) {
 					if (!data) return '';
-					return `<a href="/dms/view.html?id=${row.correspondenceId}">${data}</a>`;
+					return `<a href="${contextPath}/view.html?id=${row.correspondenceId}">${data}</a>`;
 				}
 			}, // check API keys!
 			{ data: 'from' },
@@ -1417,7 +1419,7 @@ $(document).ready(function() {
 			if (value) uniqueValues.add(value);
 		});*/
 		$.ajax({
-			url: `/dms/api/correspondence/filters/${columnIndex}`, // Dynamic URL with column index
+			url: `${contextPath}/api/correspondence/filters/${columnIndex}`, // Dynamic URL with column index
 			type: 'GET',
 			async: false,
 			contentType: 'application/json',
@@ -1532,7 +1534,7 @@ function setupAutocomplete(inputId) {
 			var searchTerm = lastCommaIndex === -1 ? currentVal : currentVal.substring(lastCommaIndex + 1).trim();
 
 			$.ajax({
-				url: "/dms/api/users/search",
+				url: `${contextPath}/api/users/search`,
 				data: { query: searchTerm },
 				success: function(data) {
 					response($.map(data, function(item) {
@@ -1597,7 +1599,7 @@ $(function() {
 		}
 
 		$.ajax({
-			url: "/dms/api/correspondence/getReferenceLetters",
+			url: `${contextPath}/api/correspondence/getReferenceLetters`,
 			data: { query: lastTerm },
 			success: function(data) {
 				response(data);
@@ -1630,7 +1632,7 @@ async function fetchStatuses() {
 		const statusSelect = document.getElementById('currentStatus');
 		statusSelect.innerHTML = '<option value="">Loading statuses...</option>';
 
-		const response = await fetch('/dms/api/statuses/get');
+		const response = await fetch(`${contextPath}/api/statuses/get`);
 
 		if (!response.ok) {
 			throw new Error(`Server returned ${response.status}`);
@@ -1681,7 +1683,7 @@ async function fetchDepartments() {
 		const departmentSelect = document.getElementById('department');
 		departmentSelect.innerHTML = '<option value="">Loading departments...</option>';
 
-		const response = await fetch('/dms/api/departments/get');
+		const response = await fetch(`${contextPath}/api/departments/get`);
 
 		if (!response.ok) {
 			throw new Error(`Server returned ${response.status}`);
@@ -1934,7 +1936,7 @@ async function fetchProjects() {
 		const projectSelect = document.getElementById('projectName');
 		projectSelect.innerHTML = '<option value="">Loading projects...</option>';
 
-		const response = await fetch('/dms/api/projects/get', {
+		const response = await fetch(`${contextPath}/api/projects/get`, {
 			credentials: 'include' // Important for session cookies
 		});
 
@@ -1983,7 +1985,7 @@ async function fetchContracts() {
 		const contractSelect = document.getElementById('contractName');
 		contractSelect.innerHTML = '<option value="">Loading contracts...</option>';
 
-		const response = await fetch('/dms/api/contracts/get', {
+		const response = await fetch(`${contextPath}/api/contracts/get`, {
 			credentials: 'include' // Important for session cookies
 		});
 

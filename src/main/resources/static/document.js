@@ -1,10 +1,12 @@
+var fullPath = window.location.pathname; 
+var contextPath = "/" + fullPath.split("/")[1]; 
 $(document).ready(function() {
 	$("#bulkUploadDisplayMessage").hide();
 	const params = new URLSearchParams(window.location.search);
 	var token = params.get('token');
 
 	$.ajax({
-		url: `/dms/api/users/setsession`,
+		url: `${contextPath}/api/users/setsession`,
 		method: 'GET',
 		async: false,
 		data: { token: token }, // token as query param
@@ -18,13 +20,13 @@ $(document).ready(function() {
 		}
 	});
 	$.ajax({
-			url: `/dms/api/users/getsession`,
+			url: `${contextPath}/api/users/getsession`,
 			method: 'GET',
 			async: false,
 			success: function(response) {
 
 				if(!response) {
-					window.location.href = '/dms/error.html';
+					window.location.href = `${contextPath}/error.html`;
 				}
 				// You can proceed with further logic here
 			},
@@ -33,7 +35,7 @@ $(document).ready(function() {
 			}
 		});
 	$.ajax({
-		url: `/dms/api/users/get/username`,
+		url: `${contextPath}/api/users/get/username`,
 		method: 'GET',
 		async: false,
 		data: { token: token }, // token as query param
@@ -47,7 +49,7 @@ $(document).ready(function() {
 		}
 	});
 	$.ajax({
-		url: `/dms/api/users/get/userRole`,
+		url: `${contextPath}/api/users/get/userRole`,
 		method: 'GET',
 		async: false,
 		data: { token: token }, // token as query param
@@ -110,7 +112,7 @@ $(document).ready(function() {
 				serverSide: true, // <-- This is crucial
 				processing: true, // Optional: shows a loading indicator
 				ajax: {
-					url: '/dms/api/documents/filter-data', // Your API
+					url: `${contextPath}/api/documents/filter-data`, // Your API
 					type: 'POST',
 					contentType: 'application/json',
 					data: function(d) {
@@ -156,9 +158,9 @@ $(document).ready(function() {
 							const viewableTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
 
 							if (viewableTypes.includes(fileType)) {
-								return `<a href="/dms/api/documents/view?path=${encodedPath}" target="_blank">View</a>`;
+								return `<a href="${contextPath}/api/documents/view?path=${encodedPath}" target="_blank">View</a>`;
 							} else {
-								return `<a href="/dms/api/documents/download?path=${encodedPath}" download>Download</a>`;
+								return `<a href="${contextPath}/api/documents/download?path=${encodedPath}" download>Download</a>`;
 							}
 						}
 					}
@@ -206,7 +208,7 @@ $(document).ready(function() {
 
 		// inititialize folder dropdown
 		$.ajax({
-			url: '/dms/api/subfolders/' + folderValue,  // Replace with your actual API endpoint
+			url: `${contextPath}/api/subfolders/` + folderValue,  // Replace with your actual API endpoint
 			method: 'GET',
 			success: function(data) {
 				// Clear previous options except the default
@@ -366,7 +368,7 @@ $(document).ready(function() {
 			$("#loader").show();
 			// Send AJAX request
 			$.ajax({
-				url: '/dms/api/documents',  // Your Spring Boot endpoint
+				url: `${contextPath}/api/documents`,  // Your Spring Boot endpoint
 				type: 'POST',
 				data: formData,
 				processData: false,
@@ -411,7 +413,7 @@ $(document).ready(function() {
 			//const uploadId = localStorage.getItem("uploadedMetaDataId");
 			$("#loader").show();
 			$.ajax({
-				url: '/dms/api/bulkupload/metadata/get',
+				url: `${contextPath}/api/bulkupload/metadata/get`,
 				type: 'GET',
 				//data: formData,
 				//processData: false,
@@ -435,7 +437,7 @@ $(document).ready(function() {
 				// Step 1: Upload metadata file and get response
 				$("#loader").show();
 				$.ajax({
-					url: '/dms/api/bulkupload/zipfile/save/' + uploadId,
+					url: `${contextPath}/api/bulkupload/zipfile/save/` + uploadId,
 					type: 'POST',
 					data: formData,
 					processData: false,
@@ -553,7 +555,7 @@ $(document).ready(function() {
 			serverSide: true,
 			processing: true,
 			ajax: {
-				url: '/dms/api/documents/drafts', // <-- your REST endpoint
+				url: `${contextPath}/api/documents/drafts`, // <-- your REST endpoint
 				type: 'POST',
 				contentType: 'application/json',
 				data: function(d) {
@@ -746,7 +748,7 @@ $(document).ready(function() {
 			};
 
 			$.ajax({
-				url: '/dms/api/documents/send-document', // 🔁 Change to your backend endpoint
+				url: `${contextPath}/api/documents/send-document`, // 🔁 Change to your backend endpoint
 				method: 'POST',
 				data: JSON.stringify(payload),
 				processData: false,  // Important for FormData
@@ -786,7 +788,7 @@ $(document).ready(function() {
 			};
 
 			$.ajax({
-				url: '/dms/api/documents/send-document', // 🔁 Change to your backend endpoint
+				url: `${contextPath}/api/documents/send-document`, // 🔁 Change to your backend endpoint
 				method: 'POST',
 				data: JSON.stringify(updatePayload),
 				processData: false,  // Important for FormData
@@ -926,7 +928,7 @@ $(document).ready(function() {
 
 			// Send AJAX request
 			$.ajax({
-				url: '/dms/api/documents',  // Your Spring Boot endpoint
+				url: `${contextPath}/api/documents`,  // Your Spring Boot endpoint
 				type: 'POST',
 				data: formData,
 				processData: false,
@@ -959,7 +961,7 @@ $(document).ready(function() {
 	$('#downloadTemplate').click(function(e) {
 		e.preventDefault();
 		showNotification('Excel template download started...', 'info');
-		window.location.href = '/dms/api/bulkupload/template';
+		window.location.href = `${contextPath}/api/bulkupload/template`;
 
 	});
 
@@ -1020,7 +1022,7 @@ $(document).ready(function() {
 			$("#loader").show();
 			// Step 1: Upload metadata file and get response
 			const response = await $.ajax({
-				url: '/dms/api/bulkupload/metadata/upload',
+				url: `${contextPath}/api/bulkupload/metadata/upload`,
 				type: 'POST',
 				data: formData,
 				processData: false,
@@ -1049,11 +1051,11 @@ $(document).ready(function() {
 
 			// Step 4: Preload dropdowns (folders, departments, statuses)
 			const [projectNames, contractNames, folders, departments, statuses] = await Promise.all([
-				$.get("/dms/api/projects/get"),
-				$.get("/dms/api/contracts/get"),
-				$.get("/dms/api/folders/get"),
-				$.get("/dms/api/departments/get"),
-				$.get("/dms/api/statuses/get"),
+				$.get(`${contextPath}/api/projects/get`),
+				$.get(`${contextPath}/api/contracts/get`),
+				$.get(`${contextPath}/api/folders/get`),
+				$.get(`${contextPath}/api/departments/get`),
+				$.get(`${contextPath}/api/statuses/get`),
 			]);
 
 			// Step 5: Build select helper
@@ -1180,7 +1182,7 @@ $(document).ready(function() {
 		//formData.append('rows', );
 
 		$.ajax({
-			url: '/dms/api/bulkupload/metadata/validate',  // Change to your actual endpoint
+			url: `${contextPath}/api/bulkupload/metadata/validate`,  // Change to your actual endpoint
 			type: 'POST',
 			data: JSON.stringify(rows),
 			processData: false,
@@ -1242,7 +1244,7 @@ $(document).ready(function() {
 		$(this).removeClass('is-invalid').addClass('is-valid');
 
 		$.ajax({
-			url: `/dms/api/subfolders/${folderId}`,
+			url: `${contextPath}/api/subfolders/${folderId}`,
 			type: "GET",
 			success: function(data) {
 				if (Array.isArray(data)) {
@@ -1407,7 +1409,7 @@ $(document).ready(function() {
 		// Send to backend
 		$("#loader").show();
 		$.ajax({
-			url: '/dms/api/bulkupload/metadata/save',
+			url: `${contextPath}/api/bulkupload/metadata/save`,
 			type: 'POST',
 			contentType: 'application/json',
 			data: JSON.stringify(inputRows), // 👈 Convert list to JSON string
@@ -1507,7 +1509,7 @@ $(document).ready(function() {
 				};
 
 				$.ajax({
-					url: "/dms/api/documents/not-required",   // matches your @PostMapping
+					url: `${contextPath}/api/documents/not-required`,   // matches your @PostMapping
 					type: "POST",
 					data: JSON.stringify(dto),
 					contentType: "application/json",
@@ -1530,7 +1532,7 @@ $(document).ready(function() {
 				let revisionNoFetched = row.find('td:nth-child(4)').text();
 
 				$.ajax({
-					url: '/dms/api/documents/get/filePath',
+					url: `${contextPath}/api/documents/get/filePath`,
 					method: 'GET',
 					data: {
 						fileNumber: fileNumberFetched,
@@ -1542,7 +1544,7 @@ $(document).ready(function() {
 
 						//let filePath = row.find('td:nth-child(0)').text();
 						const encodedPath = encodeURIComponent(filePath); // or however you get it
-						const downloadUrl = `/dms/api/documents/download?path=${encodedPath}`;
+						const downloadUrl = `${contextPath}/api/documents/download?path=${encodedPath}`;
 
 						// Create a temporary <a> tag and trigger click
 						const link = document.createElement('a');
@@ -1566,7 +1568,7 @@ $(document).ready(function() {
 				let revisionNoFetched2 = row.find('td:nth-child(4)').text();
 
 				$.ajax({
-					url: '/dms/api/documents/get/filePath',
+					url: `${contextPath}/api/documents/get/filePath`,
 					method: 'GET',
 					data: {
 						fileNumber: fileNumberFetched2,
@@ -1575,7 +1577,7 @@ $(document).ready(function() {
 					},
 					success: function(filePath) {
 						const encodedPath = encodeURIComponent(filePath);
-						const viewUrl = `/dms/api/documents/view?path=${encodedPath}`;
+						const viewUrl = `${contextPath}/api/documents/view?path=${encodedPath}`;
 						printDocument(viewUrl);
 					},
 					error: function(xhr, status, error) {
@@ -1604,7 +1606,7 @@ $(document).ready(function() {
 		let fileNumber = row.find('td:nth-child(2)').text();
 		let fileName = row.find('td:nth-child(3)').text();
 		$.ajax({
-			url: '/dms/api/documentversion/get',
+			url: `${contextPath}/api/documentversion/get`,
 			method: 'GET',
 			data: {
 				fileNumber: fileNumber,
@@ -1624,9 +1626,9 @@ $(document).ready(function() {
 						const viewableTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
 
 						if (viewableTypes.includes(fileType)) {
-							downloadLink = `<a href="/dms/api/documents/view?path=${encodedPath}" target="_blank">View</a>`;
+							downloadLink = `<a href="${contextPath}/api/documents/view?path=${encodedPath}" target="_blank">View</a>`;
 						} else {
-							downloadLink = `<a href="/dms/api/documents/download?path=${encodedPath}" download>Download</a>`;
+							downloadLink = `<a href="${contextPath}/api/documents/download?path=${encodedPath}" download>Download</a>`;
 						}
 
 						const row = `
@@ -1779,7 +1781,7 @@ $(document).ready(function() {
 		$('#sendTo').autocomplete({
 			source: function(request, response) {
 				$.ajax({
-					url: '/dms/api/users/search',
+					url: `${contextPath}/api/users/search`,
 					data: { query: request.term },
 					success: function(data) {
 						response(data.map(user => ({
@@ -1835,7 +1837,7 @@ $(document).ready(function() {
 			minimumInputLength: 1,
 
 			ajax: {
-				url: '/dms/api/users/search',
+				url: `${contextPath}/api/users/search`,
 				dataType: 'json',
 				delay: 250,
 				data: function(params) {
@@ -1923,7 +1925,7 @@ $(document).ready(function() {
 				$('#updateCurrentStatus').val(selectedDocument.status);
 				//$('#updateDepartment').val(selectedDocument.department);
 				$.ajax({
-					url: '/dms/api/projects/get', // your actual API endpoint
+					url: `${contextPath}/api/projects/get`, // your actual API endpoint
 					method: 'GET',
 					success: function(departments) {
 						const $select = $('#updateProjectName');
@@ -1949,7 +1951,7 @@ $(document).ready(function() {
 					}
 				});
 				$.ajax({
-					url: '/dms/api/statuses/get', // your actual API endpoint
+					url: `${contextPath}/api/statuses/get`, // your actual API endpoint
 					method: 'GET',
 					success: function(departments) {
 						const $select = $('#updateCurrentStatus');
@@ -1975,7 +1977,7 @@ $(document).ready(function() {
 					}
 				});
 				$.ajax({
-					url: '/dms/api/contracts/get', // your actual API endpoint
+					url: `${contextPath}/api/contracts/get`, // your actual API endpoint
 					method: 'GET',
 					success: function(departments) {
 						const $select = $('#updateContractName');
@@ -2001,7 +2003,7 @@ $(document).ready(function() {
 					}
 				});
 				$.ajax({
-					url: '/dms/api/departments/get', // your actual API endpoint
+					url: `${contextPath}/api/departments/get`, // your actual API endpoint
 					method: 'GET',
 					success: function(departments) {
 						const $select = $('#updateDepartment');
@@ -2027,7 +2029,7 @@ $(document).ready(function() {
 					}
 				});
 				$.ajax({
-					url: '/dms/api/folders/get', // your actual API endpoint
+					url: `${contextPath}/api/folders/get`, // your actual API endpoint
 					method: 'GET',
 					success: function(folders) {
 						const $select = $('#updateFolder');
@@ -2048,7 +2050,7 @@ $(document).ready(function() {
 
 						});
 						$.ajax({
-							url: '/dms/api/subfolders/' + $('#updateFolder option:selected').val(), // your actual API endpoint
+							url: `${contextPath}/api/subfolders/` + $('#updateFolder option:selected').val(), // your actual API endpoint
 							method: 'GET',
 							success: function(folders) {
 								const $select = $('#updateSubFolder');
@@ -2304,7 +2306,7 @@ $(document).ready(function() {
 			if (value) uniqueValues.add(value);
 		});*/
 		$.ajax({
-			url: `/dms/api/documents/filters/${columnIndex}`, // Dynamic URL with column index
+			url: `${contextPath}/api/documents/filters/${columnIndex}`, // Dynamic URL with column index
 			type: 'GET',
 			async: false,
 			contentType: 'application/json',
@@ -2393,7 +2395,7 @@ $(document).ready(function() {
 			$(this).toggle(show);
 		});*/
 		$.ajax({
-			url: '/dms/api/documents/filter-data', // Your backend endpoint
+			url: `${contextPath}/api/documents/filter-data`, // Your backend endpoint
 			type: 'POST',
 			contentType: 'application/json',
 			data: JSON.stringify(columnFilters),
@@ -2503,7 +2505,7 @@ $(document).ready(function() {
 		// Disable metadata upload and preview metadat if already uploaded
 		$("#loader").show();
 		$.ajax({
-			url: '/dms/api/bulkupload/metadata/get',
+			url: `${contextPath}/api/bulkupload/metadata/get`,
 			type: 'GET',
 			//data: formData,
 			//processData: false,
@@ -2530,7 +2532,7 @@ $(document).ready(function() {
 		});
 		// inititialize department dropdown
 		$.ajax({
-			url: '/dms/api/departments/get',  // Replace with your actual API endpoint
+			url: `${contextPath}/api/departments/get`,  // Replace with your actual API endpoint
 			method: 'GET',
 			success: function(data) {
 				// Clear previous options except the default
@@ -2553,7 +2555,7 @@ $(document).ready(function() {
 
 		// inititialize status dropdown
 		$.ajax({
-			url: '/dms/api/statuses/get',  // Replace with your actual API endpoint
+			url: `${contextPath}/api/statuses/get`,  // Replace with your actual API endpoint
 			method: 'GET',
 			success: function(data) {
 				// Clear previous options except the default
@@ -2575,7 +2577,7 @@ $(document).ready(function() {
 		});
 		// inititialize folder dropdown
 		$.ajax({
-			url: '/dms/api/folders/get',  // Replace with your actual API endpoint
+			url: `${contextPath}/api/folders/get`,  // Replace with your actual API endpoint
 			method: 'GET',
 			success: function(data) {
 				// Clear previous options except the default
@@ -2597,7 +2599,7 @@ $(document).ready(function() {
 		});
 		// inititialize Project Name dropdown
 		$.ajax({
-			url: '/dms/api/projects/get',  // Replace with your actual API endpoint
+			url: `${contextPath}/api/projects/get`,  // Replace with your actual API endpoint
 			method: 'GET',
 			success: function(data) {
 				// Clear previous options except the default
@@ -2619,7 +2621,7 @@ $(document).ready(function() {
 		});
 		// inititialize Project Name dropdown
 		$.ajax({
-			url: '/dms/api/contracts/get',  // Replace with your actual API endpoint
+			url: `${contextPath}/api/contracts/get`,  // Replace with your actual API endpoint
 			method: 'GET',
 			success: function(data) {
 				// Clear previous options except the default

@@ -1,12 +1,15 @@
+var fullPath = window.location.pathname; 
+var contextPath = "/" + fullPath.split("/")[1]; 
 $(document).ready(function() {
+
 	$.ajax({
-				url: `/dms/api/users/getsession`,
+				url: `${contextPath}/api/users/getsession`,
 				method: 'GET',
 				async: false, // token as query param
 				success: function(response) {
 
 					if(!response) {
-						window.location.href = '/dms/error.html';
+						window.location.href = `${contextPath}/error.html`;
 					}
 					// You can proceed with further logic here
 				},
@@ -15,7 +18,7 @@ $(document).ready(function() {
 				}
 			});
 	$.ajax({
-		url: `/dms/api/users/get/username`,
+		url: `${contextPath}/api/users/get/username`,
 		method: 'GET',
 		async: false, // token as query param
 		success: function(response) {
@@ -29,7 +32,7 @@ $(document).ready(function() {
 	});
 });
 $.ajax({
-		url: `/dms/api/users/get/userRole`,
+		url: `${contextPath}/api/users/get/userRole`,
 		method: 'GET',
 		async: false,
 		success: function(response) {
@@ -51,7 +54,7 @@ let navigationStack = [];
 
 function loadArchivedFiles(folderid, foldername) {
 	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
-	fetch(`/dms/api/documents/archived/folder-grid/${encodeURIComponent(folderid)}`, {
+	fetch(`${contextPath}/api/documents/archived/folder-grid/${encodeURIComponent(folderid)}`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
@@ -137,7 +140,7 @@ function loadArchiveFolder(folderId) {
 }
 function loadSubFolders(folderid, foldername) {
 	$("#breadcrumb-current").text('>' + foldername);
-	fetch(`/dms/api/subfolders/grid/${encodeURIComponent(folderid)}`
+	fetch(`${contextPath}/api/subfolders/grid/${encodeURIComponent(folderid)}`
 		, {
 			method: "POST",
 			headers: {
@@ -185,7 +188,7 @@ function loadSubFolders(folderid, foldername) {
 }
 function loadCorrespondanceFiles(foldername) {
 	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
-	fetch(`/dms/api/correspondence/getFolderFiles?type=${foldername}`, {
+	fetch(`${contextPath}/api/correspondence/getFolderFiles?type=${foldername}`, {
 		method: "POST",
 		body: JSON.stringify({
 			projects: selectedProjects,   // send array
@@ -243,7 +246,7 @@ function loadCorrespondanceFiles(foldername) {
 }
 function loadFiles(folderid, foldername) {
 	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
-	fetch(`/dms/api/documents/folder-grid/${encodeURIComponent(folderid)}`, {
+	fetch(`${contextPath}/api/documents/folder-grid/${encodeURIComponent(folderid)}`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
@@ -385,7 +388,7 @@ function openFolder(folderid, type, foldername) {
 		//loadArchiveFolder(folderid);
 	}
 	if (type == "file")
-		window.open(`/dms/api/documents/view?path=${encodeURIComponent(folderid)}`, "_blank");
+		window.open(`${contextPath}/api/documents/view?path=${encodeURIComponent(folderid)}`, "_blank");
 	if (type == "archive")
 		loadArchivedFiles(folderid, "Archived");
 	if (type == "Incoming")
@@ -768,8 +771,8 @@ const $contractDropdown = $("#contractFilter");
 const $projectToggle = $(".projectfilter-dropdown-toggle");
 const $contractToggle = $(".contractfilter-dropdown-toggle");
 // 🔹 Fetch data from backend API
-const projectAPI = "/dms/api/projects/get/for-folder-grid"
-const contractAPI = "/dms/api/contracts/get/for-folder-grid"
+const projectAPI = `${contextPath}/api/projects/get/for-folder-grid`
+const contractAPI = `${contextPath}/api/contracts/get/for-folder-grid`
 
 function createFilter(api, $dropdown, $toggle, $filterInput) {
 	$.get(api, function(data) {
@@ -853,7 +856,7 @@ function toSqlInClause(array) {
 }
 
 function loadFolders(projects, contracts) {
-	fetch(`/dms/api/folders/grid`, {
+	fetch(`${contextPath}/api/folders/grid`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
