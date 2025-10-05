@@ -15,10 +15,10 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 	
 	@Query(value="""
 		   select distinct f.*
-		    from dms.documents d
-		    left join dms.send_documents s on s.document_id = d.id
-		    join dms.folders f on f.id = d.folder_id
-		    left join dms.documents_revision dr
+		    from documents d
+		    left join send_documents s on s.document_id = d.id
+		    join folders f on f.id = d.folder_id
+		    left join documents_revision dr
 	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 			where
 			 (d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId)) 

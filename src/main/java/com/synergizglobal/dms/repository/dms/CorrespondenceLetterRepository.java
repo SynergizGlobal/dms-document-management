@@ -134,8 +134,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -165,8 +165,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -185,16 +185,16 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     		+ "sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, \r\n"
     		+ " c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, \r\n"
     		+ " c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, \r\n"
-    		+ " sl.type as type  FROM dms.correspondence_letter c  \r\n"
-    		+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id \r\n"
+    		+ " sl.type as type  FROM correspondence_letter c  \r\n"
+    		+ " LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id \r\n"
     		+ " AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' \r\n"
     		+ " GROUP BY c.correspondence_id  UNION \r\n"
     		+ " SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, \r\n"
     		+ " sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, \r\n"
     		+ " c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,\r\n"
     		+ " c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,\r\n"
-    		+ " sl.type as type  FROM dms.correspondence_letter c \r\n"
-    		+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.is_cc = 0  \r\n"
+    		+ " sl.type as type  FROM correspondence_letter c \r\n"
+    		+ " LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.is_cc = 0  \r\n"
     		+ " WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id \r\n"
     		+ " ) x WHERE 1=1  ORDER BY x.dueDate ", nativeQuery = true)
     long countAllFiles();
@@ -205,16 +205,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -238,8 +238,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -262,8 +262,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -280,16 +280,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -312,8 +312,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -336,8 +336,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -355,16 +355,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -387,8 +387,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -411,8 +411,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -429,16 +429,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -461,8 +461,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -485,8 +485,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -503,16 +503,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -535,8 +535,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -559,8 +559,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -577,16 +577,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -615,8 +615,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -639,8 +639,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -657,16 +657,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -689,8 +689,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -713,8 +713,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -731,16 +731,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -763,8 +763,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -787,8 +787,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -805,16 +805,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -836,8 +836,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -860,8 +860,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -878,16 +878,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -910,8 +910,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -934,8 +934,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -952,16 +952,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -984,8 +984,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -1008,8 +1008,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -1026,16 +1026,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)
@@ -1058,8 +1058,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
@@ -1082,8 +1082,8 @@ FROM (
         c.department AS department,
         c.file_count AS attachment,
         sl.type AS type
-    FROM dms.correspondence_letter c
-    LEFT JOIN dms.send_correspondence_letter sl 
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id  
        AND sl.is_cc = 0
     WHERE sl.type = 'Incoming' 
@@ -1100,16 +1100,16 @@ SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_n
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM dms.correspondence_letter c  
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
  SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM dms.correspondence_letter c 
- LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
  WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
  ) x WHERE 1=1  ORDER BY x.dueDate 
     	    """, nativeQuery = true)

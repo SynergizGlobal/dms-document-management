@@ -827,8 +827,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
 				+ " c.current_status as currentStatus, " + " c.department as department, "
 				+ " c.file_count as attachment, " + " sl.type as `type` , c.UPDATED_AT "
-				+ " FROM dms.correspondence_letter c "
-				+ " LEFT JOIN dms.send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id ";
+				+ " FROM correspondence_letter c "
+				+ " LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id ";
 	//	String role = user.getUserRoleNameFk();
 
 		// 🔹 Restrict by creator or recipient if not IT Admin
@@ -918,21 +918,21 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				+ " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
 				+ " c.current_status as currentStatus, " + " c.department as department, "
-				+ " c.file_count as attachment, " + " sl.type as `type` " + " FROM dms.correspondence_letter c ";
+				+ " c.file_count as attachment, " + " sl.type as `type` " + " FROM correspondence_letter c ";
 		//String role = user.getUserRoleNameFk();
-		String outgoing = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
+		String outgoing = baseSelect + " LEFT JOIN send_correspondence_letter sl "
 				+ " ON c.correspondence_id = sl.correspondence_id AND sl.from_user_id = ? AND sl.is_cc = 0 "
 				+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
 		if (CommonUtil.isITAdminOrSuperUser(user)) {
-			outgoing = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
+			outgoing = baseSelect + " LEFT JOIN send_correspondence_letter sl "
 					+ " ON c.correspondence_id = sl.correspondence_id AND sl.is_cc = 0 "
 					+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
 		}
-		String incoming = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
+		String incoming = baseSelect + " LEFT JOIN send_correspondence_letter sl "
 				+ " ON c.correspondence_id = sl.correspondence_id AND sl.to_user_id = ? "
 				+ " WHERE sl.type = 'Incoming' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
 		if (CommonUtil.isITAdminOrSuperUser(user)) {
-			incoming = baseSelect + " LEFT JOIN dms.send_correspondence_letter sl "
+			incoming = baseSelect + " LEFT JOIN send_correspondence_letter sl "
 					+ " ON c.correspondence_id = sl.correspondence_id AND sl.is_cc = 0  "
 					+ " WHERE sl.type = 'Incoming' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
 		}

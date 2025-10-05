@@ -22,11 +22,11 @@ public interface SubFolderRepository extends JpaRepository<SubFolder, Long> {
 distinct sub.id,
 sub.name,
 f.id as folder_id
-from dms.documents d 
-left join dms.send_documents s on s.document_id = d.id
-join dms.folders f on d.folder_id = f.id
-join dms.sub_folders sub on f.id = sub.folder_id and d.sub_folder_id = sub.id
-left join dms.documents_revision dr
+from documents d 
+left join send_documents s on s.document_id = d.id
+join folders f on d.folder_id = f.id
+join sub_folders sub on f.id = sub.folder_id and d.sub_folder_id = sub.id
+left join documents_revision dr
 	        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
 where
 (d.created_by = :userId or (s.to_user_id = :userId AND s.status = 'Send') or (dr.created_by = :userId)) 
@@ -43,9 +43,9 @@ and d.contract_name in (:contracts)
 	distinct sub.id,
 	sub.name,
 	f.id as folder_id
-	from dms.documents d 
-	join dms.folders f on d.folder_id = f.id
-	join dms.sub_folders sub on f.id = sub.folder_id and d.sub_folder_id = sub.id
+	from documents d 
+	join folders f on d.folder_id = f.id
+	join sub_folders sub on f.id = sub.folder_id and d.sub_folder_id = sub.id
 	where 
 	d.not_required is null
 	and f.id = :folderId

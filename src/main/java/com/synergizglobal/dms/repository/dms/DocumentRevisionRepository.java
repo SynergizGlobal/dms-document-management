@@ -19,8 +19,8 @@ public interface DocumentRevisionRepository extends JpaRepository<DocumentRevisi
                    "r.revision_no AS revisionNo, " +
                    "f.file_path AS filePath, " +
                    "f.file_type AS fileType " +
-                   "FROM dms.documents_revision r " +
-                   "JOIN dms.document_file f ON r.id = f.document_revision_id " +
+                   "FROM documents_revision r " +
+                   "JOIN document_file f ON r.id = f.document_revision_id " +
                    "WHERE r.file_name = :fileName " +
                    "AND r.file_number = :fileNumber"
                    + " order by r.revision_no DESC", nativeQuery = true)

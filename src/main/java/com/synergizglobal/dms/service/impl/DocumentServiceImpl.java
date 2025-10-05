@@ -876,17 +876,17 @@ public class DocumentServiceImpl implements DocumentService {
 				               df.file_path AS viewedOrDownloaded,
 				               d.created_by_user as createdBy,
 				               d.created_at as dateUploaded
-					    FROM dms.documents d
-					    LEFT JOIN dms.document_file df
+					    FROM documents d
+					    LEFT JOIN document_file df
 					        ON d.id = df.document_id
-					    LEFT JOIN dms.send_documents sd
+					    LEFT JOIN send_documents sd
 					        ON d.id = sd.document_id AND sd.status = 'Send'
-					    LEFT JOIN dms.documents_revision dr
+					    LEFT JOIN documents_revision dr
 					        ON dr.file_name = d.file_name AND dr.file_number = d.file_number
-					    LEFT JOIN dms.folders f on f.id = d.folder_id
-				           LEFT JOIN dms.sub_folders s on s.id = d.sub_folder_id
-				           LEFT JOIN dms.departments dpt on dpt.id = d.department_id
-				           LEFT JOIN dms.statuses statuses on statuses.id = d.status_id
+					    LEFT JOIN folders f on f.id = d.folder_id
+				           LEFT JOIN sub_folders s on s.id = d.sub_folder_id
+				           LEFT JOIN departments dpt on dpt.id = d.department_id
+				           LEFT JOIN statuses statuses on statuses.id = d.status_id
 					    """);
 		// WHERE conditions
 		List<String> whereClauses = new ArrayList<>();
@@ -986,17 +986,17 @@ public class DocumentServiceImpl implements DocumentService {
 		StringBuilder sql = new StringBuilder();
 		sql.append("""
 				SELECT COUNT(DISTINCT CONCAT(d.file_name, '-', d.file_number, '-', df.id))
-				FROM dms.documents d
-				LEFT JOIN dms.document_file df
+				FROM documents d
+				LEFT JOIN document_file df
 				    ON d.id = df.document_id
-				LEFT JOIN dms.send_documents sd
+				LEFT JOIN send_documents sd
 				    ON d.id = sd.document_id AND sd.status = 'Send'
-				LEFT JOIN dms.documents_revision dr
+				LEFT JOIN documents_revision dr
 				    ON dr.file_name = d.file_name AND dr.file_number = d.file_number
-				LEFT JOIN dms.folders f on f.id = d.folder_id
-				LEFT JOIN dms.sub_folders s on s.id = d.sub_folder_id
-				LEFT JOIN dms.departments dpt on dpt.id = d.department_id
-				LEFT JOIN dms.statuses statuses on statuses.id = d.status_id
+				LEFT JOIN folders f on f.id = d.folder_id
+				LEFT JOIN sub_folders s on s.id = d.sub_folder_id
+				LEFT JOIN departments dpt on dpt.id = d.department_id
+				LEFT JOIN statuses statuses on statuses.id = d.status_id
 				""");
 
 		// WHERE clauses
