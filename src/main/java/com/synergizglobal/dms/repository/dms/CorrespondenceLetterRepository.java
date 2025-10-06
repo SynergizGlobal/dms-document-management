@@ -54,12 +54,12 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                             	        c.category,
                                             	        c.letter_number AS letterNumber,
                                             	        c.letter_date AS letterDate,
-                                            	        c.department,
+                                            	        d.name AS department,
                                             	        c.subject,
                                             	        c.key_information AS keyInformation,
                                             	        c.required_response AS requiredResponse,
                                             	        c.due_date AS dueDate,
-                                            	        c.current_status AS currentStatus,
+                                            	        s.name as currentStatus,
                                             	        f.file_name AS fileName,
                                             	        f.file_path AS filePath,
                                             	        f.file_type AS fileType,
@@ -76,7 +76,9 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                         			LEFT JOIN  reference_letter as rf\s
                                                         ON cr.reference_letter_id = rf.ref_id
                                                         LEFT JOIN send_correspondence_letter sc
-                                                      ON c.correspondence_id = sc.correspondence_id   
+                                                      ON c.correspondence_id = sc.correspondence_id  
+                                                       LEFT JOIN statuses s on s.id = c.status_id 
+                                                       LEFT JOIN departments d on d.id = c.department_id  
                                             	    WHERE c.correspondence_id = :id
     	    """, nativeQuery = true)
     	List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesView(@Param("id") Long id);
@@ -91,12 +93,12 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         c.category,
         c.letter_number AS letterNumber,
         c.letter_date AS letterDate,
-        c.department,
+        d.name AS department,
         c.subject,
         c.key_information AS keyInformation,
         c.required_response AS requiredResponse,
         c.due_date AS dueDate,
-        c.current_status AS currentStatus,
+        s.name as currentStatus,
         f.file_name AS fileName,
         f.file_path AS filePath,
         f.file_type AS fileType,
@@ -114,6 +116,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         ON cr.reference_letter_id = rf.ref_id
     LEFT JOIN send_correspondence_letter sc
         ON c.correspondence_id = sc.correspondence_id
+      LEFT JOIN statuses s on s.id = c.status_id 
+      LEFT JOIN departments d on d.id = c.department_id 
     WHERE c.letter_number = :letterNumber
     """, nativeQuery = true)
     List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesViewByLetterNumber(@Param("letterNumber") String letterNumber);
