@@ -68,7 +68,7 @@ public class EmailServiceImpl {
                                 </table>
                             </div>
                             <div style="background-color: green; padding: 15px; text-align: center;">
-                                <a href="%s" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-right: 10px;">Click Here To Open Correspondence Letter</a>
+                                <a href="%s" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-right: 10px;"> Open Correspondence Letter</a>
                             </div>
                         </div>
                         """,
@@ -77,7 +77,7 @@ public class EmailServiceImpl {
                 loggedUserName,
                 letter.getSubject(),
                 (letter.getDueDate() != null ? letter.getDueDate().format(fmt) : "N/A"),
-                letter.getCurrentStatus(),
+                letter.getCurrentStatus().getName(),
                 baseUrl + "/view.html?id=" + letter.getCorrespondenceId()
         );
 
