@@ -276,7 +276,7 @@ public class CorrespondenceController {
 
     @GetMapping("/view/letter/{letterNumber}")
     public ResponseEntity<CorrespondenceLetterViewDto> getCorrespondenceWithFilesByLetterNumber(
-            @PathVariable String letterNumber,
+            @PathVariable("letterNumber") String letterNumber,
             HttpServletRequest request) {
 
         System.out.print("View letter called");
