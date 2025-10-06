@@ -14,13 +14,17 @@ import com.synergizglobal.dms.dto.FileViewDto;
 import com.synergizglobal.dms.entity.dms.CorrespondenceFile;
 import com.synergizglobal.dms.entity.dms.CorrespondenceLetter;
 import com.synergizglobal.dms.entity.dms.CorrespondenceReference;
+import com.synergizglobal.dms.entity.dms.Department;
 import com.synergizglobal.dms.entity.dms.ReferenceLetter;
 import com.synergizglobal.dms.entity.dms.SendCorrespondenceLetter;
+import com.synergizglobal.dms.entity.dms.Status;
 import com.synergizglobal.dms.entity.pmis.User;
 import com.synergizglobal.dms.repository.dms.CorrespondenceLetterRepository;
 import com.synergizglobal.dms.repository.dms.CorrespondenceReferenceRepository;
+import com.synergizglobal.dms.repository.dms.DepartmentRepository;
 import com.synergizglobal.dms.repository.dms.ReferenceLetterRepository;
 import com.synergizglobal.dms.repository.dms.SendCorrespondenceLetterRepository;
+import com.synergizglobal.dms.repository.dms.StatusRepository;
 import com.synergizglobal.dms.repository.pmis.UserRepository;
 import com.synergizglobal.dms.service.dms.ICorrespondenceService;
 import jakarta.persistence.EntityManager;
@@ -69,6 +73,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 	private final SendCorrespondenceLetterRepository sendCorrespondenceLetterRepository;
 
+	private final DepartmentRepository departmentRepository;
+	
+	private final StatusRepository statusRepository;
+	
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -111,8 +119,10 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		entity.setRequiredResponse(dto.getRequiredResponse());
 		entity.setDueDate(dto.getDueDate());
 		entity.setAction(dto.getAction());
-		entity.setCurrentStatus(dto.getCurrentStatus());
-		entity.setDepartment(dto.getDepartment());
+		Department department = departmentRepository.findById(dto.getDepartment()).get();
+		Status status = statusRepository.findById(dto.getCurrentStatus()).get();
+		entity.setCurrentStatus(status);
+		entity.setDepartment(department);
 		entity.setProjectName(dto.getProjectName());
 		entity.setContractName(dto.getContractName());
 		CorrespondenceLetter savedEntity = correspondenceRepo.save(entity);
@@ -571,7 +581,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		return CorrespondenceGridDTO.builder().correspondenceId(cor.getCorrespondenceId()).category(cor.getCategory())
 				.letterNumber(cor.getLetterNumber()).from(cor.getUserName()).to(cor.getTo()).subject(cor.getSubject())
 				.requiredResponse(cor.getRequiredResponse()).dueDate(cor.getDueDate())
-				.currentStatus(cor.getCurrentStatus()).department(cor.getDepartment()).attachment(cor.getFileCount())
+				//.currentStatus(cor.getCurrentStatus()).department(cor.getDepartment()).attachment(cor.getFileCount())
 				.type(cor.getMailDirection()).projectName(cor.getProjectName()).contractName(cor.getContractName())
 				.build();
 	}
@@ -825,9 +835,11 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 				+ " c.letter_number as letterNumber, " + " sl.from_user_name as `from`, " + " sl.to_user_name as `to`, "
 				+ " c.subject as subject, " + " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
-				+ " c.current_status as currentStatus, " + " c.department as department, "
+				+ " s.name as currentStatus, " + " d.name as department, "
 				+ " c.file_count as attachment, " + " sl.type as `type` , c.UPDATED_AT "
 				+ " FROM correspondence_letter c "
+				+ " LEFT JOIN departments d ON c.department_id = d.id "
+				+ " LEFT JOIN statuses s ON c.status_id = s.id "
 				+ " LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id ";
 	//	String role = user.getUserRoleNameFk();
 

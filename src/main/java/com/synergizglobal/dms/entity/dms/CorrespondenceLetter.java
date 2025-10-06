@@ -16,6 +16,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -124,13 +126,21 @@ public class CorrespondenceLetter {
 
     @Column(name = "ACTION")
     private String action;
-
-    @Column(name = "department")
+    
+    @ManyToOne
+	@JoinColumn(name = "department_id")
+    private Department department;
+    
+    @ManyToOne
+	@JoinColumn(name = "status_id")
+	private Status currentStatus;
+    
+    /*@Column(name = "department")
     private String department;
 
 
     @Column(name = "current_status")
-    private String currentStatus;
+    private String currentStatus;*/
 
     @Column(name="project_name")
     private String projectName;

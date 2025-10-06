@@ -22,8 +22,8 @@ public class CorrespondenceUploadLetter {
 	private String subject;
 	private String keyInformation;
 	private String requiredResponse;
-	private String currentStatus;
-	private String department;
+	private Long currentStatus;
+	private Long department;
 	private List<MultipartFile> documents;
 	private String action;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

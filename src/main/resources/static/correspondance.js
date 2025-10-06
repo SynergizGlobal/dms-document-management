@@ -1241,8 +1241,8 @@ $('#draftTable tbody').on('click', 'tr', async function() {
 			$('#dueDate').val(isoDate);
 			//$('#dueDate').val(response.dueDate.join('-'));
 			$('#subject').val(response.subject);
-			$('#currentStatus').val(response.currentStatus);
-			$('#department').val(response.department);
+			$('#currentStatus').val(response.currentStatus.id);
+			$('#department').val(response.department.id);
 			$('#attachment').val(response.attachment);
 			$("#loader").hide();
 		},
@@ -1668,7 +1668,7 @@ function populateStatusDropdown(statuses) {
 		const statusName = status.name || status.label || status.value;
 
 		const option = document.createElement('option');
-		option.value = statusName;        // 👈 use name instead of ID
+		option.value = status.id;        // 👈 use name instead of ID
 		option.textContent = statusName;
 
 		statusSelect.appendChild(option);
@@ -1720,7 +1720,7 @@ function populateDepartmentDropdown(departments) {
 		const deptName = dept.name || dept.label || dept.value;
 
 		const option = document.createElement('option');
-		option.value = deptName;        // 👈 use name instead of ID
+		option.value = dept.id;        // 👈 use name instead of ID
 		option.textContent = deptName;
 
 		departmentSelect.appendChild(option);
