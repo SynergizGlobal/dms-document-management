@@ -1288,6 +1288,8 @@ $(document).ready(function() {
 	$(document).on('change', '.department', rowValidatorFunction);
 	// Validations of file number
 	$(document).on('change', '.currentstatus', rowValidatorFunction);
+	
+	$(document).on('change', '.uploaddocument', rowValidatorFunction);
 	//
 
 
