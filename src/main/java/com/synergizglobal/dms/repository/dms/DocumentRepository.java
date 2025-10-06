@@ -289,10 +289,11 @@ f.file_type as fileType,
 d.revision_no as revisionNo
 from documents d
 left join send_documents s on s.document_id = d.id
+left join documents_revision dd on d.file_name = dd.file_name and d.file_number = dd.file_number
 join document_file f on f.document_id = d.id
 join sub_folders sub on sub.id = d.sub_folder_id
 where d.not_required = 1
-and (d.created_by = :userId or s.to_user_id = :userId)
+and (d.created_by = :userId or s.to_user_id = :userId or dd.created_by = :userId or d.not_required_by = :userId)
 and sub.id = :subfolderId
 and d.project_name in (:projects)
 and d.contract_name in (:contracts)
