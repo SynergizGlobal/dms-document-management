@@ -323,7 +323,6 @@ join document_file f on f.document_revision_id = d.id
 join sub_folders sub on sub.id = d.sub_folder_id
 left join send_documents send on send.document_id = dd.id
 where ((send.to_user_id = :userId and send.status = 'Send') or dd.created_by = :userId)
-and (dd.not_required is null or dd.not_required = 0)
 and sub.id = :subfolderId
 and dd.project_name in (:projects)
 and dd.contract_name in (:contracts)
