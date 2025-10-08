@@ -1806,3 +1806,9 @@ table.dataTable tbody td {
 .select2-container .select2-selection.success-field {
   border: 2px solid #28a745 !important;
 }
+.container {
+	height: 100vh; 
+}
+.main-content{
+	height: 100vh; 
+}

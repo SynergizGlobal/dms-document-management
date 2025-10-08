@@ -2189,3 +2189,6 @@ table.dataTable tbody td {
     text-align: center;          /* center text */
     width: 100%;                 /* span full width of parent */
 }
+.container {
+	height: 100vh; 
+}
