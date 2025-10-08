@@ -4,6 +4,12 @@ var contextPath = "/" + fullPath.split("/")[1];
 const API_BASE_URL = `${contextPath}/api/correspondence`;
 let draftTable = null;
 let mainTableInstance = null;
+$(document).ajaxError(function(event, xhr, settings, thrownError) {
+    if (xhr.status === 401) {
+        window.location.href = contextPath + '/error.html';
+    }
+});
+
 $.ajax({
 			url: `${contextPath}/api/users/getsession`,
 			method: 'GET',

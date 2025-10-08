@@ -1,5 +1,11 @@
 var fullPath = window.location.pathname; 
 var contextPath = "/" + fullPath.split("/")[1]; 
+$(document).ajaxError(function(event, xhr, settings, thrownError) {
+    if (xhr.status === 401) {
+        window.location.href = contextPath + '/error.html';
+    }
+});
+
 $(document).ready(function() {
 
 	$.ajax({
