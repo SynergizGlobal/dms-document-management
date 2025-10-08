@@ -135,12 +135,12 @@ public class CorrespondenceLetter {
 	@JoinColumn(name = "status_id")
 	private Status currentStatus;
     
-    /*@Column(name = "department")
-    private String department;
+    @Column(name = "department")
+    private String departmentOld;
 
 
     @Column(name = "current_status")
-    private String currentStatus;*/
+    private String currentStatusOld;
 
     @Column(name="project_name")
     private String projectName;
