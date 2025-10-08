@@ -197,7 +197,7 @@ body {
     background-color: #2b5797;
     color: white;
     padding: 8px 6px;
-    text-align: center;
+    text-align: center !important;
     border: 1px solid #666;
     font-weight: bold;
     font-size: 9px;
