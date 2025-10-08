@@ -2065,13 +2065,9 @@ uploadBtn.addEventListener('click', function() {
 function setMinDates() {
     const today = new Date().toISOString().split('T')[0];
     
-    // Set min date for letter date and due date
-    const letterDateInput = document.getElementById('letterDate');
+   
     const dueDateInput = document.getElementById('dueDate');
     
-    if (letterDateInput) {
-        letterDateInput.min = today;
-    }
     
     if (dueDateInput) {
         dueDateInput.min = today;
