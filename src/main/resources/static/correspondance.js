@@ -4,6 +4,7 @@ var contextPath = "/" + fullPath.split("/")[1];
 const API_BASE_URL = `${contextPath}/api/correspondence`;
 let draftTable = null;
 let mainTableInstance = null;
+
 $(document).ajaxError(function(event, xhr, settings, thrownError) {
     if (xhr.status === 401) {
         window.location.href = contextPath + '/error.html';
@@ -221,6 +222,7 @@ function isValidEmail(email) {
 }
 let removedExistingFiles = [];
 let existingFilesCount = 0;
+let selectedFiles=[];
 // Sidebar navigation
 document.querySelectorAll('.sidebar-item').forEach(item => {
 	item.addEventListener('click', function() {
@@ -295,6 +297,7 @@ function closeUploadModal() {
 	$('#correspondenceId').remove();
 	removedExistingFiles = [];
 	existingFilesCount = 0;
+	selectedFiles=[];
 }
 
 closeModal.addEventListener('click', closeUploadModal);
@@ -318,6 +321,7 @@ addAttachmentBtn.addEventListener('click', function() {
 attachmentInput.addEventListener('change', function(e) {
 	const files = Array.from(e.target.files);
 	files.forEach(file => {
+		selectedFiles.push(file);
 		addAttachmentToList(file);
 	});
 });
@@ -368,6 +372,13 @@ function removeAttachment(button, existing = false) {
 	if (existing) {
 		existingFilesCount = existingFilesCount - 1;
 		removedExistingFiles.push(attachmentItem.dataset.fileId);
+	} else {
+		const fileName = attachmentItem.querySelector('.attachment-name').textContent.trim();
+		const index = selectedFiles.findIndex(f => f.name === fileName);
+		  if (index !== -1) {
+		    selectedFiles.splice(index, 1); // remove the matching file
+		    console.log(`Removed file: ${fileName}`);
+		  }
 	}
 	button.parentElement.remove();
 }
@@ -569,6 +580,9 @@ $(function() {
 });
 // Get attachments from form
 function getAttachmentsFromForm() {
+	const dataTransfer = new DataTransfer();
+	selectedFiles.forEach(f => dataTransfer.items.add(f));
+	attachmentInput.files = dataTransfer.files;
 	return Array.from(attachmentInput.files);
 }
 
@@ -2037,6 +2051,7 @@ uploadBtn.addEventListener('click', function() {
 	$('#referenceLetters').val([]).trigger('change');
 	existingFilesCount = 0;
 	removedExistingFiles = [];
+	selectedFiles = [];
 	if (attachmentInput) {
 		attachmentInput.value = "";  // clears selected files
 	}

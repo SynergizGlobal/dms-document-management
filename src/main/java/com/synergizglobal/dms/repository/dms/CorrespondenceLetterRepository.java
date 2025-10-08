@@ -134,14 +134,16 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         DATE_FORMAT(c.due_date, '%Y-%m-%d') as dueDate,
         c.project_name AS projectName,
         c.contract_name AS contractName,
-        c.current_status AS currentStatus,
-        c.department AS department,
+        s.name AS currentStatus,
+        d.name AS department,
         c.file_count AS attachment,
         sl.type AS type
     FROM correspondence_letter c
     LEFT JOIN send_correspondence_letter sl 
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
+    LEFT JOIN departments d ON c.department_id = d.id 
+	LEFT JOIN statuses s ON c.status_id = s.id
     WHERE sl.type = 'Outgoing' 
       AND c.action = 'Save as Draft'
       AND sl.from_user_id = :userId
