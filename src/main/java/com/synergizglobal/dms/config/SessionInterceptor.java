@@ -20,7 +20,8 @@ public class SessionInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request,
 	                         HttpServletResponse response,
 	                         Object handler) throws Exception {
-
+		return true;
+/*
 	    HttpSession session = request.getSession(false);
 
 	    if (session != null && session.getAttribute("user") != null) {
@@ -50,6 +51,6 @@ public class SessionInterceptor implements HandlerInterceptor {
 	        response.sendRedirect(request.getContextPath() + "/error.html");
 	    }
 
-	    return false;
+	    return false;*/
 	}
 }
