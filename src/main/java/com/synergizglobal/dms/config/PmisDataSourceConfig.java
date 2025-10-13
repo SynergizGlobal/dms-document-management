@@ -34,6 +34,8 @@ public class PmisDataSourceConfig {
         ds.setUsername("Synergiz");
         ds.setPassword("$y^7r@(k1$pm1$");
         ds.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        ds.setConnectionTimeout(30000);
+        ds.setMaximumPoolSize(5);
         return ds;
     }
  
