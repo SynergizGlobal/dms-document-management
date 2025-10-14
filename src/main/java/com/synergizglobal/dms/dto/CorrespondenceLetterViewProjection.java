@@ -10,12 +10,15 @@ public interface CorrespondenceLetterViewProjection {
     String getCcRecipient();
     Integer getIsCc();  
     
-    String getDepartment();
+    String getDepartment();	
     String getSubject();
     String getKeyInformation();
     String getRequiredResponse();
     java.time.LocalDate getDueDate();
     String getCurrentStatus();
+    
+    String getProjectName();
+    String getContractName();
 
     String getOriginalRecipient();
     String getOriginalCcRecipient();

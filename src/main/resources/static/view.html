@@ -101,6 +101,16 @@
 
         textarea{min-height:90px; resize:vertical;}
         .full-row{grid-column:1/-1}
+        .half-row{grid-column:span 1.5} /* Custom class for half-width rows */
+        .third-row{grid-column:span 1} /* Custom class for third-width rows */
+
+        /* Project and Contract Name in one row - full width */
+        .project-contract-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            grid-column: 1 / -1;
+        }
 
         /* attachments / references */
         .attachments-panel{
@@ -230,9 +240,19 @@
         /* responsive */
         @media(max-width:900px){
             .form-grid{grid-template-columns:repeat(2,1fr);}
+            .half-row{grid-column:span 2} /* Adjust for medium screens */
+            .third-row{grid-column:span 2} /* Adjust for medium screens */
+            .project-contract-row {
+                grid-template-columns: 1fr;
+            }
         }
         @media(max-width:600px){
             .form-grid{grid-template-columns:1fr}
+            .half-row{grid-column:span 1} /* Full width on small screens */
+            .third-row{grid-column:span 1} /* Full width on small screens */
+            .project-contract-row {
+                grid-template-columns: 1fr;
+            }
             .button-row{flex-direction:column;}
             .attachment-card img{width:70px;height:50px}
         }
@@ -271,17 +291,31 @@
                     <input id="detailLetterDate" type="date" readonly style="min-height:42px;font-size:14px;">
                 </div>
 
-                <div>
+                <!-- Project Name and Contract Name in one row - full width -->
+                <div class="project-contract-row">
+                    <div>
+                        <label for="projectName">Project Name</label>
+                        <input id="projectName" type="text" readonly style="min-height:42px;font-size:14px;">
+                    </div>
+                    
+                    <div>
+                        <label for="contractName">Contract Name</label>
+                        <input id="contractName" type="text" readonly style="min-height:42px;font-size:14px;">
+                    </div>
+                </div>
+
+                <!-- Sender, Copied To, and Cc in one row -->
+                <div class="third-row">
                     <label for="detailFromField">Sender</label>
                     <input id="detailFromField" type="text" readonly style="min-height:42px;font-size:14px;">
                 </div>
 
-                <div>
+                <div class="third-row">
                     <label for="detailToField">Copied To</label>
                     <input id="detailToField" type="text" readonly style="min-height:42px;font-size:14px;">
                 </div>
 
-                <div>
+                <div class="third-row">
                     <label for="detailCcField">Cc</label>
                     <input id="detailCcField" type="text" readonly style="min-height:42px;font-size:14px;">
                 </div>
@@ -602,7 +636,7 @@ var contextPath = "/" + fullPath.split("/")[1];
     function fillForm(dto){
         console.log('Filling form with data:', dto);
 
-        document.getElementById('pageTitle').textContent = `Letter Details - ${dto.letterNumber || ''}`;
+        document.getElementById('pageTitle').textContent = `Letter Details : ${dto.letterNumber || ''}`;
         setValueIfExists('detailCategory', dto.category || '');
         setValueIfExists('detailLetterNo', dto.letterNumber || '');
         setValueIfExists('detailLetterDate', toDateInput(dto.letterDate));
@@ -615,6 +649,8 @@ var contextPath = "/" + fullPath.split("/")[1];
         setValueIfExists('detailRequiredResponse', dto.requiredResponse || '');
         setValueIfExists('detailDueDate', toDateInput(dto.dueDate));
         setValueIfExists('detailStatus', dto.currentStatus || '');
+        setValueIfExists('projectName', dto.projectName || '');
+        setValueIfExists('contractName', dto.contractName || '');
 
         populateReferences(dto);
 

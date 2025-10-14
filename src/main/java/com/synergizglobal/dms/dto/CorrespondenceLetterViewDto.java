@@ -19,6 +19,8 @@ public class CorrespondenceLetterViewDto {
     private String ccRecipient;
     private String department;
     private String subject;
+    private String projectName;
+    private String contractName;
     private String keyInformation;
     private String requiredResponse;
     private LocalDate dueDate;

@@ -343,6 +343,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		if (flatList.isEmpty()) {
 			return null;
 		}
+		
+	
 
 		// Take first row for correspondence details
 		CorrespondenceLetterViewProjection first = flatList.get(0);
@@ -398,6 +400,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		
 		
 		CorrespondenceLetterViewDto dto = new CorrespondenceLetterViewDto();
+		
+		
 		dto.setCategory(first.getCategory());
 		dto.setLetterNumber(first.getLetterNumber());
 		dto.setLetterDate(first.getLetterDate());
@@ -412,6 +416,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		dto.setCurrentStatus(first.getCurrentStatus());
 		dto.setFiles(files);
 		dto.setRefLetters(refLetters);
+		dto.setProjectName(first.getProjectName());
+		dto.setContractName(first.getContractName());
 
 		return dto;
 	}
@@ -490,6 +496,8 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		dto.setCurrentStatus(first.getCurrentStatus());
 		dto.setFiles(files);
 		dto.setRefLetters(refLetters);
+		dto.setProjectName(first.getProjectName());
+		dto.setContractName(first.getContractName());
 
 		return dto;
 	}
