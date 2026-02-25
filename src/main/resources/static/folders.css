@@ -59,6 +59,36 @@ body {
     content: "👤";
 }
 
+.user-menu {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: #1e3d6f;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    min-width: 120px;
+    z-index: 999;
+}
+
+.dropdown-item {
+    padding: 3px 8px;
+    font-size: 11px;
+    color: #fff;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: #2a52a0;
+    border-radius: 8px;
+}
 .navigation {
     background: #dbdbdb;
     padding: 12px;
@@ -1167,6 +1197,19 @@ body {
   width: 48px;
   height: 48px;
   object-fit: contain;
+}
+
+.ctx-item {
+    padding: 10px 16px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.ctx-item:hover {
+    background: #2a52a0;
 }
 
 /**/
