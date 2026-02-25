@@ -15,6 +15,7 @@ import java.util.List;
 public class CorrespondenceUploadLetter {
 	private Long correspondenceId;
 	private String category;
+	private String letterCode;
 	private String letterNumber;
 	private String to;
 	private List<String> cc;

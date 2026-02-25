@@ -11,21 +11,61 @@ $(document).ajaxError(function(event, xhr, settings, thrownError) {
     }
 });
 
-$.ajax({
-			url: `${contextPath}/api/users/getsession`,
-			method: 'GET',
-			async: false, // token as query param
-			success: function(response) {
+$(document).ready(function() {
 
-				if(!response) {
-					window.location.href = `${contextPath}/error.html`;
-				}
-				// You can proceed with further logic here
-			},
-			error: function(xhr, status, error) {
-				console.error("Failed to set session:", error);
-			}
-		});
+    // ── User session & header ──────────────────────────
+    $.ajax({
+        url: `${contextPath}/api/users/getsession`,
+        method: 'GET',
+        async: false,
+        success: function(response) {
+            if(!response) {
+                window.location.href = `${contextPath}/error.html`;
+            }
+        },
+        error: function(__xhr__, __status__, error) {
+            console.error("Failed to get session:", error);
+        }
+    });
+
+    $.ajax({
+        url: `${contextPath}/api/users/get/username`,
+        method: 'GET',
+        async: false,
+        success: function(response) {
+            $("#userName").text(response);
+        },
+        error: function(__xhr__, __status__, error) {
+            console.error("Failed to get username:", error);
+        }
+    });
+
+    // Toggle dropdown on username click
+    $("#userName").on("click", function(e) {
+        e.stopPropagation();
+        $("#userDropdown").toggle();
+    });
+
+    // Close dropdown when clicking anywhere else
+    $(document).on("click", function() {
+        $("#userDropdown").hide();
+    });
+
+    // Logout action
+    $("#logoutBtn").on("click", function() {
+        $.ajax({
+            url: `${contextPath}/api/users/logout`,
+            method: 'GET',
+            async: false,
+            success: function() {
+                window.location.href = "http://115.124.125.227/pmis/login";
+            },
+            error: function(__xhr__, __status__, error) {
+                console.error("Logout failed:", error);
+            }
+        });
+    });
+	
 $(document).on('input change blur', 'input, textarea, select', function() {
 	validateField(this);
 });
@@ -215,6 +255,8 @@ $.ajax({
 		console.error("Failed to set session:", error);
 	}
 });
+
+
 // Email validation function
 function isValidEmail(email) {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -408,6 +450,7 @@ function addLetterToTable(letterData, isDraft = false) {
 		row.innerHTML = `
 		
 		       <td>${letterData.category || ''}</td>
+		        <td>${letterData.letterCode || ''}</td>
 			   <td>
               <a href="${viewPage}?id=${encodeURIComponent(corrId)}" class="letter-link" data-id="${corrId}">
                ${letterData.letterNumber || ''}
@@ -427,6 +470,7 @@ function addLetterToTable(letterData, isDraft = false) {
 		row.innerHTML = `
       
             <td>${letterData.category || ''}</td>
+            <td>${letterData.letterCode || ''}</td>
 		<td>
               <a href="${viewPage}?id=${encodeURIComponent(corrId)}" class="letter-link" data-id="${corrId}">
                ${letterData.letterNumber || ''}
@@ -1034,21 +1078,7 @@ document.querySelectorAll('.sidebar-header[data-target]').forEach(item => {
 	});
 });
 
-// Search and Filter functionality
-$(document).ready(function() {
-	$.ajax({
-		url: `${contextPath}/api/users/get/username`,
-		method: 'GET',
-		async: false, // token as query param
-		success: function(response) {
-			$("#userName").text(response);
-			console.log("Session set successfully:", response);
-			// You can proceed with further logic here
-		},
-		error: function(xhr, status, error) {
-			console.error("Failed to set session:", error);
-		}
-	});
+
 	// Function to highlight search matches in plain text cells
 	function highlightText(text, term) {
 		if (!term) return text;
@@ -1366,6 +1396,7 @@ function initializeDataTables() {
 				}
 			},
 			{ data: 'category' },
+			{ data: 'letterCode' },
 			{
 				data: 'letterNumber',
 				render: function(data, type, row) {

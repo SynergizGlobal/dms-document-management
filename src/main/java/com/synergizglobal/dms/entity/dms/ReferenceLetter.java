@@ -22,10 +22,9 @@ public class ReferenceLetter {
 
     @Column(name = "ref_letters", length = 100, nullable = false)
     private String refLetters;
-
    
     @OneToMany(mappedBy = "referenceLetter", cascade = CascadeType.ALL)
     private List<CorrespondenceReference> correspondenceReferences;
 
-
+    
 }

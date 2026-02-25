@@ -45,8 +45,10 @@ public interface ICorrespondenceService {
     List<String> findGroupedCategory(String userId);
 
     List<String> findAllLetterNumbers();
+    List<String> findAllLetterCodes();
 
     List<String> findGroupedLetterNumbers(String userId);
+    List<String> findGroupedLetterCodes(String userId);
 
     List<String> findAllFrom();
 

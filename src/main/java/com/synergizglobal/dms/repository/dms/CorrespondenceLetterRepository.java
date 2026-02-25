@@ -50,7 +50,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
       
     @Query(value = """
 
-			                                            SELECT
+			                                            SELECT distinct 
                                             	        c.category,
                                             	        c.letter_number AS letterNumber,
                                             	        c.letter_date AS letterDate,
@@ -65,7 +65,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                             	        f.file_name AS fileName,
                                             	        f.file_path AS filePath,
                                             	        f.file_type AS fileType,
-                                                        rf.ref_letters AS refLetter,
+                                            	        CONCAT(rf1.ref_letters, '__', c.correspondence_id) AS refLetter,
+                                                        rf.ref_id AS refId,
                                                           sc.from_user_name      AS sender,
                                                         CASE WHEN sc.is_cc = 0 OR sc.is_cc IS NULL THEN sc.to_user_name END AS copiedTo,
                                                         CASE WHEN sc.is_cc = 1 THEN sc.to_user_name END AS ccRecipient,
@@ -77,6 +78,10 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
                                         				ON c.correspondence_id = cr.correspondence_letter_id
                                         			LEFT JOIN  reference_letter as rf\s
                                                         ON cr.reference_letter_id = rf.ref_id
+                                                        
+                                                        		LEFT JOIN reference_letter rf1 
+                                                        	    ON c.letter_number = rf1.ref_letters                                                       
+                                                        
                                                         LEFT JOIN send_correspondence_letter sc
                                                       ON c.correspondence_id = sc.correspondence_id  
                                                        LEFT JOIN statuses s on s.id = c.status_id 
@@ -91,7 +96,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
 
 
     @Query(value = """
-    SELECT
+    SELECT DISTINCT 
         c.category,
         c.letter_number AS letterNumber,
         c.letter_date AS letterDate,
@@ -106,7 +111,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         f.file_name AS fileName,
         f.file_path AS filePath,
         f.file_type AS fileType,
-        rf.ref_letters AS refLetter,
+        CONCAT(rf1.ref_letters, '__', c.correspondence_id) AS refLetter,
+        rf.ref_id AS refId,
         sc.from_user_name      AS sender,
         CASE WHEN sc.is_cc = 0 OR sc.is_cc IS NULL THEN sc.to_user_name END AS copiedTo,
     CASE WHEN sc.is_cc = 1 THEN sc.to_user_name END AS ccRecipient,
@@ -118,11 +124,15 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         ON c.correspondence_id = cr.correspondence_letter_id
     LEFT JOIN reference_letter rf
         ON cr.reference_letter_id = rf.ref_id
+        
+        		LEFT JOIN reference_letter rf1 
+        	    ON c.letter_number = rf1.ref_letters
+        	    
     LEFT JOIN send_correspondence_letter sc
         ON c.correspondence_id = sc.correspondence_id
       LEFT JOIN statuses s on s.id = c.status_id 
       LEFT JOIN departments d on d.id = c.department_id 
-    WHERE c.letter_number = :letterNumber
+    WHERE c.correspondence_id = :letterNumber
     """, nativeQuery = true)
     List<CorrespondenceLetterViewProjection> findCorrespondenceWithFilesViewByLetterNumber(@Param("letterNumber") String letterNumber);
 
@@ -130,6 +140,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     		SELECT DISTINCT
         sl.correspondence_id AS correspondencId,
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -149,8 +160,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     LEFT JOIN departments d ON c.department_id = d.id 
 	LEFT JOIN statuses s ON c.status_id = s.id
     WHERE sl.type = 'Outgoing' 
-      AND c.action = 'Save as Draft'
-      AND sl.from_user_id = :userId
+      AND (c.action = 'Save as Draft' or c.action = 'Send')
+      AND (sl.from_user_id = :userId or ''='')
     ORDER BY c.UPDATED_AT DESC
     LIMIT :limit OFFSET :offset
     		"""
@@ -163,6 +174,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     SELECT 
         sl.correspondence_id AS correspondencId,
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -180,8 +192,8 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
         ON c.correspondence_id = sl.correspondence_id 
        AND sl.is_cc = 0
     WHERE sl.type = 'Outgoing' 
-      AND c.action = 'Save as Draft'
-      AND sl.from_user_id = :userId
+      AND (c.action = 'Save as Draft' or c.action = 'Send')
+      AND ( sl.from_user_id = :userId or ''='')
     ORDER BY c.UPDATED_AT
     ) x
     		"""
@@ -191,7 +203,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
 
 
     @Query(value = " SELECT count(*) FROM (  \r\n"
-    		+ "SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  \r\n"
+    		+ "SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  \r\n"
     		+ "sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, \r\n"
     		+ " c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, \r\n"
     		+ " c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, \r\n"
@@ -199,7 +211,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
     		+ " LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id \r\n"
     		+ " AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' \r\n"
     		+ " GROUP BY c.correspondence_id  UNION \r\n"
-    		+ " SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, \r\n"
+    		+ " SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, \r\n"
     		+ " sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, \r\n"
     		+ " c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,\r\n"
     		+ " c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,\r\n"
@@ -211,7 +223,7 @@ public interface CorrespondenceLetterRepository extends JpaRepository<Correspond
 
     @Query(value = """
     	    SELECT count(*) FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -219,7 +231,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -236,6 +248,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -260,6 +273,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -286,7 +300,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct category FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -294,7 +308,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -310,6 +324,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -334,6 +349,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -357,34 +373,16 @@ FROM (
 
     		""", nativeQuery = true)
     List<String> findAllLetterNumbers();
-
-
-    @Query(value = """
-    	    SELECT distinct letterNumber FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
-sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
- c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
- c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
- sl.type as type  FROM correspondence_letter c  
- LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
- AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
- GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
- sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
- c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
- c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
- sl.type as type  FROM correspondence_letter c 
- LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
- WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
- ) x WHERE 1=1  ORDER BY x.dueDate 
-    	    """, nativeQuery = true)
-    List<String> findGroupedLetterNumbers(@Param("userId") String userId);
-
+    
+    
+    
+    
     @Query(value="""
-    		SELECT distinct `from` 
+    		SELECT distinct letterCode 
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -409,6 +407,106 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        c.due_date AS dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id  
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Incoming' 
+      AND c.action = 'send'
+    GROUP BY c.correspondence_id
+) x;
+
+    		""", nativeQuery = true)
+    List<String> findAllLetterCodes();
+
+
+    @Query(value = """
+    	    SELECT distinct letterNumber FROM (  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
+ c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
+ c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
+ GROUP BY c.correspondence_id  UNION 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
+ c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
+ c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
+ ) x WHERE 1=1  ORDER BY x.dueDate 
+    	    """, nativeQuery = true)
+    List<String> findGroupedLetterNumbers(@Param("userId") String userId);
+    
+    
+    @Query(value = """
+    	    SELECT distinct letterCode FROM (  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
+ c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
+ c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
+ sl.type as type  FROM correspondence_letter c  
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
+ AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
+ GROUP BY c.correspondence_id  UNION 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
+ c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
+ c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
+ sl.type as type  FROM correspondence_letter c 
+ LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id  AND sl.to_user_id = :userId  
+ WHERE sl.type = 'Incoming' AND c.action = 'send'  GROUP BY c.correspondence_id 
+ ) x WHERE 1=1  ORDER BY x.dueDate 
+    	    """, nativeQuery = true)
+    List<String> findGroupedLetterCodes(@Param("userId") String userId);   
+
+    @Query(value="""
+    		SELECT distinct `from` 
+FROM (
+    SELECT 
+        c.category AS category,
+        c.letter_code AS letterCode,
+        c.letter_number AS letterNumber,
+        sl.from_user_name AS `from`,
+        sl.to_user_name AS `to`,
+        c.subject AS subject,
+        c.required_response AS requiredResponse,
+        c.due_date AS dueDate,
+        c.project_name AS projectName,
+        c.contract_name AS contractName,
+        c.current_status AS currentStatus,
+        c.department AS department,
+        c.file_count AS attachment,
+        sl.type AS type
+    FROM correspondence_letter c
+    LEFT JOIN send_correspondence_letter sl 
+        ON c.correspondence_id = sl.correspondence_id 
+       AND sl.is_cc = 0
+    WHERE sl.type = 'Outgoing' 
+      AND c.action = 'send'
+    GROUP BY c.correspondence_id
+    
+    UNION
+    
+    SELECT 
+        c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -435,7 +533,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct `from` FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -443,7 +541,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -459,6 +557,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -483,6 +582,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -509,7 +609,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct subject FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -517,7 +617,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -533,6 +633,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -557,6 +658,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -583,7 +685,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct requiredResponse FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -591,7 +693,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -613,6 +715,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -637,6 +740,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -663,7 +767,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct projectName FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -671,7 +775,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -687,6 +791,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -711,6 +816,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -737,7 +843,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct contractName FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -745,7 +851,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -761,6 +867,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -786,6 +893,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -813,7 +921,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct currentStatus FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  s.name as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -823,7 +931,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN statuses s on s.id = c.status_id 
  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  s.name as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -839,6 +947,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -864,6 +973,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -891,7 +1001,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct department FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  d.name as department,  c.file_count as attachment, 
@@ -901,7 +1011,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN departments d on d.id = c.department_id 
  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  d.name as department,  c.file_count as attachment,
@@ -918,6 +1028,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -942,6 +1053,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -968,7 +1080,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct attachment FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -976,7 +1088,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -992,6 +1104,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -1016,6 +1129,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -1042,7 +1156,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct `type` FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -1050,7 +1164,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -1066,6 +1180,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
 FROM (
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -1090,6 +1205,7 @@ FROM (
     
     SELECT 
         c.category AS category,
+        c.letter_code AS letterCode,
         c.letter_number AS letterNumber,
         sl.from_user_name AS `from`,
         sl.to_user_name AS `to`,
@@ -1116,7 +1232,7 @@ FROM (
 
     @Query(value = """
     	    SELECT distinct `to` FROM (  
-SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
+SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`,  
 sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName, 
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment, 
@@ -1124,7 +1240,7 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
  LEFT JOIN send_correspondence_letter sl ON c.correspondence_id = sl.correspondence_id 
  AND sl.from_user_id = :userId AND sl.is_cc = 0  WHERE sl.type = 'Outgoing' AND c.action = 'send' 
  GROUP BY c.correspondence_id  UNION 
- SELECT c.category as category,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
+ SELECT c.category as category,c.letter_code as letterCode,  c.letter_number as letterNumber,  sl.from_user_name as `from`, 
  sl.to_user_name as `to`,  c.subject as subject,  c.required_response as requiredResponse, 
  c.due_date as dueDate,  c.project_name as projectName,  c.contract_name as contractName,
  c.current_status as currentStatus,  c.department as department,  c.file_count as attachment,
@@ -1151,5 +1267,10 @@ sl.to_user_name as `to`,  c.subject as subject,  c.required_response as required
     	    WHERE c.correspondenceId = :correspondenceId
     	""")
     Optional<CorrespondenceLetter> findByCorrespondenceId(@Param("correspondenceId") Long correspondenceId);
+    	    
+    	    Optional<CorrespondenceLetter>
+    	    findTopByLetterCodeStartingWithOrderByLetterCodeDesc(String prefix);
 }
+
+
 

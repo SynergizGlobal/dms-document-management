@@ -26,17 +26,26 @@
 <script
 	src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <body>
-	<div class="container">
-		<header class="header">
-			<div class="project-info">
-				<img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
-				MRVC
-			</div>
-			<h1>Document Management System</h1>
-			<div class="demo-badge" id="userName">DEMO</div>
-			<div id="successMessage" class="upload-success">Upload
-				Successful!</div>
-		</header>
+  <div class="container">
+    <header class="header">
+
+      <div class="project-info">
+        <img src="images/mrvc_logo.png" alt="MRVC Logo" class="logo">
+        MRVC
+      </div>
+
+      <h1>Document Management System</h1>
+
+      <div class="user-menu">
+        <div class="demo-badge" id="userName">DEMO</div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dropdown-item" id="logoutBtn">🚪 Logout</div>
+        </div>
+      </div>
+
+      <div id="successMessage" class="upload-success">Upload Successful!</div>
+
+    </header>
 
 		<nav class="navigation">
 			<div class="nav-item" onclick="location.href='correspondance.html'">Correspondence</div>

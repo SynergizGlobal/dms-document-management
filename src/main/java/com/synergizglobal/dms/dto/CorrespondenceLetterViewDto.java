@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CorrespondenceLetterViewDto {
     private String category;
+    private String letterCode;
     private String letterNumber;
     private LocalDate letterDate;
     private String sender;

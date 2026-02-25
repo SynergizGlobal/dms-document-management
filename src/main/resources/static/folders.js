@@ -54,6 +54,32 @@ $.ajax({
 			console.error("Failed to set session:", error);
 		}
 	});
+	
+	// Toggle dropdown on username click
+	   $("#userName").on("click", function(e) {
+	       e.stopPropagation();
+	       $("#userDropdown").toggle();
+	   });
+
+	   // Close dropdown when clicking anywhere else
+	   $(document).on("click", function() {
+	       $("#userDropdown").hide();
+	   });
+
+	   // Logout action
+	   $("#logoutBtn").on("click", function() {
+	       $.ajax({
+	           url: `${contextPath}/api/users/logout`,
+	           method: 'GET',
+	           async: false,
+	           success: function() {
+	               window.location.href = "http://115.124.125.227/pmis/login";
+	           },
+	           error: function(__xhr__, __status__, error) {
+	               console.error("Logout failed:", error);
+	           }
+	       });
+	   });
 let currentView = 'folders';
 let searchVisible = false;
 let navigationStack = [];

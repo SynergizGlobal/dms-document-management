@@ -112,6 +112,14 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 			entity = new CorrespondenceLetter();
 		}
 		entity.setCategory(dto.getCategory());
+		
+		User userCheck = findUserByEmailOrUsername(dto.getTo());
+		
+		String letterCode = generateLetterCode(userCheck);
+
+		entity.setLetterCode(letterCode);		
+				
+		
 		entity.setLetterNumber(dto.getLetterNumber());
 		entity.setLetterDate(dto.getLetterDate());
 		entity.setSubject(dto.getSubject());
@@ -253,6 +261,59 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	private User findUserByEmailOrUsername(String value) {
 		return userRepository.findByEmailId(value).or(() -> userRepository.findByUserName(value))
 				.orElseThrow(() -> new IllegalArgumentException("User not found: " + value));
+	}
+	
+	private static final Set<String> MRVC_USER_TYPES = Set.of(
+	        "DY HOD", "HOD", "Management", "Officer (Jr./Sr. Scale)"
+	);
+
+	private static final Set<String> MRVC_ROLES = Set.of(
+	        "Data Admin", "Regular User", "Super User"
+	);
+
+	private static final Set<String> CON_USER_TYPES = Set.of(
+	        "Contractor", "Contractor Rep"
+	);
+
+	private static final Set<String> CON_ROLES = Set.of(
+	        "Contractor", "IT Admin"
+	);
+	
+	
+	private String determineLetterPrefix(User user) {
+
+		String userType = user.getUserTypeFk();          
+		String userRole = user.getUserRoleNameFk();   
+
+	    if (MRVC_USER_TYPES.contains(userType) && MRVC_ROLES.contains(userRole)) {
+	        return "MRVC-";
+	    }
+
+	    if (CON_USER_TYPES.contains(userType) && CON_ROLES.contains(userRole)) {
+	        return "CON-";
+	    }
+
+	    throw new IllegalArgumentException(
+	            "Invalid User Type / Role combination for letter generation"
+	    );
+	}
+
+	public String generateLetterCode(User user) {
+
+	    String prefix = determineLetterPrefix(user);
+
+	    String lastCode = correspondenceRepo
+	            .findTopByLetterCodeStartingWithOrderByLetterCodeDesc(prefix)
+	            .map(CorrespondenceLetter::getLetterCode)
+	            .orElse(null);
+
+	    int nextSeq = 1;
+
+	    if (lastCode != null) {
+	        nextSeq = Integer.parseInt(lastCode.substring(prefix.length())) + 1;
+	    }
+
+	    return prefix + String.format("%05d", nextSeq);
 	}
 
 	private CorrespondenceLetter saveFileDetails(CorrespondenceUploadLetter dto, CorrespondenceLetter entity)
@@ -559,7 +620,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	//	String role = user.getUserRoleNameFk();
 
 		// 🔹 Restrict by creator or recipient if not IT Admin
-		if (!CommonUtil.isITAdminOrSuperUser(user)) {
+		if (!CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) {
 			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("userId"), user.getUserId());
 
 			// Wrap OR in parentheses
@@ -639,7 +700,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	//	String role = user.getUserRoleNameFk();
 
 		// 🔹 Apply user restrictions
-		if (!CommonUtil.isITAdminOrSuperUser(user)) {
+		if (!CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) {
 			jakarta.persistence.criteria.Predicate createdByUser = cb.equal(root.get("userId"), user.getUserId());
 
 			// Wrap OR in parentheses
@@ -655,7 +716,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 	public long countAllCorrespondence(User user) {
 	//	String role = user.getUserRoleNameFk();
 
-		if (!CommonUtil.isITAdminOrSuperUser(user)) {
+		if (!CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) {
 	
 			return correspondenceRepo.countAllFiles(user.getUserId());
 		} else {
@@ -680,12 +741,24 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 		return correspondenceRepo.findAllLetterNumbers();
 	}
+	
+	@Override
+	public List<String> findAllLetterCodes() {
+
+		return correspondenceRepo.findAllLetterCodes();
+	}	
 
 	@Override
 	public List<String> findGroupedLetterNumbers(String userId) {
 
 		return correspondenceRepo.findGroupedLetterNumbers(userId);
 	}
+	
+	@Override
+	public List<String> findGroupedLetterCodes(String userId) {
+
+		return correspondenceRepo.findGroupedLetterCodes(userId);
+	}	
 
 	@Override
 	public List<String> findAllFrom() {
@@ -839,12 +912,12 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 
 		String userId = user.getUserId();
 
-		String baseSelect = " SELECT c.correspondence_id as correspondenceId, c.category as category, "
+		String baseSelect = " SELECT c.correspondence_id as correspondenceId, c.category as category,c.letter_code as letterCode, "
 				+ " c.letter_number as letterNumber, " + " sl.from_user_name as `from`, " + " sl.to_user_name as `to`, "
 				+ " c.subject as subject, " + " c.required_response as requiredResponse, " + " c.due_date as dueDate, "
 				+ " c.project_name as projectName, " + " c.contract_name as contractName, "
 				+ " s.name as currentStatus, " + " d.name as department, "
-				+ " c.file_count as attachment, " + " sl.type as `type` , c.UPDATED_AT "
+				+ " c.file_count as attachment, " + " case when left(c.letter_code,4)='CON-' then 'Incoming' else 'Outgoing' end as `type` , c.UPDATED_AT "
 				+ " FROM correspondence_letter c "
 				+ " LEFT JOIN departments d ON c.department_id = d.id "
 				+ " LEFT JOIN statuses s ON c.status_id = s.id "
@@ -854,28 +927,59 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		// 🔹 Restrict by creator or recipient if not IT Admin
 
 		// outgoing
+		
+		
 		String outgoing = baseSelect + " AND sl.from_user_id = ?1 AND sl.is_cc = 0 "
 				+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
-		if (CommonUtil.isITAdminOrSuperUser(user)) {
+		
+		
+		
+		if (CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) {
 			outgoing = baseSelect + " AND sl.is_cc = 0 " + " WHERE sl.type = 'Outgoing' AND c.action = 'send' "
 					+ " GROUP BY c.correspondence_id ";
 		}
 		// incoming
 		String incoming = baseSelect + " AND sl.to_user_id = ?2 " + " WHERE sl.type = 'Incoming' AND c.action = 'send' "
 				+ " GROUP BY c.correspondence_id ";
-		if (CommonUtil.isITAdminOrSuperUser(user)) {
+		if (CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) {
 			incoming = baseSelect + " AND sl.is_cc = 0 " + " WHERE sl.type = 'Incoming' AND c.action = 'send' "
 					+ " GROUP BY c.correspondence_id ";
 		}
-		// wrap union
-		String sql = " SELECT * FROM ( " + outgoing + " UNION " + incoming + " ) x WHERE 1=1 ";
+
+		
+		
+		String sql="";
+		
+		
+		if(CommonUtil.isMRVC(user))
+		{
+		 sql=" SELECT * FROM ( " + outgoing +") as x ";
+		}
+		else if(CommonUtil.isMVR(user))
+		{
+		  sql=" SELECT * FROM ( " + incoming +") as x ";
+		}
+		else  if (CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) 
+		{
+		 sql = " SELECT * FROM ( " + outgoing + " UNION " + incoming + " ) x WHERE 1=1 ";
+		}
+		
+		System.out.print("swathi----------------");
+		System.out.print(sql);
+		System.out.print("----------------swapna");
 
 		// 🔹 dynamic filters
 		List<Object> params = new ArrayList<>();
-		if (!CommonUtil.isITAdminOrSuperUser(user)) {
-			params.add(userId);
+		
+		if(CommonUtil.isMRVC(user))
+		{
 			params.add(userId);
 		}
+		else if(CommonUtil.isMVR(user))
+		{
+			params.add(userId);
+		}
+
 
 		for (Map.Entry<Integer, List<String>> entry : columnFilters.entrySet()) {
 			Integer colIndex = entry.getKey();
@@ -943,7 +1047,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		String outgoing = baseSelect + " LEFT JOIN send_correspondence_letter sl "
 				+ " ON c.correspondence_id = sl.correspondence_id AND sl.from_user_id = ? AND sl.is_cc = 0 "
 				+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
-		if (CommonUtil.isITAdminOrSuperUser(user)) {
+		if (CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) {
 			outgoing = baseSelect + " LEFT JOIN send_correspondence_letter sl "
 					+ " ON c.correspondence_id = sl.correspondence_id AND sl.is_cc = 0 "
 					+ " WHERE sl.type = 'Outgoing' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
@@ -951,7 +1055,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		String incoming = baseSelect + " LEFT JOIN send_correspondence_letter sl "
 				+ " ON c.correspondence_id = sl.correspondence_id AND sl.to_user_id = ? "
 				+ " WHERE sl.type = 'Incoming' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
-		if (CommonUtil.isITAdminOrSuperUser(user)) {
+		if (CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) {
 			incoming = baseSelect + " LEFT JOIN send_correspondence_letter sl "
 					+ " ON c.correspondence_id = sl.correspondence_id AND sl.is_cc = 0  "
 					+ " WHERE sl.type = 'Incoming' AND c.action = 'send' " + " GROUP BY c.correspondence_id ";
@@ -964,7 +1068,7 @@ public class CorrespondenceServiceImpl implements ICorrespondenceService {
 		sql.append(" ) x WHERE 1 = 1 ");
 
 		java.util.List<java.lang.Object> params = new java.util.ArrayList<>();
-		if (!CommonUtil.isITAdminOrSuperUser(user)) {
+		if (!CommonUtil.isITAdminOrSuperUserforCorrespondence(user)) {
 			params.add(userId);
 			params.add(userId);
 		} // incoming ?2

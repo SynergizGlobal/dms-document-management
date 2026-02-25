@@ -12,6 +12,7 @@ public class CorrespondenceFolderFileDTO {
     private String fileType;
     private String filePath;
     private String downloadUrl;
+    private String letterCode;
     private String letterNumber;
     private String fromDept;
     private String toDept;

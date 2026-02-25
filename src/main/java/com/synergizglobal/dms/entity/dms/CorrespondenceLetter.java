@@ -33,6 +33,7 @@ import lombok.ToString;
 	        	@jakarta.persistence.ColumnResult(name = "correspondenceId", type = Long.class),
 	        	@jakarta.persistence.ColumnResult(name = "category", type = String.class),
 	        	@jakarta.persistence.ColumnResult(name = "letterNumber", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "letterCode", type = String.class),
 	        	@jakarta.persistence.ColumnResult(name = "from", type = String.class),
 	        	@jakarta.persistence.ColumnResult(name = "to", type = String.class),
 	        	@jakarta.persistence.ColumnResult(name = "subject", type = String.class),
@@ -55,6 +56,7 @@ import lombok.ToString;
 	        	@jakarta.persistence.ColumnResult(name = "correspondenceId", type = Long.class),
 	        	@jakarta.persistence.ColumnResult(name = "category", type = String.class),
 	        	@jakarta.persistence.ColumnResult(name = "letterNumber", type = String.class),
+	        	@jakarta.persistence.ColumnResult(name = "letterCode", type = String.class),
 	        	@jakarta.persistence.ColumnResult(name = "from", type = String.class),
 	        	@jakarta.persistence.ColumnResult(name = "to", type = String.class),
 	        	@jakarta.persistence.ColumnResult(name = "subject", type = String.class),
@@ -84,6 +86,9 @@ public class CorrespondenceLetter {
 
     @Column(name = "CATEGORY", length = 100)
     private String category;
+    
+    @Column(name = "letter_code",unique = true, length = 200, nullable = false)
+    private String letterCode;
 
     @Column(name = "letter_number",unique = true, length = 200, nullable = false)
     private String letterNumber;

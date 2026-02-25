@@ -467,13 +467,13 @@ var contextPath = "/" + fullPath.split("/")[1];
         if (!refs || refs.length === 0){
             const li = document.createElement('li'); li.className='muted'; li.textContent='No references'; container.appendChild(li); return;
         }
-        refs.forEach((r,i)=>{
+/*         refs.forEach((r,i)=>{
             const li = document.createElement('li');
             const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';
 
             const link = document.createElement('a');
             // add ref=true so new tab knows it's a reference view
-            link.href = window.location.pathname + '?letterNumber=' + encodeURIComponent(r) + '&ref=true';
+            link.href = window.location.pathname + '?refId=' + encodeURIComponent(r) + '&ref=true';
             link.target = '_blank';
             link.rel = 'noopener noreferrer'; // security + performance
             link.textContent = String(r);
@@ -493,7 +493,45 @@ var contextPath = "/" + fullPath.split("/")[1];
 
             li.appendChild(num); li.appendChild(link);
             container.appendChild(li);
+        }); */
+        
+        refs.forEach((r, i) => {
+            const li = document.createElement('li');
+            const num = document.createElement('div');
+            num.className = 'num';
+            num.textContent = (i + 1) + '.';
+
+            const parts = String(r).split('__');
+            const displayText = parts[0]; // 63-1
+            const refId = parts[1];       // 347
+
+            const link = document.createElement('a');
+
+            link.href =
+                window.location.pathname +
+                '?refId=' + encodeURIComponent(refId) +
+                '&ref=true';
+
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+
+            link.textContent = displayText;
+
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                try {
+                    window.open(link.href, '_blank');
+                } catch (err) {
+                    window.location.href = link.href;
+                }
+            });
+
+            li.appendChild(num);
+            li.appendChild(link);
+            container.appendChild(li);
         });
+      
+        
     }
 
     async function loadReferencedLetter(letterNumber) {
@@ -565,7 +603,7 @@ var contextPath = "/" + fullPath.split("/")[1];
 
             // Update URL without reloading the page, include ref=true
             const newUrl = new URL(window.location);
-            newUrl.searchParams.set('letterNumber', letterNumber);
+            newUrl.searchParams.set('letterNumber', refId);
             newUrl.searchParams.set('ref', 'true');
             newUrl.searchParams.delete('id');
             window.history.pushState({letterNumber}, '', newUrl);
@@ -792,7 +830,7 @@ var contextPath = "/" + fullPath.split("/")[1];
 
     async function loadData(){
         let id = getQueryParam('id');
-        let letterNumber = getQueryParam('letterNumber');
+        let letterNumber = getQueryParam('refId');
         const refParam = getQueryParam('ref'); // check if opened as reference in new tab
 
         // Store initial values for navigation

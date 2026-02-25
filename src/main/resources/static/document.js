@@ -11,7 +11,10 @@ $(document).ready(function() {
 	$("#bulkUploadDisplayMessage").hide();
 	const params = new URLSearchParams(window.location.search);
 	var token = params.get('token');
-
+	// Remove token from URL after session is set, so back button won't reuse it
+	if (token) {
+	    window.history.replaceState(null, '', window.location.pathname);
+	}
 	$.ajax({
 		url: `${contextPath}/api/users/setsession`,
 		method: 'GET',
@@ -20,7 +23,7 @@ $(document).ready(function() {
 		success: function(response) {
 
 			console.log("Session set successfully:", response);
-			// You can proceed with further logic here
+		  window.history.replaceState(null, '', window.location.pathname);
 		},
 		error: function(xhr, status, error) {
 			console.error("Failed to set session:", error);
@@ -76,6 +79,35 @@ $(document).ready(function() {
 		error: function(xhr, status, error) {
 			console.error("Failed to set session:", error);
 		}
+		
+		
+	});
+	
+	// Toggle dropdown on username click
+	$("#userName").on("click", function(e) {
+	    e.stopPropagation();
+	    $("#userDropdown").toggle();
+	});
+
+	// Close dropdown when clicking anywhere else
+	$(document).on("click", function() {
+	    $("#userDropdown").hide();
+	});
+	
+	// Logout action
+	$("#logoutBtn").on("click", function() {
+	    $.ajax({
+	        url: `${contextPath}/api/users/logout`,
+	        method: 'GET',
+	        async: false,
+	        success: function() {
+	            
+	            window.location.href = "http://115.124.125.227/pmis/login"; 
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("Logout failed:", error);
+	        }
+	    });
 	});
 	// Global variables
 	let selectedDocumentId = null;

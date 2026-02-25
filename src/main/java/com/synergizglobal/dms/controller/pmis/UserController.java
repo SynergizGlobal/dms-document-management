@@ -60,4 +60,10 @@ public class UserController {
     	User user = (User) session.getAttribute("user");
     	return user.getUserRoleNameFk();
     }
+    
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Logged out successfully");
+    }
 }

@@ -35,11 +35,7 @@ public class FolderController {
 	@PostMapping("/grid")
 	public ResponseEntity<List<FolderDTO>> getAllFolders(@RequestBody FolderGridDTO folderGridDto, HttpSession session) {
 		User user = (User) session.getAttribute("user");
-		if(CommonUtil.isITAdminOrSuperUser(user)) {
-    		//IT Admin
     		return ResponseEntity.ok(folderService.getAllFoldersByProjectsAndContracts(folderGridDto.getProjects(), folderGridDto.getContracts()));
-    	}
-		return ResponseEntity.ok(folderService.getAllFoldersByProjectsAndContracts(folderGridDto.getProjects(), folderGridDto.getContracts(), user.getUserId()));
 	}
 	
 	@GetMapping("/get")

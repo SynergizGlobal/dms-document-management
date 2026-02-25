@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 public class CorrespondenceDraftGridDTO {
 	private Long correspondenceId;
 	private String category;
+	private String letterCode;
 	private String letterNumber;
 	private String from;
 	private String to;

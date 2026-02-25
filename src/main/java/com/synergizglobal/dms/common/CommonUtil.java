@@ -24,4 +24,29 @@ public class CommonUtil {
 	public static boolean isITAdminOrSuperUser(User user) {
 		return user.getUserRoleNameFk().equalsIgnoreCase("IT Admin") || user.getUserRoleNameFk().equalsIgnoreCase("Super user");
 	}
+	
+	public static boolean isITAdminOrSuperUserforCorrespondence(User user) {
+		return user.getUserRoleNameFk().equalsIgnoreCase("IT Admin") || user.getUserRoleNameFk().equalsIgnoreCase("Super user");
+	}	
+	
+	public static boolean isMVR(User user) {
+
+	    String userType = user.getUserTypeFk();
+
+	    return userType != null &&
+	           (userType.equalsIgnoreCase("Contractor") ||
+	            userType.equalsIgnoreCase("Contractor Rep"));
+	}
+	
+	public static boolean isMRVC(User user) {
+
+	    String userType = user.getUserTypeFk();
+
+	    return userType != null &&
+	           (userType.equalsIgnoreCase("DY HOD") ||
+	            userType.equalsIgnoreCase("HOD") ||
+	            userType.equalsIgnoreCase("Management") ||
+	            userType.equalsIgnoreCase("Officer (Jr./Sr. Scale)"));
+	}
+	
 }
