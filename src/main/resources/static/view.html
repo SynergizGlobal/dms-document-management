@@ -467,33 +467,7 @@ var contextPath = "/" + fullPath.split("/")[1];
         if (!refs || refs.length === 0){
             const li = document.createElement('li'); li.className='muted'; li.textContent='No references'; container.appendChild(li); return;
         }
-/*         refs.forEach((r,i)=>{
-            const li = document.createElement('li');
-            const num = document.createElement('div'); num.className='num'; num.textContent = (i+1) + '.';
 
-            const link = document.createElement('a');
-            // add ref=true so new tab knows it's a reference view
-            link.href = window.location.pathname + '?refId=' + encodeURIComponent(r) + '&ref=true';
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer'; // security + performance
-            link.textContent = String(r);
-
-            // open new tab and do NOT change the current tab
-            link.addEventListener('click', (e) => {
-                e.preventDefault(); // prevent default navigation in current tab
-                try {
-                    window.open(link.href, '_blank');
-                } catch (err) {
-                    // fallback: let browser follow the href (rare)
-                    window.location.href = link.href;
-                }
-                // NOTE: we intentionally do NOT call loadReferencedLetter(r) here,
-                // so the original tab remains unchanged.
-            });
-
-            li.appendChild(num); li.appendChild(link);
-            container.appendChild(li);
-        }); */
         
         refs.forEach((r, i) => {
             const li = document.createElement('li');

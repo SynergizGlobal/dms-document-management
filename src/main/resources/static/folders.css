@@ -1199,6 +1199,19 @@ body {
   object-fit: contain;
 }
 
+.ctx-item {
+    padding: 10px 16px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.ctx-item:hover {
+    background: #2c5aa0;
+}
+
 
 
 /**/

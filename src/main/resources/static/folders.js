@@ -130,6 +130,14 @@ function loadArchivedFiles(folderid, foldername) {
 				folderCard.className = "folder-card";
 				folderCard.onclick = () => openFolder(folder.filePath, "file");
 
+				folderCard.dataset.filePath = folder.filePath;
+				folderCard.dataset.fileName = folder.fileName;
+				folderCard.dataset.fileType = folder.fileType;
+				folderCard.dataset.revisionNo = folder.revisionNo || '';
+				folderCard.addEventListener("contextmenu", function(e) {
+				    showContextMenu(e, this);
+				});
+				
 				folderCard.innerHTML = `
                     <div class="file-icon">${icon}</div>
                     <div class="folder-title">${folder.fileName} ${folder.revisionNo} (${folder.fileType})</div>
@@ -263,7 +271,21 @@ function loadCorrespondanceFiles(foldername) {
 				const folderCard = document.createElement("div");
 				folderCard.className = "folder-card";
 				folderCard.onclick = () => openFolder(folder.downloadUrl, "correspondencefile");
-
+				folderCard.dataset.filePath = folder.filePath;
+				folderCard.dataset.fileName = folder.fileName;
+				folderCard.dataset.fileType = folder.fileType;
+				folderCard.dataset.revisionNo = '';
+				folderCard.dataset.downloadUrl = folder.downloadUrl;        // direct file URL
+				folderCard.dataset.letterNumber = folder.letterNumber;
+				folderCard.dataset.fromDept = folder.fromDept;
+				folderCard.dataset.toDept = folder.toDept;
+				folderCard.dataset.letterCode = folder.letterCode || '';
+				folderCard.dataset.type = folder.type;
+				folderCard.dataset.isCorrespondence = 'true';     
+				folderCard.dataset.correspondenceId = folder.correspondenceId || '';       
+				folderCard.addEventListener("contextmenu", function(e) {
+				    showContextMenu(e, this);
+				});
 				folderCard.innerHTML = `
 	                    <div class="file-icon">${icon}</div>
 	                    <div class="folder-title">${folder.letterNumber}_${folder.fromDept}_${folder.toDept}_(${folder.fileType})</div>
@@ -1006,6 +1028,134 @@ function loadCorrespondenceInboundAndOutbound(foldername) {
 		grid.appendChild(folderCard);
 	});
 }
+////
+let currentFileData = {};
 
+function showContextMenu(e, card) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Save file data
+	currentFileData = {
+		   correspondenceId: card.dataset.correspondenceId,
+	       filePath: card.dataset.filePath,
+	       fileName: card.dataset.fileName,
+	       fileType: card.dataset.fileType,
+	       revisionNo: card.dataset.revisionNo,
+	       downloadUrl: card.dataset.downloadUrl,
+	       letterNumber: card.dataset.letterNumber || '',
+	       fromDept: card.dataset.fromDept || '',
+	       toDept: card.dataset.toDept || '',
+	       letterCode: card.dataset.letterCode || '',
+	       type: card.dataset.type || '',
+	       isCorrespondence: card.dataset.isCorrespondence === 'true'
+	   };
+
+    // Position and show menu
+    const menu = document.getElementById("fileContextMenu");
+    menu.style.display = "block";
+    menu.style.left = e.clientX + "px";
+    menu.style.top = e.clientY + "px";
+}
+
+// Hide menu on outside click
+document.addEventListener("click", function() {
+    document.getElementById("fileContextMenu").style.display = "none";
+});
+
+// VIEW
+document.getElementById("ctxView").addEventListener("click", function() {
+    if (currentFileData.isCorrespondence) {
+        // Open file directly via downloadUrl
+        window.open(currentFileData.downloadUrl, "_blank");
+    } else {
+        window.open(`${contextPath}/api/documents/view?path=${encodeURIComponent(currentFileData.filePath)}`, "_blank");
+    }
+    document.getElementById("fileContextMenu").style.display = "none";
+});
+
+// DOWNLOAD
+document.getElementById("ctxDownload").addEventListener("click", function() {
+    if (currentFileData.isCorrespondence) {
+        // Download via downloadUrl
+        const a = document.createElement("a");
+        a.href = currentFileData.downloadUrl;
+        a.download = currentFileData.fileName;
+        a.click();
+    } else {
+        const a = document.createElement("a");
+        a.href = `${contextPath}/api/documents/download?path=${encodeURIComponent(currentFileData.filePath)}`;
+        a.download = currentFileData.fileName;
+        a.click();
+    }
+    document.getElementById("fileContextMenu").style.display = "none";
+});
+
+// DETAILS
+ document.getElementById("ctxDetails").addEventListener("click", function() {
+    let detailsHtml = '';
+
+    if (currentFileData.isCorrespondence) {
+        detailsHtml = `
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; color:#666; font-weight:600; width:40%;">File Name</td>
+                    <td style="padding:8px; word-break:break-all; width:60%;">${currentFileData.fileName}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; color:#666; font-weight:600;">File Type</td>
+                    <td style="padding:8px;">${currentFileData.fileType?.toUpperCase()}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; color:#666; font-weight:600;">Letter Number</td>
+                    <td style="padding:8px;">
+                     <a href="${contextPath}/view.html?id=${encodeURIComponent(currentFileData.correspondenceId)}"
+                           target="_blank"
+                           style="color:#2c5aa0; font-weight:600; text-decoration:underline; cursor:pointer;">
+                            ${currentFileData.letterNumber || 'N/A'}
+                        </a>
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; color:#666; font-weight:600;">From Dept</td>
+                    <td style="padding:8px;">${currentFileData.fromDept || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; color:#666; font-weight:600;">To Dept</td>
+                    <td style="padding:8px;">${currentFileData.toDept || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; color:#666; font-weight:600;">Type</td>
+                    <td style="padding:8px;">${currentFileData.type || 'N/A'}</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; color:#666; font-weight:600;">Letter Code</td>
+                    <td style="padding:8px;">${currentFileData.letterCode || 'N/A'}</td>
+                </tr>
+            </table>
+        `;
+    } else {
+        detailsHtml = `
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; color:#666; font-weight:600; width:40%;">File Name</td>
+                    <td style="padding:8px; word-break:break-all; width:60%;">${currentFileData.fileName}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; color:#666; font-weight:600;">File Type</td>
+                    <td style="padding:8px;">${currentFileData.fileType?.toUpperCase()}</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; color:#666; font-weight:600;">Revision No</td>
+                    <td style="padding:8px;">${currentFileData.revisionNo || 'N/A'}</td>
+                </tr>
+            </table>
+        `;
+    }
+
+    document.getElementById("detailsContent").innerHTML = detailsHtml;
+    document.getElementById("detailsModal").style.display = "block";
+    document.getElementById("fileContextMenu").style.display = "none";
+});
 
 //////////////////

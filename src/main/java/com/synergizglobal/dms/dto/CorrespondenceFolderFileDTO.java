@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CorrespondenceFolderFileDTO {
+	private Long correspondenceId; 
     private String fileName;
     private String fileType;
     private String filePath;

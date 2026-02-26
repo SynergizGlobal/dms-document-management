@@ -13,6 +13,7 @@ public interface CorrespondenceFileRepository extends JpaRepository<Corresponden
 
 	 @Query("""
 		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		            c.correspondenceId,
 		            f.fileName, 
 		            f.fileType, 
 		            f.filePath, 
@@ -45,6 +46,7 @@ public interface CorrespondenceFileRepository extends JpaRepository<Corresponden
 	 
 	 @Query("""
 		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		             c.correspondenceId,
 		            f.fileName, 
 		            f.fileType, 
 		            f.filePath, 
@@ -68,6 +70,7 @@ public interface CorrespondenceFileRepository extends JpaRepository<Corresponden
 	 
 	 @Query("""
 		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		            c.correspondenceId,
 		            f.fileName, 
 		            f.fileType, 
 		            f.filePath, 
@@ -92,6 +95,7 @@ public interface CorrespondenceFileRepository extends JpaRepository<Corresponden
 
 	 @Query("""
 		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		            c.correspondenceId,
 		            f.fileName, 
 		            f.fileType, 
 		            f.filePath, 
@@ -115,6 +119,7 @@ public interface CorrespondenceFileRepository extends JpaRepository<Corresponden
 			 @Param("type")String type, @Param("baseUrl")String baseUrl,@Param("userId") String userId);
 	 @Query("""
 		        SELECT new com.synergizglobal.dms.dto.CorrespondenceFolderFileDTO(
+		            c.correspondenceId,
 		            f.fileName, 
 		            f.fileType, 
 		            f.filePath, 
