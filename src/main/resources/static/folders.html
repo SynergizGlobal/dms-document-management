@@ -42,10 +42,14 @@
 		<!-- Breadcrumb and Search Button -->
 		<div class="breadcrumb-container">
 			<div class="breadcrumb">
-				<span class="breadcrumb-link" onclick="goHome()">Home</span> <span
-					id="breadcrumb-separator" style="display: none;"> > </span> <span
-					id="breadcrumb-current"></span>
-			</div>
+       <span class="breadcrumb-link" onclick="goHome()">Home</span> <span
+        id="breadcrumb-separator" style="display: none;"> > </span> <span
+        id="breadcrumb-current"></span>
+      <button id="backBtn" onclick="goBack()" 
+            style="display:none; margin-left:12px; padding:4px 12px; background:#1e3d6f; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:13px;">
+           <i class="fa-solid fa-arrow-left" style="margin-right:4px;"></i>Back
+        </button>
+           </div>
 			<!-- Filter will sit right after Home -->
 			<table class="filterTable">
 				<thead>

@@ -80,12 +80,74 @@ $.ajax({
 	           }
 	       });
 	   });
-let currentView = 'folders';
-let searchVisible = false;
-let navigationStack = [];
+	     let navigationHistory = []; 	   
+         let currentView = 'folders';
+         let searchVisible = false;
+         let navigationStack = [];
+		 let currentParentId = null;
+		 let currentParentName = null;
+		 
+		 function goBack() {
+		     if (navigationHistory.length === 0) {
+		         goHome();
+		         return;
+		     }
+		     const prev = navigationHistory.pop();
 
+		     // Hide back button if no more history
+		     if (navigationHistory.length === 0) {
+		         document.getElementById("backBtn").style.display = "none";
+		     }
+
+		     // Restore breadcrumb
+			 document.getElementById("breadcrumb-current").textContent = "";  
+
+		 /*    // Go back to previous view
+		     if (prev.type === "home") {
+		         goHome();
+		     } else if (prev.type === "folder") {
+		         loadSubFolders(prev.folderid, prev.foldername);
+		     } else if (prev.type === "subfolder") {
+		         loadFiles(prev.folderid, prev.foldername);
+		     } else if (prev.type === "correspondence") {
+		         loadCorrespondenceInboundAndOutbound("Correspondence");
+		     } else if (prev.type === "Incoming") {
+		         loadCorrespondanceFiles("Incoming");
+		     } else if (prev.type === "Outgoing") {
+		         loadCorrespondanceFiles("Outgoing");
+		     } else if (prev.type === "archive") {
+		         loadArchivedFiles(prev.folderid, "Archived");
+		     }
+		 }*/
+		 
+		 if (prev.navType === "correspondence") {
+		     const grid = document.querySelector(".folders-grid");
+		     grid.innerHTML = "";
+		     loadFolders(selectedProjects, selectedContracts);
+		 } else if (prev.navType === "folder") {
+		     const grid = document.querySelector(".folders-grid");
+		     grid.innerHTML = "";
+		     loadFolders(selectedProjects, selectedContracts);
+		 } else if (prev.navType === "subfolder") {
+		     loadSubFolders(prev.parentId, prev.parentName);
+		 } else if (prev.navType === "Incoming" || prev.navType === "Outgoing") {
+		     loadCorrespondenceInboundAndOutbound("Correspondence");
+		 } else if (prev.navType === "archive") {
+		     if (prev.parentId && prev.parentId !== 'null') {
+		         loadFiles(prev.parentId, prev.parentName);
+		     } else {
+		         const grid = document.querySelector(".folders-grid");
+		         grid.innerHTML = "";
+		         loadFolders(selectedProjects, selectedContracts);
+		     }
+		 } else {
+		     goHome();
+		 }
+			 document.getElementById('breadcrumb-separator').style.display = 
+		    document.getElementById("breadcrumb-current").textContent ? 'inline' : 'none';
+		 }
 function loadArchivedFiles(folderid, foldername) {
-	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername || '');
 	fetch(`${contextPath}/api/documents/archived/folder-grid/${encodeURIComponent(folderid)}`, {
 		method: "POST",
 		headers: {
@@ -151,6 +213,7 @@ function loadArchivedFiles(folderid, foldername) {
 		.catch(err => console.error("Error loading folders:", err));
 }
 function loadArchiveFolder(folderId) {
+	if (!folderId || folderId === 'null' || folderId === 'undefined') return;
 	const grid = document.querySelector(".folders-grid");
 	//grid.innerHTML = ""; // clear existing folders
 	folders = ["Archived"];
@@ -179,7 +242,7 @@ function loadArchiveFolder(folderId) {
 	});
 }
 function loadSubFolders(folderid, foldername) {
-	$("#breadcrumb-current").text('>' + foldername);
+	$("#breadcrumb-current").text('>' + foldername || '');
 	fetch(`${contextPath}/api/subfolders/grid/${encodeURIComponent(folderid)}`
 		, {
 			method: "POST",
@@ -227,7 +290,7 @@ function loadSubFolders(folderid, foldername) {
 		.catch(err => console.error("Error loading folders:", err));
 }
 function loadCorrespondanceFiles(foldername) {
-	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername || '');
 	fetch(`${contextPath}/api/correspondence/getFolderFiles?type=${foldername}`, {
 		method: "POST",
 		body: JSON.stringify({
@@ -294,7 +357,7 @@ function loadCorrespondanceFiles(foldername) {
 				grid.appendChild(folderCard);
 
 			});
-			loadArchiveFolder(folderid);
+		//	loadArchiveFolder(folderid);
 		})
 		.catch(err => console.error("Error loading folders:", err));
 }
@@ -352,7 +415,9 @@ function loadFiles(folderid, foldername) {
 				grid.appendChild(folderCard);
 
 			});
-			loadArchiveFolder(folderid);
+			if (folderid && folderid !== 'null' && folderid !== 'undefined') {
+			    loadArchiveFolder(folderid);
+			}
 		})
 		.catch(err => console.error("Error loading folders:", err));
 }
@@ -426,13 +491,24 @@ const documentsData = {
 		]
 	}
 };
-
+/*
 function openFolder(folderid, type, foldername) {
 	// Add click animation
 	event.currentTarget.style.transform = 'scale(0.95)';
 	setTimeout(() => {
 		event.currentTarget.style.transform = 'translateY(-5px)';
 	}, 150);
+	
+	navigationHistory.push({
+	       type: currentView,
+	       folderid: folderid,
+	       foldername: foldername,
+	       breadcrumb: document.getElementById("breadcrumb-current").textContent
+	   });
+	   
+	   document.getElementById("backBtn").style.display = "inline-block";
+	   
+	   
 	if (type == "correspondence")
 		loadCorrespondenceInboundAndOutbound("Correspondence");
 	if (type == "folder")
@@ -451,7 +527,7 @@ function openFolder(folderid, type, foldername) {
 		loadCorrespondanceFiles("Outgoing");
 	if (type == "correspondencefile")
 		window.open(folderid, "_blank");
-	/*if (folderName === 'drawings') {
+	if (folderName === 'drawings') {
 		showDrawingsView();
 	} else if (folderName === 'correspondence') {
 		showCorrespondenceView();
@@ -461,9 +537,52 @@ function openFolder(folderid, type, foldername) {
 		// For other folders, show alert
 		alert(`Opening ${folderName} folder...`);
 		console.log(`User clicked on ${folderName} folder`);
-	}*/
+	}
 }
+*/
 
+function openFolder(folderid, type, foldername) {
+    event.currentTarget.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        event.currentTarget.style.transform = 'translateY(-5px)';
+    }, 150);
+
+    // Don't push history for file/correspondencefile — they open in new tab
+    if (type !== "file" && type !== "correspondencefile") {
+        navigationHistory.push({
+            navType: type,
+            folderid: folderid,
+            foldername: foldername|| '',
+            parentId: currentParentId || null,
+            parentName: currentParentName || null,
+            breadcrumb: document.getElementById("breadcrumb-current").textContent
+        });
+        document.getElementById("backBtn").style.display = "inline-block";
+    }
+
+    if (type == "correspondence")
+        loadCorrespondenceInboundAndOutbound("Correspondence");
+    if (type == "folder") {
+        currentParentId = null;
+        currentParentName = null;
+        loadSubFolders(folderid, foldername);
+    }
+    if (type == "subfolder") {
+        currentParentId = folderid;
+        currentParentName = foldername;
+        loadFiles(folderid, foldername);
+    }
+    if (type == "file")
+        window.open(`${contextPath}/api/documents/view?path=${encodeURIComponent(folderid)}`, "_blank");
+    if (type == "archive")
+        loadArchivedFiles(folderid, "Archived");
+    if (type == "Incoming")
+        loadCorrespondanceFiles("Incoming");
+    if (type == "Outgoing")
+        loadCorrespondanceFiles("Outgoing");
+    if (type == "correspondencefile")
+        window.open(folderid, "_blank");
+}
 function openDrawingFolder(folderName) {
 	// Add click animation
 	event.currentTarget.style.transform = 'scale(0.95)';
@@ -676,8 +795,9 @@ function openDocument(docId) {
 
 function goHome() {
 	currentView = 'folders';
-
+	navigationHistory = [];  
 	// Show main folders view
+	document.getElementById("backBtn").style.display = "none"; 
 	document.getElementById('foldersView').style.display = 'block';
 
 	// Hide ALL other views using the comprehensive hide function
@@ -996,7 +1116,7 @@ function loadCorrespondence() {
 	});
 }
 function loadCorrespondenceInboundAndOutbound(foldername) {
-	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername);
+	$("#breadcrumb-current").text($("#breadcrumb-current").text() + ' >' + foldername || '');
 	const grid = document.querySelector(".folders-grid");
 	grid.innerHTML = ""; // clear existing folders
 	const folders = ["Incoming", "Outgoing"]
